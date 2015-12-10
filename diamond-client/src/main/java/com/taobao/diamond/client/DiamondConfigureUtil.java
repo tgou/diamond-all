@@ -23,7 +23,10 @@ public class DiamondConfigureUtil {
 
         String configServerPort = System.getenv(DIAMOND_CONFIG_SERVER_PORT);
         if (StringUtils.isNumeric(configServerPort)) {
-            diamondConfigure.setConfigServerPort(Integer.parseInt(configServerPort));
+            Integer port = Integer.parseInt(configServerPort);
+            diamondConfigure.setConfigServerPort(port);
+
+            diamondConfigure.setPort(port);
         } else if (configServerPort != null) {
             throw new RuntimeException("Env " + DIAMOND_CONFIG_SERVER_PORT + " format error: " + configServerPort);
         }
