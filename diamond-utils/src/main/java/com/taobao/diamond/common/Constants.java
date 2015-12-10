@@ -19,7 +19,7 @@ public class Constants {
 
     public static final String DAILY_DOMAINNAME = "localhost";
 
-    public static final int DEFAULT_PORT = 8080;
+    public static final int DEFAULT_PORT = 80;
 
     public static final String NULL = "";
 

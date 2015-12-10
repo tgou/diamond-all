@@ -1,6 +1,7 @@
 package com.taobao.diamond.client.impl;
 
 import com.taobao.diamond.client.BatchHttpResult;
+import com.taobao.diamond.client.DiamondConfigureUtil;
 import com.taobao.diamond.client.DiamondSubscriber;
 import com.taobao.diamond.common.Constants;
 import com.taobao.diamond.manager.ManagerListener;
@@ -21,6 +22,8 @@ public class DiamondEnv {
 
     public DiamondEnv() {
         diamondSubscriber = DiamondClientFactory.getSingletonDiamondSubscriber();
+
+        diamondSubscriber.setDiamondConfigure(DiamondConfigureUtil.getFromEnv());
 
         diamondSubscriber.start();
     }

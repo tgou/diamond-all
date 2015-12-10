@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 public class DefaultDiamondManagerTest {
 
     private DefaultDiamondManager diamondManager;
+
     @Before
     public void before() {
         ManagerListener managerListener = new ManagerListener() {
