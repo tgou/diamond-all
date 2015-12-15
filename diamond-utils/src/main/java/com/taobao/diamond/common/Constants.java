@@ -15,9 +15,9 @@ public class Constants {
     
     public static final String BASE_DIR = "config-data";
 
-    public static final String DEFAULT_DOMAINNAME = "localhost";
+    public static final String DEFAULT_DOMAINNAME = "a.b.c";
 
-    public static final String DAILY_DOMAINNAME = "localhost";
+    public static final String DAILY_DOMAINNAME = "x.y.z";
 
     public static final int DEFAULT_PORT = 80;
 
