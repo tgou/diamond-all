@@ -4,11 +4,14 @@ import com.taobao.diamond.client.BatchHttpResult;
 import com.taobao.diamond.client.DiamondConfigureUtil;
 import com.taobao.diamond.client.DiamondSubscriber;
 import com.taobao.diamond.common.Constants;
+import com.taobao.diamond.domain.ConfigInfoEx;
 import com.taobao.diamond.manager.ManagerListener;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -53,7 +56,39 @@ public class DiamondEnv {
     }
 
     public BatchHttpResult batchQuery(List<String> dataIds, String group, int timeout) {
+        BatchHttpResult result = batchQueryFromLocal(dataIds, group, timeout);
+        if (result.isSuccess()) {
+            return result;
+        }
+
         return diamondSubscriber.getConfigureInfomationBatch(dataIds, group, timeout);
+    }
+
+    private BatchHttpResult batchQueryFromLocal(List<String> dataIds, String group, int timeout) {
+        List<ConfigInfoEx> configInfoExList = new ArrayList<ConfigInfoEx>(dataIds.size());
+
+        for (String dataId : dataIds) {
+            ConfigInfoEx configInfoEx = new ConfigInfoEx(dataId, group, null);
+            String content = null;
+            try {
+                content = diamondSubscriber.getFromLocalAndSnapshot(dataId, group, timeout);
+            } catch (Exception e) {
+                log.warn("batchQuery error: dataIds=" + dataIds.toString() + " group=" + group, e);
+            }
+
+            if (StringUtils.isBlank(content)) {
+                log.info("batchQueryFromLocal content is blank. dataId=" + dataId + " group=" + group);
+
+                return new BatchHttpResult(Constants.BATCH_OP_ERROR);
+            }
+
+            configInfoEx.setContent(content);
+            configInfoEx.setStatus(Constants.BATCH_QUERY_EXISTS);
+
+            configInfoExList.add(configInfoEx);
+        }
+
+        return new BatchHttpResult(configInfoExList);
     }
 
     public List<ManagerListener> getListeners(String dataId, String group) {

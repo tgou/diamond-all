@@ -73,6 +73,15 @@ public interface DiamondSubscriber extends DiamondClientSub {
      */
     public String getAvailableConfigureInfomation(String dataId, String group, long timeout);
 
+    /**
+     * 从本地和snapshot获取配置，batch模式使用
+     * @param dataId
+     * @param group
+     * @param timeout
+     * @return
+     */
+    public String getFromLocalAndSnapshot(String dataId, String group, long timeout);
+
 
     /**
      * 添加一个DataID，如果原来有此DataID和Group，将替换它们

@@ -506,6 +506,48 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return getSnapshotConfiginfomation(dataId, group);
     }
 
+    public String getFromLocalAndSnapshot(String dataId, String group, long timeout) {
+        // 尝试先从本地获取配置信息
+        try {
+            String result = getConfigureInfomationFromLocal(dataId, group, timeout);
+            if (result != null && result.length() > 0) {
+                return result;
+            }
+        }
+        catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        }
+
+        // 测试模式不使用本地dump
+        if (MockServer.isTestMode()) {
+            return null;
+        }
+        return getSnapshotConfiginfomation(dataId, group);
+    }
+
+    public String getConfigureInfomationFromLocal(String dataId, String group, long timeout) {
+        // 同步接口流控
+        // flowControl();
+        if (null == group) {
+            group = Constants.DEFAULT_GROUP;
+        }
+        CacheData cacheData = getCacheData(dataId, group);
+        try {
+            String localConfig = localConfigInfoProcessor.getLocalConfigureInfomation(cacheData, true);
+            if (localConfig != null) {
+                cacheData.incrementFetchCountAndGet();
+                saveSnapshot(dataId, group, localConfig);
+
+                return localConfig;
+            }
+        }
+        catch (IOException e) {
+            log.error("获取本地配置文件出错", e);
+        }
+
+        return null;
+    }
+
 
     public String getAvailableConfigureInfomationFromSnapshot(String dataId, String group, long timeout) {
         String result = getSnapshotConfiginfomation(dataId, group);
