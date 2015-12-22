@@ -198,16 +198,20 @@
 	</dependencyManagement>
 
 	<distributionManagement>
-        <repository>
-             <id>taocodeReleases</id>
-			 <name>taocode nexus</name>
-             <url>http://mvnrepo.code.taobao.org/nexus/content/repositories/releases/</url> 
-        </repository>
-        <snapshotRepository>
-              <id>taocodeSnapshots</id>
-			  <name>taocode nexus</name>
-              <url>http://mvnrepo.code.taobao.org/nexus/content/repositories/snapshots/</url>
-         </snapshotRepository>
+		<site>
+			<id>website</id>
+			<url>scp://webhost.company.com/www/website</url>
+		</site>
+		<repository>
+			<id>releases</id>
+			<name>JP Releases</name>
+			<url>http://10.10.1.247:8081/nexus/content/repositories/releases/</url>
+		</repository>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>JP Snapshots</name>
+			<url>http://10.10.1.247:8081/nexus/content/repositories/snapshots/</url>
+		</snapshotRepository>
 	</distributionManagement>
 
 </project>
