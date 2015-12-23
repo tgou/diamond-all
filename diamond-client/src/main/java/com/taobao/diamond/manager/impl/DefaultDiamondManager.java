@@ -26,8 +26,6 @@ import java.util.Properties;
 
 
 /**
- * 需要注意的是：一个JVM中一个DataID只能对应一个DiamondManager
- * 
  * @author aoqiong
  * 
  */
@@ -65,14 +63,6 @@ public class DefaultDiamondManager implements DiamondManager {
         this(null, dataId, managerListenerList);
     }
 
-
-    /**
-     * 使用指定的集群类型clusterType
-     * 
-     * @param group
-     * @param dataId
-     * @param managerListenerList
-     */
     public DefaultDiamondManager(String group, String dataId, List<ManagerListener> managerListenerList) {
         this.dataId = dataId;
         this.group = group;
@@ -99,9 +89,6 @@ public class DefaultDiamondManager implements DiamondManager {
 
 
     public void close() {
-        /**
-         * 因为同一个DataID只能对应一个MnanagerListener，所以，关闭时一次性关闭所有ManagerListener即可
-         */
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).removeManagerListeners(this.dataId,
             this.group);
 
@@ -136,8 +123,8 @@ public class DefaultDiamondManager implements DiamondManager {
             return properties;
         }
         catch (IOException e) {
-            log.warn("装载properties失败：" + configInfo, e);
-            throw new RuntimeException("装载properties失败：" + configInfo, e);
+            log.warn("Load properties fail:" + configInfo, e);
+            throw new RuntimeException("Load properties fail:" + configInfo, e);
         }
     }
 
@@ -150,8 +137,8 @@ public class DefaultDiamondManager implements DiamondManager {
             return properties;
         }
         catch (IOException e) {
-            log.warn("装载properties失败：" + configInfo, e);
-            throw new RuntimeException("装载properties失败：" + configInfo, e);
+            log.warn("Load properties fail:" + configInfo, e);
+            throw new RuntimeException("Load properties fail:" + configInfo, e);
         }
     }
 
@@ -185,8 +172,8 @@ public class DefaultDiamondManager implements DiamondManager {
             return properties;
         }
         catch (IOException e) {
-            log.warn("装载properties失败：" + configInfo, e);
-            throw new RuntimeException("装载properties失败：" + configInfo, e);
+            log.warn("Load properties fail:" + configInfo, e);
+            throw new RuntimeException("Load properties fail:" + configInfo, e);
         }
     }
 

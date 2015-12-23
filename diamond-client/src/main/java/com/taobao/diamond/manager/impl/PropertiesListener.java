@@ -26,7 +26,7 @@ public abstract class PropertiesListener extends ManagerListenerAdapter {
 
     public void receiveConfigInfo(String configInfo) {
         if (StringUtils.isEmpty(configInfo)) {
-            log.warn("�յ���������ϢΪ��");
+            log.warn("PropertiesListener receiveConfigInfo configInfo is empty.");
             return;
         }
 
@@ -36,7 +36,7 @@ public abstract class PropertiesListener extends ManagerListenerAdapter {
             innerReceive(properties);
         }
         catch (IOException e) {
-            log.warn("װ��propertiesʧ�ܣ�" + configInfo, e);
+            log.warn("Load properties fail:" + configInfo, e);
         }
 
     }

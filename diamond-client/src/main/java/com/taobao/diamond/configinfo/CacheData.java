@@ -25,9 +25,6 @@ public class CacheData {
     private volatile String localConfigInfoFile = null;
     private volatile long localConfigInfoVersion;
     private volatile boolean useLocalConfigInfo = false;
-    /**
-     * 统计成功获取配置信息的次数
-     */
     private final AtomicLong fetchCounter = new AtomicLong(0);
 
 
