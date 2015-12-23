@@ -11,128 +11,42 @@ package com.taobao.diamond.sdkapi;
 
 import com.taobao.diamond.domain.*;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 /**
- * ����SDK���⿪�ŵ����ݷ��ʽӿ�
- * 
- * @filename DiamondSDKManager.java
  * @author libinbin.pt
- * @datetime 2010-7-16 ����04:03:28
- * 
- *           {@link #exists(String, String, String)}
+ * @filename DiamondSDKManager.java
+ * @datetime 2010-7-16 04:03:28
+ * <p/>
+ * {@link #exists(String, String, String)}
  */
 public interface DiamondSDKManager {
-	
-	public Map<String, DiamondSDKConf> getDiamondSDKConfMaps();
 
-	// /////////////////////////////////////////�������ݽӿڶ���////////////////////////////////////////
-	/**
-	 * ʹ��ָ����diamond����������
-	 * 
-	 * @param dataId
-	 * @param groupName
-	 * @param context
-	 * @param serverId
-	 * @return ContextResult ��������
-	 */
-	public ContextResult pulish(String dataId, String groupName,
-			String context, String serverId);
+    public Map<String, DiamondSDKConf> getDiamondSDKConfMaps();
 
-	// /////////////////////////////////////////�����޸ĺ�����ݽӿڶ���////////////////////////////////////////
-	/**
-	 * ʹ��ָ����diamond�������޸ĺ������,�޸�ǰ�ȼ�����ݴ�����
-	 * 
-	 * @param dataId
-	 * @param groupName
-	 * @param context
-	 * @param serverId
-	 * @return ContextResult ��������
-	 */
-	public ContextResult pulishAfterModified(String dataId, String groupName,
-			String context, String serverId);
+    public ContextResult publish(String dataId, String groupName,
+                                 String context, String serverId);
 
-	// /////////////////////////////////////////ģ����ѯ�ӿڶ���////////////////////////////////////////
-	/**
-	 * ����ָ���� dataId��������ָ����diamond�ϲ�ѯ�����б� ���ģʽ�а�������'*',����Զ��滻Ϊ'%'��ʹ��[ like ]���
-	 * ���ģʽ�в���������'*'���Ҳ�Ϊ�մ�������" "��,��ʹ��[ = ]���
-	 * 
-	 * @param dataIdPattern
-	 * @param groupNamePattern
-	 * @param serverId
-	 * @param currentPage
-	 * @param sizeOfPerPage
-	 * @return PageContextResult<ConfigInfo> ��������
-	 * @throws SQLException
-	 */
-	public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
-			String groupNamePattern, String serverId, long currentPage,
-			long sizeOfPerPage);
+    public ContextResult publishAfterModified(String dataId, String groupName,
+                                              String context, String serverId);
 
-	/**
-	 * ����ָ���� dataId,������content��ָ�����õ�diamond����ѯ�����б� ���ģʽ�а�������'*',����Զ��滻Ϊ'%'��ʹ��[
-	 * like ]��� ���ģʽ�в���������'*'���Ҳ�Ϊ�մ�������" "��,��ʹ��[ = ]���
-	 * 
-	 * @param dataIdPattern
-	 * @param groupNamePattern
-	 * @param contentPattern
-	 * @param serverId
-	 * @param currentPage
-	 * @param sizeOfPerPage
-	 * @return PageContextResult<ConfigInfo> ��������
-	 * @throws SQLException
-	 */
-	public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
-			String groupNamePattern, String contentPattern, String serverId,
-			long currentPage, long sizeOfPerPage);
+    public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
+                                                 String groupNamePattern, String serverId, long currentPage,
+                                                 long sizeOfPerPage);
 
-	// /////////////////////////////////////////��ȷ��ѯ�ӿڶ���////////////////////////////////////////
-	/**
-	 * ����ָ����dataId��������ָ����diamond�ϲ�ѯ�����б�
-	 * 
-	 * @param dataId
-	 * @param groupName
-	 * @param serverId
-	 * @return ContextResult ��������
-	 * @throws SQLException
-	 */
-	public ContextResult queryByDataIdAndGroupName(String dataId,
-			String groupName, String serverId);
+    public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
+                                                 String groupNamePattern, String contentPattern, String serverId,
+                                                 long currentPage, long sizeOfPerPage);
 
-	// /////////////////////////////////////////�Ƴ���Ϣ�ӿڶ���////////////////////////////////////
-	/**
-	 * �Ƴ��ض���������idָ����������Ϣ
-	 * 
-	 * @param serverId
-	 * @param id
-	 * @return ContextResult ��������
-	 */
-	public ContextResult unpublish(String serverId, long id);
-	
-	
-	/**
-     * ������ѯ
-     * 
-     * @param groupName
-     * @param dataIds
-     * @param serverId
-     * @return
-     */
+    public ContextResult queryByDataIdAndGroupName(String dataId,
+                                                   String groupName, String serverId);
+
+    public ContextResult unpublish(String serverId, long id);
+
     public BatchContextResult<ConfigInfoEx> batchQuery(String serverId, String groupName, List<String> dataIds);
 
-
-    /**
-     * �������������
-     * 
-     * @param serverId
-     * @param groupName
-     * @param dataId2ContentMap
-     *            key:dataId,value:content
-     * @return
-     */
     public BatchContextResult<ConfigInfoEx> batchAddOrUpdate(String serverId, String groupName,
-            Map<String/* dataId */, String/* content */> dataId2ContentMap);
+                                                             Map<String/* dataId */, String/* content */> dataId2ContentMap);
 
 }

@@ -12,26 +12,19 @@ package com.taobao.diamond.domain;
 import java.io.Serializable;
 
 /**
- * 根据dataId,groupName精确查询返回的对象
- * 
- * @filename ContextResult.java
- * @author libinbin.pt
- * @datetime 2010-7-15 下午06:49:12
- */
-/**
  * 
  * @filename ContextResult.java
  * @author libinbin.pt
  * @param <T>
- * @datetime 2010-7-16 下午05:48:54
+ * @datetime 2010-7-16 05:48:54
  */
 @SuppressWarnings("serial")
 public class ContextResult implements Serializable {
-	private boolean isSuccess; // 是否成功
-	private int statusCode; // 状态码
-	private String statusMsg = ""; // 状态信息
-	private String receiveResult; // 回传信息
-	private ConfigInfo configInfo; // 配置对象包括[内容，dataId，groupName]
+	private boolean isSuccess;
+	private int statusCode;
+	private String statusMsg = "";
+	private String receiveResult;
+	private ConfigInfo configInfo;
 
 	public ContextResult() {
 

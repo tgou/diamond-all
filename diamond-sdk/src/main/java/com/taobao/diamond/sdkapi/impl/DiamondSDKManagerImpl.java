@@ -26,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.type.TypeReference;
 
 import java.io.*;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,31 +33,26 @@ import java.util.zip.GZIPInputStream;
 
 
 /**
- * SDK对外开放的数据接口的功能实现
- * 
+ *
  * @filename DiamondSDKManagerImpl.java
  * @author libinbin.pt
- * @datetime 2010-7-16 下午04:00:19
+ * @datetime 2010-7-16 04:00:19
  */
 public class DiamondSDKManagerImpl implements DiamondSDKManager {
 
     private static final Log log = LogFactory.getLog("diamondSdkLog");
 
-    // DiamondSDKConf配置集map
     private Map<String, DiamondSDKConf> diamondSDKConfMaps;
 
-    // 连接超时时间
     private final int connection_timeout;
-    // 请求超时时间
     private final int require_timeout;
 
 
-    // 构造时需要传入连接超时时间，请求超时时间
     public DiamondSDKManagerImpl(int connection_timeout, int require_timeout) throws IllegalArgumentException {
         if (connection_timeout < 0)
-            throw new IllegalArgumentException("连接超时时间设置必须大于0[单位(毫秒)]!");
+            throw new IllegalArgumentException("connection_time must >= 0!");
         if (require_timeout < 0)
-            throw new IllegalArgumentException("请求超时时间设置必须大于0[单位(毫秒)]!");
+            throw new IllegalArgumentException("require_timeout must >= 0!");
         this.connection_timeout = connection_timeout;
         this.require_timeout = require_timeout;
         int maxHostConnections = 50;
@@ -67,119 +61,52 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxHostConnections);
         connectionManager.getParams().setStaleCheckingEnabled(true);
         this.client = new HttpClient(connectionManager);
-        // 设置连接超时时间
         client.getHttpConnectionManager().getParams().setConnectionTimeout(this.connection_timeout);
-        // 设置读超时为1分钟
         client.getHttpConnectionManager().getParams().setSoTimeout(60 * 1000);
         client.getParams().setContentCharset("UTF-8");
-        log.info("设置连接超时时间为: " + this.connection_timeout + "毫秒");
+        log.info("HttpClient create success: connection_timeout" + this.connection_timeout);
     }
 
-
-    /**
-     * 使用指定的diamond来推送数据
-     * 
-     * @param dataId
-     * @param groupName
-     * @param context
-     * @param serverId
-     * @return ContextResult 单个对象
-     */
-    public synchronized ContextResult pulish(String dataId, String groupName, String context, String serverId) {
+    public synchronized ContextResult publish(String dataId, String groupName, String context, String serverId) {
         ContextResult response = null;
-        // 进行dataId,groupName,context,serverId为空验证
         if (validate(dataId, groupName, context)) {
-            response = this.processPulishByDefinedServerId(dataId, groupName, context, serverId);
+            response = this.processPublishByDefinedServerId(dataId, groupName, context, serverId);
             return response;
         }
 
-        // 未通过为空验证
         response = new ContextResult();
         response.setSuccess(false);
-        response.setStatusMsg("请确保dataId,group,content不为空");
+        response.setStatusMsg("dataId,group,content illegal");
         return response;
     }
 
-
-    /**
-     * 使用指定的diamond来推送修改后的数据
-     * 
-     * @param dataId
-     * @param groupName
-     * @param context
-     * @param serverId
-     * @return ContextResult 单个对象
-     */
-    public synchronized ContextResult pulishAfterModified(String dataId, String groupName, String context,
-            String serverId) {
+    public synchronized ContextResult publishAfterModified(String dataId, String groupName, String context,
+                                                           String serverId) {
 
         ContextResult response = null;
-        // 进行dataId,groupName,context,serverId为空验证
         if (validate(dataId, groupName, context)) {
-            // 向diamondserver发布修改数据
-            response = this.processPulishAfterModifiedByDefinedServerId(dataId, groupName, context, serverId);
+            response = this.processPublishAfterModifiedByDefinedServerId(dataId, groupName, context, serverId);
             return response;
         }
         else {
             response = new ContextResult();
-            // 未通过为空验证
             response.setSuccess(false);
-            response.setStatusMsg("请确保dataId,group,content不为空");
+            response.setStatusMsg("dataId,group,content illegal");
             return response;
         }
 
     }
 
-
-    // -------------------------模糊查询-------------------------------//
-    /**
-     * 使用指定的diamond来模糊查询数据
-     * 
-     * @param dataIdPattern
-     * @param groupNamePattern
-     * @param serverId
-     * @param currentPage
-     * @param sizeOfPerPage
-     * @return PageContextResult<ConfigInfo> 单个对象
-     * @throws SQLException
-     */
     public synchronized PageContextResult<ConfigInfo> queryBy(String dataIdPattern, String groupNamePattern,
             String serverId, long currentPage, long sizeOfPerPage) {
         return processQuery(dataIdPattern, groupNamePattern, null, serverId, currentPage, sizeOfPerPage);
     }
-
-
-    /**
-     * 根据指定的 dataId,组名和content到指定配置的diamond来查询数据列表 如果模式中包含符号'*',则会自动替换为'%'并使用[
-     * like ]语句 如果模式中不包含符号'*'并且不为空串（包括" "）,则使用[ = ]语句
-     * 
-     * @param dataIdPattern
-     * @param groupNamePattern
-     * @param contentPattern
-     * @param serverId
-     * @param currentPage
-     * @param sizeOfPerPage
-     * @return PageContextResult<ConfigInfo> 单个对象
-     * @throws SQLException
-     */
 
     public synchronized PageContextResult<ConfigInfo> queryBy(String dataIdPattern, String groupNamePattern,
             String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
         return processQuery(dataIdPattern, groupNamePattern, contentPattern, serverId, currentPage, sizeOfPerPage);
     }
 
-
-    // =====================精确查询 ==================================
-
-    /**
-     * 使用指定的diamond和指定的dataId,groupName来精确查询数据
-     * 
-     * @param dataId
-     * @param groupName
-     * @param serverId
-     * @return ContextResult 单个对象
-     * @throws SQLException
-     */
     public synchronized ContextResult queryByDataIdAndGroupName(String dataId, String groupName, String serverId) {
         ContextResult result = new ContextResult();
         PageContextResult<ConfigInfo> pageContextResult = processQuery(dataId, groupName, null, serverId, 1, 1);
@@ -199,84 +126,68 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         return result;
     }
 
-    // ========================精确查询结束==================================
-
-    // /////////////////////////私有工具对象定义和工具方法实现////////////////////////////////////////
-
     private final HttpClient client;
 
-
-    // =========================== 推送 ===============================
-
-    private ContextResult processPulishByDefinedServerId(String dataId, String groupName, String context,
-            String serverId) {
+    private ContextResult processPublishByDefinedServerId(String dataId, String groupName, String context,
+                                                          String serverId) {
         ContextResult response = new ContextResult();
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
-            response.setStatusMsg("登录失败,造成错误的原因可能是指定的serverId为空或不存在");
+            response.setStatusMsg("login fail");
             return response;
         }
         if (log.isDebugEnabled())
-            log.debug("使用processPulishByDefinedServerId(" + dataId + "," + groupName + "," + context + "," + serverId
-                    + ")进行推送");
+            log.debug("processPublishByDefinedServerId(" + dataId + "," + groupName + "," + context + "," + serverId + ")");
 
         String postUrl = "/diamond-server/admin.do?method=postConfig";
         PostMethod post = new PostMethod(postUrl);
-        // 设置请求超时时间
         post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
         try {
             NameValuePair dataId_value = new NameValuePair("dataId", dataId);
             NameValuePair group_value = new NameValuePair("group", groupName);
             NameValuePair content_value = new NameValuePair("content", context);
 
-            // 设置参数
             post.setRequestBody(new NameValuePair[] { dataId_value, group_value, content_value });
-            // 配置对象
             ConfigInfo configInfo = new ConfigInfo();
             configInfo.setDataId(dataId);
             configInfo.setGroup(groupName);
             configInfo.setContent(context);
             if (log.isDebugEnabled())
-                log.debug("待推送的ConfigInfo: " + configInfo);
-            // 添加一个配置对象到响应结果中
+                log.debug("Publish ConfigInfo: " + configInfo);
             response.setConfigInfo(configInfo);
-            // 执行方法并返回http状态码
             int status = client.executeMethod(post);
             response.setReceiveResult(post.getResponseBodyAsString());
             response.setStatusCode(status);
-            log.info("状态码：" + status + ",响应结果：" + post.getResponseBodyAsString());
+            log.info("Publish status=" + status + ",response" + post.getResponseBodyAsString());
             if (status == HttpStatus.SC_OK) {
                 response.setSuccess(true);
-                response.setStatusMsg("推送处理成功");
-                log.info("推送处理成功, dataId=" + dataId + ",group=" + groupName + ",content=" + context + ",serverId="
-                        + serverId);
+                response.setStatusMsg("Publish success");
+                log.info("Publish success, dataId=" + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId);
             }
             else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
-                response.setStatusMsg("推送处理超时, 默认超时时间为:" + require_timeout + "毫秒");
-                log.error("推送处理超时，默认超时时间为:" + require_timeout + "毫秒, dataId=" + dataId + ",group=" + groupName
+                response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
+                log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
                         + ",content=" + context + ",serverId=" + serverId);
             }
             else {
                 response.setSuccess(false);
-                response.setStatusMsg("推送处理失败, 状态码为:" + status);
-                log.error("推送处理失败:" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
+                response.setStatusMsg("Publish fail status=:" + status);
+                log.error("Publish fail:result=" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
                         + ",content=" + context + ",serverId=" + serverId);
             }
         }
         catch (HttpException e) {
-            response.setStatusMsg("推送处理发生HttpException：" + e.getMessage());
-            log.error("推送处理发生HttpException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
+            response.setStatusMsg("Publish HttpException" + e.getMessage());
+            log.error("Publish HttpException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
                     + ",serverId=" + serverId, e);
         }
         catch (IOException e) {
-            response.setStatusMsg("推送处理发生IOException：" + e.getMessage());
-            log.error("推送处理发生IOException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
+            response.setStatusMsg("Publish IOException" + e.getMessage());
+            log.error("Publish IOException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
                     + ",serverId=" + serverId, e);
         }
         finally {
-            // 释放连接资源
             post.releaseConnection();
         }
 
@@ -284,94 +195,79 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     }
 
 
-    // =========================== 推送结束 ===============================
-
-    // =========================== 修改 ===============================
-
-    private ContextResult processPulishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,
-            String serverId) {
+    private ContextResult processPublishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,
+                                                                       String serverId) {
         ContextResult response = new ContextResult();
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
-            response.setStatusMsg("登录失败,造成错误的原因可能是指定的serverId为空");
+            response.setStatusMsg("login fail.");
             return response;
         }
         if (log.isDebugEnabled())
-            log.debug("使用processPulishAfterModifiedByDefinedServerId(" + dataId + "," + groupName + "," + context + ","
-                    + serverId + ")进行推送修改");
-        // 是否存在此dataId,groupName的数据记录
+            log.debug("processPublishAfterModifiedByDefinedServerId(" + dataId + "," + groupName + "," + context + ","
+                    + serverId + ")");
         ContextResult result = null;
         result = queryByDataIdAndGroupName(dataId, groupName, serverId);
         if (null == result || !result.isSuccess()) {
             response.setSuccess(false);
-            response.setStatusMsg("找不到需要修改的数据记录，记录不存在!");
-            log.warn("找不到需要修改的数据记录，记录不存在! dataId=" + dataId + ",group=" + groupName + ",serverId=" + serverId);
+            response.setStatusMsg("publish fail!");
+            log.warn("publish fail: dataId=" + dataId + ",group=" + groupName + ",serverId=" + serverId);
             return response;
         }
-        // 有数据，则修改
         else {
             String postUrl = "/diamond-server/admin.do?method=updateConfig";
             PostMethod post = new PostMethod(postUrl);
-            // 设置请求超时时间
             post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
             try {
                 NameValuePair dataId_value = new NameValuePair("dataId", dataId);
                 NameValuePair group_value = new NameValuePair("group", groupName);
                 NameValuePair content_value = new NameValuePair("content", context);
-                // 设置参数
                 post.setRequestBody(new NameValuePair[] { dataId_value, group_value, content_value });
-                // 配置对象
                 ConfigInfo configInfo = new ConfigInfo();
                 configInfo.setDataId(dataId);
                 configInfo.setGroup(groupName);
                 configInfo.setContent(context);
                 if (log.isDebugEnabled())
-                    log.debug("待推送的修改ConfigInfo: " + configInfo);
-                // 添加一个配置对象到响应结果中
+                    log.debug("Publish ConfigInfo: " + configInfo);
                 response.setConfigInfo(configInfo);
-                // 执行方法并返回http状态码
                 int status = client.executeMethod(post);
                 response.setReceiveResult(post.getResponseBodyAsString());
                 response.setStatusCode(status);
-                log.info("状态码：" + status + ",响应结果：" + post.getResponseBodyAsString());
+                log.info("Publish status=" + status + ",response" + post.getResponseBodyAsString());
                 if (status == HttpStatus.SC_OK) {
                     response.setSuccess(true);
-                    response.setStatusMsg("推送修改处理成功");
-                    log.info("推送修改处理成功");
+                    response.setStatusMsg("Publish success.");
+                    log.info("Publish success.");
                 }
                 else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                     response.setSuccess(false);
-                    response.setStatusMsg("推送修改处理超时，默认超时时间为:" + require_timeout + "毫秒");
-                    log.error("推送修改处理超时，默认超时时间为:" + require_timeout + "毫秒, dataId=" + dataId + ",group=" + groupName
+                    response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
+                    log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
                             + ",content=" + context + ",serverId=" + serverId);
                 }
                 else {
                     response.setSuccess(false);
-                    response.setStatusMsg("推送修改处理失败,失败原因请通过ContextResult的getReceiveResult()方法查看");
-                    log.error("推送修改处理失败:" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
+                    response.setStatusMsg("Publish fail: use getReceiveResult()");
+                    log.error("Publish fail: result=" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
                             + ",content=" + context + ",serverId=" + serverId);
                 }
 
             }
             catch (HttpException e) {
                 response.setSuccess(false);
-                response.setStatusMsg("推送修改方法执行过程发生HttpException：" + e.getMessage());
-                log.error(
-                    "在推送修改方法processPulishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)执行过程中发生HttpException：dataId="
+                response.setStatusMsg("Publish HttpException:" + e.getMessage());
+                log.error("processPublishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)执HttpException dataId="
                             + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
                 return response;
             }
             catch (IOException e) {
                 response.setSuccess(false);
-                response.setStatusMsg("推送修改方法执行过程发生IOException：" + e.getMessage());
-                log.error(
-                    "在推送修改方法processPulishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)执行过程中发生IOException：dataId="
+                response.setStatusMsg("Publish IOException:" + e.getMessage());
+                log.error("processPublishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)执IOException dataId="
                             + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
                 return response;
             }
             finally {
-                // 释放连接资源
                 post.releaseConnection();
             }
 
@@ -379,75 +275,58 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         }
     }
 
-
-    // =========================== 修改结束 ===============================
-
-    /**
-     * 利用 httpclient实现页面登录
-     * 
-     * @return 登录结果 true:登录成功,false:登录失败
-     */
-
     private boolean login(String serverId) {
-        // serverId 为空判断
         if (StringUtils.isEmpty(serverId) || StringUtils.isBlank(serverId))
             return false;
         DiamondSDKConf defaultConf = diamondSDKConfMaps.get(serverId);
-        log.info("[login] 登录使用serverId:" + serverId + ",该环境对象属性：" + defaultConf);
+        log.info("[login] serverId:" + serverId + ",config=" + defaultConf);
         if (null == defaultConf)
             return false;
         RandomDiamondUtils util = new RandomDiamondUtils();
-        // 初始化随机取值器
         util.init(defaultConf.getDiamondConfs());
         if (defaultConf.getDiamondConfs().size() == 0)
             return false;
         boolean flag = false;
-        log.info("[randomSequence] 此次访问序列为: " + util.getSequenceToString());
-        // 最多重试次数为：某个环境的所有已配置的diamondConf的长度
+        log.info("[randomSequence] sequence=: " + util.getSequenceToString());
         while (util.getRetry_times() < util.getMax_times()) {
 
-            // 得到随机取得的diamondConf
             DiamondConf diamondConf = util.generatorOneDiamondConf();
-            log.info("第" + util.getRetry_times() + "次尝试:" + diamondConf);
+            log.info("Current retry_time=" + util.getRetry_times() + "config=" + diamondConf);
             if (diamondConf == null)
                 break;
             client.getHostConfiguration().setHost(diamondConf.getDiamondIp(),
                 Integer.parseInt(diamondConf.getDiamondPort()), "http");
             PostMethod post = new PostMethod("/diamond-server/login.do?method=login");
-            // 设置请求超时时间
             post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
-            // 填充用户名，密码
             NameValuePair username_value = new NameValuePair("username", diamondConf.getDiamondUsername());
             NameValuePair password_value = new NameValuePair("password", diamondConf.getDiamondPassword());
-            // 设置请求内容
             post.setRequestBody(new NameValuePair[] { username_value, password_value });
-            log.info("使用diamondIp: " + diamondConf.getDiamondIp() + ",diamondPort: " + diamondConf.getDiamondPort()
+            log.info("diamondIp: " + diamondConf.getDiamondIp() + ",diamondPort: " + diamondConf.getDiamondPort()
                     + ",diamondUsername: " + diamondConf.getDiamondUsername() + ",diamondPassword: "
-                    + diamondConf.getDiamondPassword() + "登录diamondServerUrl: [" + diamondConf.getDiamondConUrl() + "]");
+                    + diamondConf.getDiamondPassword() + "diamondServerUrl: [" + diamondConf.getDiamondConUrl() + "]");
 
             try {
                 int state = client.executeMethod(post);
-                log.info("登录返回状态码：" + state);
-                // 状态码为200，则登录成功,跳出循环并返回true
+                log.info("login status=" + state);
                 if (state == HttpStatus.SC_OK) {
-                    log.info("第" + util.getRetry_times() + "次尝试成功");
+                    log.info("Success when retry_time=" + util.getRetry_times());
                     flag = true;
                     break;
                 }
 
             }
             catch (HttpException e) {
-                log.error("登录过程发生HttpException", e);
+                log.error("login HttpException", e);
             }
             catch (IOException e) {
-                log.error("登录过程发生IOException", e);
+                log.error("login IOException", e);
             }
             finally {
                 post.releaseConnection();
             }
         }
         if (flag == false) {
-            log.error("造成login失败的原因可能是：所有diamondServer的配置环境目前均不可用．serverId=" + serverId);
+            log.error("login fail serverId=" + serverId);
         }
         return flag;
     }
@@ -457,40 +336,26 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     static final String LIST_LIKE_FORMAT_URL =
             "/diamond-server/admin.do?method=listConfigLike&group=%s&dataId=%s&pageNo=%d&pageSize=%d";
 
-
-    /**
-     * 处理查询
-     * 
-     * @param dataIdPattern
-     * @param groupNamePattern
-     * @param contentPattern
-     * @param serverId
-     * @param currentPage
-     * @param sizeOfPerPage
-     * @return
-     */
     @SuppressWarnings("unchecked")
     private PageContextResult<ConfigInfo> processQuery(String dataIdPattern, String groupNamePattern,
             String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
         PageContextResult<ConfigInfo> response = new PageContextResult<ConfigInfo>();
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
-            response.setStatusMsg("登录失败,造成错误的原因可能是指定的serverId为空或不存在");
+            response.setStatusMsg("login fail");
             return response;
         }
         if (log.isDebugEnabled())
-            log.debug("使用processQuery(" + dataIdPattern + "," + groupNamePattern + "," + contentPattern + ","
-                    + serverId + ")进行查询");
+            log.debug("processQuery(" + dataIdPattern + "," + groupNamePattern + "," + contentPattern + ","
+                    + serverId + ")");
         boolean hasPattern =
                 PatternUtils.hasCharPattern(dataIdPattern) || PatternUtils.hasCharPattern(groupNamePattern)
                         || PatternUtils.hasCharPattern(contentPattern);
         String url = null;
         if (hasPattern) {
             if (!StringUtils.isBlank(contentPattern)) {
-                log.warn("注意, 正在根据内容来进行模糊查询, dataIdPattern=" + dataIdPattern + ",groupNamePattern=" + groupNamePattern
+                log.warn("processQuery has contentPattern, dataIdPattern=" + dataIdPattern + ",groupNamePattern=" + groupNamePattern
                         + ",contentPattern=" + contentPattern);
-                // 模糊查询内容，全部查出来
                 url = String.format(LIST_LIKE_FORMAT_URL, groupNamePattern, dataIdPattern, 1, Integer.MAX_VALUE);
             }
             else
@@ -525,7 +390,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                         if (!StringUtils.isBlank(contentPattern)) {
                             Pattern pattern = Pattern.compile(contentPattern.replaceAll("\\*", ".*"));
                             List<ConfigInfo> newList = new ArrayList<ConfigInfo>();
-                            // 强制排序
                             Collections.sort(diamondData);
                             int totalCount = 0;
                             long begin = sizeOfPerPage * (currentPage - 1);
@@ -534,7 +398,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                                 if (configInfo.getContent() != null) {
                                     Matcher m = pattern.matcher(configInfo.getContent());
                                     if (m.find()) {
-                                        // 只添加sizeOfPerPage个
                                         if (totalCount >= begin && totalCount < end) {
                                             newList.add(configInfo);
                                         }
@@ -563,26 +426,26 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     }
                     response.setDiamondData(pageItems);
                     response.setSuccess(true);
-                    response.setStatusMsg("指定diamond的查询完成");
-                    log.info("指定diamond的查询完成, url=" + url);
+                    response.setStatusMsg("processQuery success.");
+                    log.info("processQuery success, url=" + url);
                 }
                 catch (Exception e) {
                     response.setSuccess(false);
-                    response.setStatusMsg("反序列化失败,错误信息为：" + e.getLocalizedMessage());
-                    log.error("反序列化page对象失败, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId="
+                    response.setStatusMsg("processQuery error" + e.getLocalizedMessage());
+                    log.error("processQuery error, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId="
                             + serverId + ",json=" + json, e);
                 }
                 break;
             case HttpStatus.SC_REQUEST_TIMEOUT:
                 response.setSuccess(false);
-                response.setStatusMsg("查询数据超时" + require_timeout + "毫秒");
-                log.error("查询数据超时，默认超时时间为:" + require_timeout + "毫秒, dataId=" + dataIdPattern + ",group="
+                response.setStatusMsg("processQuery timeout, require_timeout=" + require_timeout);
+                log.error("processQuery timeout: require_timeout=" + require_timeout + ", dataId=" + dataIdPattern + ",group="
                         + groupNamePattern + ",serverId=" + serverId);
                 break;
             default:
                 response.setSuccess(false);
-                response.setStatusMsg("查询数据出错，服务器返回状态码为" + status);
-                log.error("查询数据出错，状态码为：" + status + ",dataId=" + dataIdPattern + ",group=" + groupNamePattern
+                response.setStatusMsg("processQuery fail: status=" + status);
+                log.error("processQuery fail: status=" + status + ",dataId=" + dataIdPattern + ",group=" + groupNamePattern
                         + ",serverId=" + serverId);
                 break;
             }
@@ -590,29 +453,21 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         }
         catch (HttpException e) {
             response.setSuccess(false);
-            response.setStatusMsg("查询数据出错,错误信息如下：" + e.getMessage());
-            log.error("查询数据出错, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
+            response.setStatusMsg("processQuery http exception:" + e.getMessage());
+            log.error("processQuery http exception, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
         }
         catch (IOException e) {
             response.setSuccess(false);
-            response.setStatusMsg("查询数据出错,错误信息如下：" + e.getMessage());
-            log.error("查询数据出错, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
+            response.setStatusMsg("processQuery IOException" + e.getMessage());
+            log.error("processQuery IOException, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
         }
         finally {
-            // 释放连接资源
             method.releaseConnection();
         }
 
         return response;
     }
 
-
-    /**
-     * 查看是否为压缩的内容
-     * 
-     * @param httpMethod
-     * @return
-     */
     boolean isZipContent(HttpMethod httpMethod) {
         if (null != httpMethod.getResponseHeader(Constants.CONTENT_ENCODING)) {
             String acceptEncoding = httpMethod.getResponseHeader(Constants.CONTENT_ENCODING).getValue();
@@ -623,17 +478,9 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         return false;
     }
 
-
-    /**
-     * 获取Response的配置信息
-     * 
-     * @param httpMethod
-     * @return
-     */
     String getContent(HttpMethod httpMethod) throws UnsupportedEncodingException {
         StringBuilder contentBuilder = new StringBuilder();
         if (isZipContent(httpMethod)) {
-            // 处理压缩过的配置信息的逻辑
             InputStream is = null;
             GZIPInputStream gzin = null;
             InputStreamReader isr = null;
@@ -641,7 +488,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             try {
                 is = httpMethod.getResponseBodyAsStream();
                 gzin = new GZIPInputStream(is);
-                isr = new InputStreamReader(gzin, ((HttpMethodBase) httpMethod).getResponseCharSet()); // 设置读取流的编码格式，自定义编码
+                isr = new InputStreamReader(gzin, ((HttpMethodBase) httpMethod).getResponseCharSet()); // 锟斤拷锟矫讹拷取锟斤拷锟侥憋拷锟斤拷锟绞斤拷锟斤拷远锟斤拷锟斤拷锟斤拷
                 br = new BufferedReader(isr);
                 char[] buffer = new char[4096];
                 int readlen = -1;
@@ -650,7 +497,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 }
             }
             catch (Exception e) {
-                log.error("解压缩失败", e);
+                log.error("getContent zip exception", e);
             }
             finally {
                 try {
@@ -680,13 +527,12 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             }
         }
         else {
-            // 处理没有被压缩过的配置信息的逻辑
             String content = null;
             try {
                 content = httpMethod.getResponseBodyAsString();
             }
             catch (Exception e) {
-                log.error("获取配置信息失败", e);
+                log.error("getContent normal exception", e);
             }
             if (null == content) {
                 return null;
@@ -700,19 +546,9 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     private void configureGetMethod(GetMethod method) {
         method.addRequestHeader(Constants.ACCEPT_ENCODING, "gzip,deflate");
         method.addRequestHeader("Accept", "application/json");
-        // 设置请求超时时间
         method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
     }
 
-
-    /**
-     * 字段dataId,groupName,context为空验证,有一个为空立即返回false
-     * 
-     * @param dataId
-     * @param groupName
-     * @param context
-     * @return
-     */
     private boolean validate(String dataId, String groupName, String context) {
         if (StringUtils.isEmpty(dataId) || StringUtils.isEmpty(groupName) || StringUtils.isEmpty(context)
                 || StringUtils.isBlank(dataId) || StringUtils.isBlank(groupName) || StringUtils.isBlank(context))
@@ -725,23 +561,14 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         return processDelete(serverId, id);
     }
 
-
-    /**
-     * 处理删除
-     * 
-     * @param serverId
-     * @param id
-     * @return
-     */
     private ContextResult processDelete(String serverId, long id) {
         ContextResult response = new ContextResult();
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
-            response.setStatusMsg("登录失败,造成错误的原因可能是指定的serverId为空或不存在");
+            response.setStatusMsg("login fail");
             return response;
         }
-        log.info("使用processDelete(" + serverId + "," + id);
+        log.info("processDelete(" + serverId + "," + id);
         String url = "/diamond-server/admin.do?method=deleteConfig&id=" + id;
         GetMethod method = new GetMethod(url);
         configureGetMethod(method);
@@ -753,34 +580,33 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             case HttpStatus.SC_OK:
                 response.setSuccess(true);
                 response.setReceiveResult(getContent(method));
-                response.setStatusMsg("删除成功, url=" + url);
-                log.warn("删除配置数据成功, url=" + url);
+                response.setStatusMsg("processDelete success, url=" + url);
+                log.warn("processDelete success, url=" + url);
                 break;
             case HttpStatus.SC_REQUEST_TIMEOUT:
                 response.setSuccess(false);
-                response.setStatusMsg("删除数据超时" + require_timeout + "毫秒");
-                log.error("删除数据超时，默认超时时间为:" + require_timeout + "毫秒, id=" + id + ",serverId=" + serverId);
+                response.setStatusMsg("processDelete timeout: require_timeout=" + require_timeout);
+                log.error("processDelete timeout: require_timeout=" + require_timeout + ", id=" + id + ",serverId=" + serverId);
                 break;
             default:
                 response.setSuccess(false);
-                response.setStatusMsg("删除数据出错，服务器返回状态码为" + status);
-                log.error("删除数据出错，状态码为：" + status + ", id=" + id + ",serverId=" + serverId);
+                response.setStatusMsg("processDelete exception: status=" + status);
+                log.error("processDelete exception: status=" + status + ", id=" + id + ",serverId=" + serverId);
                 break;
             }
 
         }
         catch (HttpException e) {
             response.setSuccess(false);
-            response.setStatusMsg("删除数据出错,错误信息如下：" + e.getMessage());
-            log.error("删除数据出错, id=" + id + ",serverId=" + serverId, e);
+            response.setStatusMsg("processDelete http exception" + e.getMessage());
+            log.error("processDelete http exception, id=" + id + ",serverId=" + serverId, e);
         }
         catch (IOException e) {
             response.setSuccess(false);
-            response.setStatusMsg("删除数据出错,错误信息如下：" + e.getMessage());
-            log.error("删除数据出错, id=" + id + ",serverId=" + serverId, e);
+            response.setStatusMsg("processDelete IOException" + e.getMessage());
+            log.error("processDelete IOException, id=" + id + ",serverId=" + serverId, e);
         }
         finally {
-            // 释放连接资源
             method.releaseConnection();
         }
 
@@ -796,42 +622,35 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
 
     @Override
     public BatchContextResult<ConfigInfoEx> batchQuery(String serverId, String groupName, List<String> dataIds) {
-        // 创建返回结果
         BatchContextResult<ConfigInfoEx> response = new BatchContextResult<ConfigInfoEx>();
 
-        // 判断list是否为null
         if (dataIds == null) {
             log.error("dataId list cannot be null, serverId=" + serverId + ",group=" + groupName);
             response.setSuccess(false);
             response.setStatusMsg("dataId list cannot be null");
+
             return response;
         }
 
-        // 将dataId的list处理为用一个不可见字符分隔的字符串
         StringBuilder dataIdBuilder = new StringBuilder();
         for (String dataId : dataIds) {
             dataIdBuilder.append(dataId).append(Constants.LINE_SEPARATOR);
         }
         String dataIdStr = dataIdBuilder.toString();
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
             response.setStatusMsg("login fail, serverId=" + serverId);
             return response;
         }
 
-        // 构造HTTP method
         PostMethod post = new PostMethod("/diamond-server/admin.do?method=batchQuery");
-        // 设置请求超时时间
         post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
         try {
-            // 设置参数
             NameValuePair dataId_value = new NameValuePair("dataIds", dataIdStr);
             NameValuePair group_value = new NameValuePair("group", groupName);
 
             post.setRequestBody(new NameValuePair[] { dataId_value, group_value });
 
-            // 执行方法并返回http状态码
             int status = client.executeMethod(post);
             response.setStatusCode(status);
             String responseMsg = post.getResponseBodyAsString();
@@ -842,7 +661,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 try {
                     json = responseMsg;
 
-                    // 反序列化json字符串, 并将结果处理后放入BatchContextResult中
                     List<ConfigInfoEx> configInfoExList = new LinkedList<ConfigInfoEx>();
                     Object resultObj = JSONUtils.deserializeObject(json, new TypeReference<List<ConfigInfoEx>>() {
                     });
@@ -855,7 +673,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     }
                     response.getResult().addAll(configInfoExList);
 
-                    // 反序列化成功, 本次批量查询成功
                     response.setSuccess(true);
                     response.setStatusMsg("batch query success");
                     log.info("batch query success, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
@@ -884,18 +701,17 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         }
         catch (HttpException e) {
             response.setSuccess(false);
-            response.setStatusMsg("batch query http exception：" + e.getMessage());
+            response.setStatusMsg("batch query http exception锟斤拷" + e.getMessage());
             log.error("batch query http exception, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
                     + groupName, e);
         }
         catch (IOException e) {
             response.setSuccess(false);
-            response.setStatusMsg("batch query io exception：" + e.getMessage());
+            response.setStatusMsg("batch query io exception锟斤拷" + e.getMessage());
             log.error("batch query io exception, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
                     + groupName, e);
         }
         finally {
-            // 释放连接资源
             post.releaseConnection();
         }
 
@@ -906,10 +722,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     @Override
     public BatchContextResult<ConfigInfoEx> batchAddOrUpdate(String serverId, String groupName,
             Map<String, String> dataId2ContentMap) {
-        // 创建返回结果
         BatchContextResult<ConfigInfoEx> response = new BatchContextResult<ConfigInfoEx>();
 
-        // 判断map是否为null
         if (dataId2ContentMap == null) {
             log.error("dataId2ContentMap cannot be null, serverId=" + serverId + " ,group=" + groupName);
             response.setSuccess(false);
@@ -917,7 +731,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             return response;
         }
 
-        // 将dataId和content的map处理为用一个不可见字符分隔的字符串
         StringBuilder allDataIdAndContentBuilder = new StringBuilder();
         for (String dataId : dataId2ContentMap.keySet()) {
             String content = dataId2ContentMap.get(dataId);
@@ -926,25 +739,20 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         }
         String allDataIdAndContent = allDataIdAndContentBuilder.toString();
 
-        // 登录
         if (!login(serverId)) {
             response.setSuccess(false);
             response.setStatusMsg("login fail, serverId=" + serverId);
             return response;
         }
 
-        // 构造HTTP method
         PostMethod post = new PostMethod("/diamond-server/admin.do?method=batchAddOrUpdate");
-        // 设置请求超时时间
         post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
         try {
-            // 设置参数
             NameValuePair dataId_value = new NameValuePair("allDataIdAndContent", allDataIdAndContent);
             NameValuePair group_value = new NameValuePair("group", groupName);
 
             post.setRequestBody(new NameValuePair[] { dataId_value, group_value });
 
-            // 执行方法并返回http状态码
             int status = client.executeMethod(post);
             response.setStatusCode(status);
             String responseMsg = post.getResponseBodyAsString();
@@ -955,7 +763,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 try {
                     json = responseMsg;
 
-                    // 反序列化json字符串, 并将结果处理后放入BatchContextResult中
                     List<ConfigInfoEx> configInfoExList = new LinkedList<ConfigInfoEx>();
                     Object resultObj = JSONUtils.deserializeObject(json, new TypeReference<List<ConfigInfoEx>>() {
                     });
@@ -967,7 +774,6 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                         configInfoExList.add(configInfoEx);
                     }
                     response.getResult().addAll(configInfoExList);
-                    // 反序列化成功, 本次批量操作成功
                     response.setStatusMsg("batch write success");
                     log.info("batch write success,serverId=" + serverId + ",allDataIdAndContent=" + allDataIdAndContent
                             + ",group=" + groupName + ",json=" + json);
@@ -994,18 +800,17 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         }
         catch (HttpException e) {
             response.setSuccess(false);
-            response.setStatusMsg("batch write http exception：" + e.getMessage());
+            response.setStatusMsg("batch write http exception锟斤拷" + e.getMessage());
             log.error("batch write http exception, serverId=" + serverId + ",allDataIdAndContent="
                     + allDataIdAndContent + ",group=" + groupName, e);
         }
         catch (IOException e) {
             response.setSuccess(false);
-            response.setStatusMsg("batch write io exception：" + e.getMessage());
+            response.setStatusMsg("batch write io exception锟斤拷" + e.getMessage());
             log.error("batch write io exception, serverId=" + serverId + ",allDataIdAndContent=" + allDataIdAndContent
                     + ",group=" + groupName, e);
         }
         finally {
-            // 释放连接资源
             post.releaseConnection();
         }
 

@@ -20,17 +20,14 @@ public class DiamondSDKConf {
 
     private String serverId;
 
-    // 多个diamond配置
     private List<DiamondConf> diamondConfs;
 
 
-    // 构造时需要传入diamondConfs 列表
     public DiamondSDKConf(List<DiamondConf> diamondConfs) {
         this.diamondConfs = diamondConfs;
     }
 
 
-    // setter,getter
     public String getServerId() {
         return serverId;
     }

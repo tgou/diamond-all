@@ -6,8 +6,6 @@ import java.util.List;
 
 
 /**
- * 批处理的返回结果
- * 
  * @author leiwen.zh
  * 
  */
@@ -15,15 +13,10 @@ public class BatchContextResult<T> implements Serializable {
 
     private static final long serialVersionUID = -5170746311067772091L;
 
-    // 批处理是否成功
     private boolean success = true;
-    // 请求返回的状态码
     private int statusCode;
-    // 用户可读的返回信息
     private String statusMsg;
-    // response中的元信息
     private String responseMsg;
-    // 返回的结果集
     private List<T> result;
 
 

@@ -14,28 +14,18 @@ import java.util.List;
 
 public class PageContextResult<T> {
 
-    // 总记录数
     private long totalCounts = 0;
-    // 总页数
     private long totalPages = 1;
-    // 当前是哪页
     private long currentPage = 1;
-    // 偏移位置
     private long offset = 0;
-    // 偏移长度
     private long length = 1;
-    // 每页记录数
     private long sizeOfPerPage = 10;
-    // 记录数据集
     private List<T> diamondData;
-    // 数据集的大小
     private long originalDataSize = 0;
 
-    private int statusCode; // 状态码
+    private int statusCode;
 
-    // 是否成功
     private boolean isSuccess = false;
-    // 状态信息
     private String statusMsg;
 
 
@@ -51,42 +41,32 @@ public class PageContextResult<T> {
 
 
     public void operation() {
-        // =========检验sizeOfPerPage合法性
         if (totalCounts < 0) {
             totalCounts = 0;
         }
 
-        // =========检验sizeOfPerPage合法性
         if (sizeOfPerPage <= 0)
             sizeOfPerPage = 1;
 
-        // =========计算总页数
-        // 如果总记录数能被每页大小整除，则总页数为(总记录数 /每页大小)
-        // 否则总页数为(总记录数 /每页大小+1)
         if (totalCounts % sizeOfPerPage == 0) {
             totalPages = totalCounts / sizeOfPerPage;
         }
         else
             totalPages = totalCounts / sizeOfPerPage + 1;
 
-        // =========纠正总页数
         if (totalPages <= 1)
             totalPages = 1;
 
-        // =========检验currentPage合法性
         if (currentPage <= 1)
             currentPage = 1;
         else if (currentPage > totalPages)
             currentPage = totalPages;
 
-        // =========计算偏移位置
         offset = (currentPage - 1) * sizeOfPerPage;
 
-        // =========检验offset合法性
         if (offset < 0)
             offset = 0;
 
-        // =========计算长度
         if (currentPage < totalPages)
             length = sizeOfPerPage;
         else
@@ -94,7 +74,6 @@ public class PageContextResult<T> {
     }
 
 
-    // setter , getter
     public long getTotalCounts() {
         return totalCounts;
     }
