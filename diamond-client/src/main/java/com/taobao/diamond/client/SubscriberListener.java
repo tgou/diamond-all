@@ -15,8 +15,6 @@ import java.util.concurrent.Executor;
 
 
 /**
- * Diamond�����ߵ�������Ϣ������
- * 
  * @author aoqiong
  * 
  */
@@ -24,11 +22,5 @@ public interface SubscriberListener {
 
     public Executor getExecutor();
 
-
-    /**
-     * ���յ�һ��������Ϣ
-     * 
-     * @param configureInfomation
-     */
     public void receiveConfigInfo(final ConfigureInfomation configureInfomation);
 }

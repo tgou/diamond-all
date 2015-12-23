@@ -47,7 +47,7 @@ public class ServerAddressProcessor {
     }
 
 
-    // 用于测试
+    // for test
     void setAsynAcquireIntervalInSec(int asynAcquireIntervalInSec) {
         this.asynAcquireIntervalInSec = asynAcquireIntervalInSec;
     }
@@ -97,10 +97,10 @@ public class ServerAddressProcessor {
 
     protected void acquireServerAddressFromLocal() {
         if (!isRun) {
-            throw new RuntimeException("ServerAddressProcessor不在运行状态，无法同步获取服务器地址列表");
+            throw new RuntimeException("ServerAddressProcessor is not running");
         }
         if (MockServer.isTestMode()) {
-            diamondConfigure.addDomainName("测试模式，没有使用的真实服务器");
+            diamondConfigure.addDomainName("Test mode, no real machine");
             return;
         }
 
@@ -111,22 +111,20 @@ public class ServerAddressProcessor {
                 if (!acquireServerAddressOnce(acquireCount)) {
                     acquireCount++;
                     if (acquireServerAddressOnce(acquireCount)) {
-                        // 存入本地文件
                         storeServerAddressesToLocal();
-                        log.info("在同步获取服务器列表时，向日常ConfigServer服务器获取到了服务器列表");
+                        log.info("get domain list from daily");
                     }
                     else {
-                        throw new RuntimeException("当前没有可用的服务器列表");
+                        throw new RuntimeException("no available domain.");
                     }
                 }
                 else {
-                    log.info("在同步获取服务器列表时，向线上ConfigServer服务器获取到了服务器列表");
-                    // 存入本地文件
+                    log.info("get domain list from online");
                     storeServerAddressesToLocal();
                 }
             }
             else {
-                log.info("在同步获取服务器列表时，由于本地指定了服务器列表，不向ConfigServer服务器同步获取服务器列表");
+                log.info("not get domain from config server because set domain list from local");
             }
         }
     }
@@ -134,10 +132,10 @@ public class ServerAddressProcessor {
 
     protected void synAcquireServerAddress() {
         if (!isRun) {
-            throw new RuntimeException("ServerAddressProcessor不在运行状态，无法同步获取服务器地址列表");
+            throw new RuntimeException("ServerAddressProcessor is not running");
         }
         if (MockServer.isTestMode()) {
-            diamondConfigure.addDomainName("测试模式，没有使用的真实服务器");
+            diamondConfigure.addDomainName("Test mode, no real machine");
             return;
         }
 
@@ -146,20 +144,18 @@ public class ServerAddressProcessor {
             if (!acquireServerAddressOnce(acquireCount)) {
                 acquireCount++;
                 if (acquireServerAddressOnce(acquireCount)) {
-                    // 存入本地文件
                     storeServerAddressesToLocal();
-                    log.info("在同步获取服务器列表时，向日常ConfigServer服务器获取到了服务器列表");
+                    log.info("get domain list from daily config server.");
                 }
                 else {
-                    log.info("从本地获取Diamond地址列表");
+                    log.info("get domain list from local");
                     reloadServerAddresses();
                     if (diamondConfigure.getDomainNameList().size() == 0)
-                        throw new RuntimeException("当前没有可用的服务器列表");
+                        throw new RuntimeException("no available domain list");
                 }
             }
             else {
-                log.info("在同步获取服务器列表时，向线上ConfigServer服务器获取到了服务器列表");
-                // 存入本地文件
+                log.info("get domain list from online");
                 storeServerAddressesToLocal();
             }
         }
@@ -173,19 +169,17 @@ public class ServerAddressProcessor {
         this.scheduledExecutor.schedule(new Runnable() {
             public void run() {
                 if (!isRun) {
-                    log.warn("ServerAddressProcessor不在运行状态，无法异步获取服务器地址列表");
+                    log.warn("ServerAddressProcessor is not running.");
                     return;
                 }
                 int acquireCount = 0;
                 if (!acquireServerAddressOnce(acquireCount)) {
                     acquireCount++;
                     if (acquireServerAddressOnce(acquireCount)) {
-                        // 存入本地文件
                         storeServerAddressesToLocal();
                     }
                 }
                 else {
-                    // 存入本地文件
                     storeServerAddressesToLocal();
                 }
 
@@ -214,7 +208,7 @@ public class ServerAddressProcessor {
             bufferedWriter.flush();
         }
         catch (Exception e) {
-            log.error("存储服务器地址到本地文件失败", e);
+            log.error("storeServerAddressesToLocal fail:", e);
         }
         finally {
             if (bufferedWriter != null) {
@@ -258,7 +252,7 @@ public class ServerAddressProcessor {
             fis.close();
         }
         catch (Exception e) {
-            log.error("从本地文件取服务器地址失败", e);
+            log.error("reloadServerAddresses fail:", e);
         }
         finally {
             if (bufferedReader != null) {
@@ -303,14 +297,6 @@ public class ServerAddressProcessor {
         return directory + sign + fileName;
     }
 
-
-    /**
-     * 获取diamond服务器地址列表
-     * 
-     * @param acquireCount
-     *            根据0或1决定从日常或线上获取
-     * @return
-     */
     private boolean acquireServerAddressOnce(int acquireCount) {
         HostConfiguration hostConfiguration = configHttpClient.getHostConfiguration();
         String configServerAddress;
@@ -334,10 +320,8 @@ public class ServerAddressProcessor {
         String serverAddressUrl = Constants.CONFIG_HTTP_URI_FILE;
 
         HttpMethod httpMethod = new GetMethod(serverAddressUrl);
-        // 设置HttpMethod的参数
         HttpMethodParams params = new HttpMethodParams();
         params.setSoTimeout(diamondConfigure.getOnceTimeout());
-        // ///////////////////////
         httpMethod.setParams(params);
 
         try {
@@ -353,13 +337,13 @@ public class ServerAddressProcessor {
                     }
                 }
                 if (newDomainNameList.size() > 0) {
-                    log.debug("更新使用的服务器列表");
+                    log.debug("Update domain list used");
                     this.diamondConfigure.setDomainNameList(newDomainNameList);
                     return true;
                 }
             }
             else {
-                log.warn("没有可用的新服务器列表");
+                log.warn("No available domain list.");
             }
         }
         catch (HttpException e) {
@@ -380,10 +364,10 @@ public class ServerAddressProcessor {
 
     public String getErrorMessage(String configServerAddress) {
         if (configServerAddress.equals(Constants.DEFAULT_DOMAINNAME)) {
-            return "获取服务器地址列表信息Http异常,如果你是在日常环境，请忽略这个异常,configServerAddress=" + configServerAddress + ",";
+            return "get domain list http exception, if in daily env, ignore this message,configServerAddress=" + configServerAddress + ",";
         }
         else {
-            return "获取服务器地址列表信息Http异常, configServerAddress=" + configServerAddress + ",";
+            return "get domain list http exception, configServerAddress=" + configServerAddress + ",";
         }
     }
 

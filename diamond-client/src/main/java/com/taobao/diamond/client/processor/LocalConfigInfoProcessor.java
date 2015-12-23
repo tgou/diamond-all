@@ -40,13 +40,10 @@ public class LocalConfigInfoProcessor {
     private volatile boolean isRun;
     private String rootPath = null;
 
-
     /**
-     * 获取本地配置
-     * 
+     * Get config from local
      * @param cacheData
-     * @param force
-     *            强制获取，在没有变更的时候不返回null
+     * @param force if true, do not return null when config not change
      * @return
      * @throws IOException
      */
@@ -63,12 +60,11 @@ public class LocalConfigInfoProcessor {
             return null;
         }
         if (force) {
-            log.info("主动从本地获取配置数据, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
+            log.info("Get from local, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
 
             String content = FileUtils.getFileContent(filePath);
             return content;
         }
-        // 判断是否变更，没有变更，返回null
         if (!filePath.equals(cacheData.getLocalConfigInfoFile())
                 || existFiles.get(filePath) != cacheData.getLocalConfigInfoVersion()) {
             String content = FileUtils.getFileContent(filePath);
@@ -77,7 +73,7 @@ public class LocalConfigInfoProcessor {
             cacheData.setUseLocalConfigInfo(true);
 
             if (log.isInfoEnabled()) {
-                log.info("本地配置数据发生变化, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
+                log.info("Local config changed, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
             }
 
             return content;
@@ -86,7 +82,7 @@ public class LocalConfigInfoProcessor {
             cacheData.setUseLocalConfigInfo(true);
 
             if (log.isInfoEnabled()) {
-                log.debug("本地配置数据没有发生变化, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
+                log.debug("Local config not changed, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
             }
 
             return null;
@@ -141,17 +137,13 @@ public class LocalConfigInfoProcessor {
         final WatchService watcher = FileSystem.getDefault().newWatchService();
 
         Path path = new Path(new File(filePath));
-        // 注册事件
         watcher.register(path, true, StandardWatchEventKind.ENTRY_CREATE, StandardWatchEventKind.ENTRY_DELETE,
             StandardWatchEventKind.ENTRY_MODIFY);
-        // 第一次运行，主动check
         checkAtFirst(watcher);
         singleExecutor.execute(new Runnable() {
             public void run() {
-                log.debug(">>>>>>已经开始监控目录<<<<<<");
-                // 无限循环等待事件
+                log.debug(">>>>>>Begin monitor directory<<<<<<");
                 while (isRun) {
-                    // 凭证
                     WatchKey key;
                     try {
                         key = watcher.take();
@@ -159,13 +151,12 @@ public class LocalConfigInfoProcessor {
                     catch (InterruptedException x) {
                         continue;
                     }
-                    // reset，如果无效，跳出循环,无效可能是监听的目录被删除
                     if (!processEvents(key)) {
-                        log.error("reset unvalid,监控服务失效");
+                        log.error("reset invalid");
                         break;
                     }
                 }
-                log.debug(">>>>>>退出监控目录<<<<<<");
+                log.debug(">>>>>>End monitor directory<<<<<<");
                 watcher.close();
 
             }
@@ -183,22 +174,10 @@ public class LocalConfigInfoProcessor {
     }
 
 
-    /**
-     * 处理触发的事件
-     * 
-     * @param key
-     * @return
-     */
     @SuppressWarnings({ "unchecked" })
     private boolean processEvents(WatchKey key) {
-        /**
-         * 获取事件集合
-         */
         for (WatchEvent<?> event : key.pollEvents()) {
-            // 事件的类型
-            // WatchEvent.Kind<?> kind = event.kind();
 
-            // 通过context方法得到发生事件的path
             WatchEvent<Path> ev = (WatchEvent<Path>) event;
             Path eventPath = ev.context();
 
@@ -213,12 +192,12 @@ public class LocalConfigInfoProcessor {
 
                 }
                 if (!Constants.BASE_DIR.equals(grandpaDir)) {
-                    log.error("无效的文件进入监控目录: " + realPath);
+                    log.error("Illegal file enter directory: " + realPath);
                     continue;
                 }
                 existFiles.put(realPath, System.currentTimeMillis());
                 if (log.isInfoEnabled()) {
-                    log.info(realPath + "文件被添加或更新");
+                    log.info(realPath + "file added or updated");
                 }
             }
             else if (ev.kind() == StandardWatchEventKind.ENTRY_DELETE) {
@@ -229,21 +208,21 @@ public class LocalConfigInfoProcessor {
                 catch (Exception e1) {
 
                 }
+                // delete file
                 if (Constants.BASE_DIR.equals(grandpaDir)) {
-                    // 删除的是文件
                     existFiles.remove(realPath);
                     if (log.isInfoEnabled()) {
-                        log.info(realPath + "文件被被删除");
+                        log.info(realPath + "file deleted");
                     }
                 }
                 else {
-                    // 删除的是目录
+                    // delete directory
                     Set<String> keySet = new HashSet<String>(existFiles.keySet());
                     for (String filePath : keySet) {
                         if (filePath.startsWith(realPath)) {
                             existFiles.remove(filePath);
                             if (log.isInfoEnabled()) {
-                                log.info(filePath + "文件被删除");
+                                log.info(filePath + "file deleted");
                             }
                         }
                     }

@@ -17,161 +17,123 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * DiamondSubscriber用于订阅持久的文本配置信息。<br>
- * 
  * @author aoqiong
- * 
  */
 public interface DiamondSubscriber extends DiamondClientSub {
+    SubscriberListener getSubscriberListener();
+
     /**
-     * 设置异步订阅的Listener，可以动态替换
-     * 
+     * set async subscriber listener, can dynamic replace
+     *
      * @param subscriberListener
      */
-    public void setSubscriberListener(SubscriberListener subscriberListener);
-
-
-    /**
-     * 获取异步订阅的Listener
-     * 
-     * @return
-     */
-    public SubscriberListener getSubscriberListener();
-
+    void setSubscriberListener(SubscriberListener subscriberListener);
 
     /**
-     * 获取group组DataID为dataId的ConfigureInfomation，必须在start()方法后调用,,此方法优先从${user.
-     * home}/diamond/data下获取配置文件，如果没有，则从diamond server获取配置信息
-     * 
+     * ${user.home}/diamond/data => diamond server
+     *
      * @param dataId
      * @param group
      * @param timeout
      * @return
      */
-    public String getConfigureInformation(String dataId, String group, long timeout);
+    String getConfigureInformation(String dataId, String group, long timeout);
 
 
     /**
-     * 获取缺省组的DataID为dataId的ConfigureInfomation，必须在start()方法后调用,此方法优先从${user.home
-     * }/diamond/data下获取配置文件，如果没有，则从diamond server获取配置信息
-     * 
+     * ${user.home}/diamond/data => diamond server
+     *
      * @param dataId
      * @param timeout
      * @return
      */
-    public String getConfigureInformation(String dataId, long timeout);
+    String getConfigureInformation(String dataId, long timeout);
 
 
     /**
-     * 获取一份可用的配置信息，按照<strong>本地文件->diamond服务器->本地上一次保存的snapshot</strong>
-     * 的优先顺序获取一份有效的配置信息，如果所有途径都无法获取一份有效配置信息 ， 则返回null
-     * 
-     * @param dataId
-     * @param group
-     * @param timeout
-     * @return
-     */
-    public String getAvailableConfigureInformation(String dataId, String group, long timeout);
-
-    /**
-     * 从本地和snapshot获取配置，batch模式使用
+     * local file => diamond server => snapshot, if not exist return null.
+     *
      * @param dataId
      * @param group
      * @param timeout
      * @return
      */
-    public String getFromLocalAndSnapshot(String dataId, String group, long timeout);
-
-
-    /**
-     * 添加一个DataID，如果原来有此DataID和Group，将替换它们
-     * 
-     * @param dataId
-     * @param group
-     *            组名，可为null，代表使用缺省的组名
-     */
-    public void addDataId(String dataId, String group);
-
+    String getAvailableConfigureInformation(String dataId, String group, long timeout);
 
     /**
-     * 添加一个DataID，使用缺省的组名。如果原来有此DataID和Group，将替换它们
-     * 
-     * @param dataId
-     */
-    public void addDataId(String dataId);
-
-
-    /**
-     * 目前是否支持对DataID对应的ConfigInfo
-     * 
-     * @param dataId
-     * @return
-     */
-    public boolean containDataId(String dataId);
-
-
-    /**
-     * 
-     * @param dataId
-     * @param group
-     * @return
-     */
-    public boolean containDataId(String dataId, String group);
-
-
-    /**
-     * 
-     * @param dataId
-     */
-    public void removeDataId(String dataId);
-
-
-    /**
-     * 
-     * @param dataId
-     * @param group
-     */
-    public void removeDataId(String dataId, String group);
-
-
-    /**
-     * 清空所有的DataID
-     */
-    public void clearAllDataIds();
-
-
-    /**
-     * 获取支持的所有的DataID
-     * 
-     * @return
-     */
-    public Set<String> getDataIds();
-
-
-    /**
-     * 获取客户端cache
-     * 
-     * @return
-     */
-    public ConcurrentHashMap<String, ConcurrentHashMap<String, CacheData>> getCache();
-
-
-    /**
-     * 获取一份可用的配置信息，按照本地snapshot -> 本地文件 -> server的顺序
-     * 
+     * local file => snapshot, if not exist return null
+     *
      * @param dataId
      * @param group
      * @param timeout
      * @return
      */
-    public String getAvailableConfigureInformationFromSnapshot(String dataId, String group, long timeout);
+    String getFromLocalAndSnapshot(String dataId, String group, long timeout);
+
 
     /**
-     * 批量获取配置信息
+     * add dataId and group, if exist, replace
+     *
+     * @param dataId
+     * @param group
+     */
+    void addDataId(String dataId, String group);
+
+
+    /**
+     * add dataId, use DEFAULT_GROUP, if exist , replace
+     *
+     * @param dataId
+     */
+    void addDataId(String dataId);
+
+
+    /**
+     * if contain ConfigInfo for dataId and DEFAULT_GROUP
+     *
+     * @param dataId
+     * @return
+     */
+    boolean containDataId(String dataId);
+
+
+    /**
+     * if contain ConfigInfo for dataId and group
+     *
+     * @param dataId
+     * @param group
+     * @return
+     */
+    boolean containDataId(String dataId, String group);
+
+    void removeDataId(String dataId);
+
+    void removeDataId(String dataId, String group);
+
+    void clearAllDataIds();
+
+    Set<String> getDataIds();
+
+    ConcurrentHashMap<String, ConcurrentHashMap<String, CacheData>> getCache();
+
+
+    /**
+     * snapshot => local file => diamond server
+     *
+     * @param dataId
+     * @param group
+     * @param timeout
+     * @return
+     */
+    String getAvailableConfigureInformationFromSnapshot(String dataId, String group, long timeout);
+
+    /**
+     * batch query from diamond server
+     *
      * @param dataIds
      * @param group
      * @param timeout
      * @return
      */
-    public BatchHttpResult getConfigureInformationBatch(List<String> dataIds, String group, int timeout);
+    BatchHttpResult getConfigureInformationBatch(List<String> dataIds, String group, int timeout);
 }

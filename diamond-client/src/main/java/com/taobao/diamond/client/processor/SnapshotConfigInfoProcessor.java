@@ -57,8 +57,7 @@ public class SnapshotConfigInfoProcessor {
                 sb.append(new String(data, 0, n, Constants.ENCODE));
             }
             return sb.toString();
-        }
-        finally {
+        } finally {
             if (in != null) {
                 in.close();
             }
@@ -66,15 +65,6 @@ public class SnapshotConfigInfoProcessor {
 
     }
 
-
-    /**
-     * 保存snapshot
-     * 
-     * @param dataId
-     * @param group
-     * @param config
-     * @throws IOException
-     */
     public void saveSnapshot(String dataId, String group, String config) throws IOException {
         if (StringUtils.isBlank(dataId)) {
             throw new IllegalArgumentException("blank dataId");
@@ -94,8 +84,7 @@ public class SnapshotConfigInfoProcessor {
             writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(stream, Constants.ENCODE)));
             writer.write(config);
             writer.flush();
-        }
-        finally {
+        } finally {
             if (writer != null)
                 writer.close();
             if (out != null) {
@@ -104,13 +93,6 @@ public class SnapshotConfigInfoProcessor {
         }
     }
 
-
-    /**
-     * 删除snapshot
-     * 
-     * @param dataId
-     * @param group
-     */
     public void removeSnapshot(String dataId, String group) {
         if (StringUtils.isBlank(dataId)) {
             return;
@@ -131,7 +113,6 @@ public class SnapshotConfigInfoProcessor {
         }
         file.delete();
 
-        // 如果目录没有文件了，删除目录
         String[] list = dir.list();
         if (list == null || list.length == 0) {
             dir.delete();
