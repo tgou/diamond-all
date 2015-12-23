@@ -18,8 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
- * 磁盘操作服务
- * 
  * @author boyan
  * @date 2010-5-4
  */
@@ -29,9 +27,9 @@ public class DiskService {
     private static final Log log = LogFactory.getLog(DiskService.class);
 
     /**
-     * 修改标记缓存
+     * modified cache
      */
-    private final ConcurrentHashMap<String/* dataId + group */, Boolean/* 是否正在修改 */> modifyMarkCache =
+    private final ConcurrentHashMap<String/* dataId + group */, Boolean/* modifying */> modifyMarkCache =
             new ConcurrentHashMap<String, Boolean>();
 
     @Autowired
@@ -49,7 +47,7 @@ public class DiskService {
 
 
     /**
-     * 单元测试用
+     * for unit test
      * 
      * @return
      */
@@ -59,7 +57,7 @@ public class DiskService {
 
 
     /**
-     * 获取配置文件路径, 单元测试用
+     * for unit test
      * 
      * @param dataId
      * @param group
@@ -76,20 +74,14 @@ public class DiskService {
         String dataId = configInfo.getDataId();
         String content = configInfo.getContent();
         String cacheKey = generateCacheKey(group, dataId);
-        // 标记正在写磁盘
         if (this.modifyMarkCache.putIfAbsent(cacheKey, true) == null) {
             File tempFile = null;
             try {
-                // 目标目录
                 String groupPath = getFilePath(Constants.BASE_DIR + "/" + group);
                 createDirIfNessary(groupPath);
-                // 目标文件
                 File targetFile = createFileIfNessary(groupPath, dataId);
-                // 创建临时文件
                 tempFile = createTempFile(dataId, group);
-                // 写数据至临时文件
                 FileUtils.writeStringToFile(tempFile, content, Constants.ENCODE);
-                // 用临时文件覆盖目标文件, 完成本次磁盘操作
                 FileUtils.copyFile(tempFile, targetFile);
             }
             catch (Exception e) {
@@ -98,16 +90,14 @@ public class DiskService {
                 throw new ConfigServiceException(errorMsg, e);
             }
             finally {
-                // 删除临时文件
                 if (tempFile != null && tempFile.exists()) {
                     FileUtils.deleteQuietly(tempFile);
                 }
-                // 清除标记
                 this.modifyMarkCache.remove(cacheKey);
             }
         }
         else {
-            throw new ConfigServiceException("config info is being motified, dataId=" + dataId + ",group=" + group);
+            throw new ConfigServiceException("config info is being modified, dataId=" + dataId + ",group=" + group);
         }
 
     }
@@ -118,14 +108,6 @@ public class DiskService {
     }
 
 
-    /**
-     * 生成缓存key，用于标记文件是否正在被修改
-     * 
-     * @param group
-     * @param dataId
-     * 
-     * @return
-     */
     public final String generateCacheKey(String group, String dataId) {
         return group + "/" + dataId;
     }
@@ -133,7 +115,6 @@ public class DiskService {
 
     public void removeConfigInfo(String dataId, String group) {
         String cacheKey = generateCacheKey(group, dataId);
-        // 标记正在写磁盘
         if (this.modifyMarkCache.putIfAbsent(cacheKey, true) == null) {
             try {
                 String basePath = getFilePath(Constants.BASE_DIR);
@@ -159,12 +140,11 @@ public class DiskService {
                 throw new ConfigServiceException(errorMsg, e);
             }
             finally {
-                // 清除标记
                 this.modifyMarkCache.remove(cacheKey);
             }
         }
         else {
-            throw new ConfigServiceException("config info is being motified, dataId=" + dataId + ",group=" + group);
+            throw new ConfigServiceException("config info is being modified, dataId=" + dataId + ",group=" + group);
         }
     }
 
@@ -186,7 +166,6 @@ public class DiskService {
         final File file = new File(parent, child);
         if (!file.exists()) {
             file.createNewFile();
-            // 设置文件权限
             changeFilePermission(file);
         }
         return file;
@@ -194,7 +173,7 @@ public class DiskService {
 
 
     private void changeFilePermission(File file) {
-        // 文件权限设置为600
+        // set file permission to 600
         file.setExecutable(false, false);
         file.setWritable(false, false);
         file.setReadable(false, false);

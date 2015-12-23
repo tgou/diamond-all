@@ -37,9 +37,6 @@ public class ConfigService {
     @Autowired
     private NotifyService notifyService;
 
-    /**
-     * content的MD5的缓存,key为group/dataId，value为md5值
-     */
     private final ConcurrentHashMap<String, String> contentMD5Cache = new ConcurrentHashMap<String, String>();
 
 
@@ -63,7 +60,6 @@ public class ConfigService {
         String md5 = this.contentMD5Cache.get(key);
         if (md5 == null) {
             synchronized (this) {
-                // 二重检查
                 return this.contentMD5Cache.get(key);
             }
         }
@@ -94,12 +90,11 @@ public class ConfigService {
             this.diskService.removeConfigInfo(configInfo.getDataId(), configInfo.getGroup());
             this.contentMD5Cache.remove(generateMD5CacheKey(configInfo.getDataId(), configInfo.getGroup()));
             this.persistService.removeConfigInfo(configInfo);
-            // 通知其他节点
             this.notifyOtherNodes(configInfo.getDataId(), configInfo.getGroup());
 
         }
         catch (Exception e) {
-            log.error("删除配置信息错误", e);
+            log.error("Delete config error", e);
             throw new ConfigServiceException(e);
         }
     }
@@ -108,53 +103,33 @@ public class ConfigService {
     public void addConfigInfo(String dataId, String group, String content) {
         checkParameter(dataId, group, content);
         ConfigInfo configInfo = new ConfigInfo(dataId, group, content);
-        // 保存顺序：先数据库，再磁盘
         try {
             persistService.addConfigInfo(configInfo);
-            // 切记更新缓存
             this.contentMD5Cache.put(generateMD5CacheKey(dataId, group), configInfo.getMd5());
             diskService.saveToDisk(configInfo);
-            // 通知其他节点
             this.notifyOtherNodes(dataId, group);
         }
         catch (Exception e) {
-            log.error("保存ConfigInfo失败", e);
+            log.error("Save ConfigInfo error", e);
             throw new ConfigServiceException(e);
         }
     }
 
-
-    /**
-     * 更新配置信息
-     * 
-     * @param dataId
-     * @param group
-     * @param content
-     */
     public void updateConfigInfo(String dataId, String group, String content) {
         checkParameter(dataId, group, content);
         ConfigInfo configInfo = new ConfigInfo(dataId, group, content);
-        // 先更新数据库，再更新磁盘
         try {
             persistService.updateConfigInfo(configInfo);
-            // 切记更新缓存
             this.contentMD5Cache.put(generateMD5CacheKey(dataId, group), configInfo.getMd5());
             diskService.saveToDisk(configInfo);
-            // 通知其他节点
             this.notifyOtherNodes(dataId, group);
         }
         catch (Exception e) {
-            log.error("保存ConfigInfo失败", e);
+            log.error("Save ConfigInfo fail", e);
             throw new ConfigServiceException(e);
         }
     }
 
-
-    /**
-     * 将配置信息从数据库加载到磁盘
-     * 
-     * @param id
-     */
     public void loadConfigInfoToDisk(String dataId, String group) {
         try {
             ConfigInfo configInfo = this.persistService.findConfigInfo(dataId, group);
@@ -163,13 +138,12 @@ public class ConfigService {
                 this.diskService.saveToDisk(configInfo);
             }
             else {
-                // 删除文件
                 this.contentMD5Cache.remove(generateMD5CacheKey(dataId, group));
                 this.diskService.removeConfigInfo(dataId, group);
             }
         }
         catch (Exception e) {
-            log.error("保存ConfigInfo到磁盘失败", e);
+            log.error("Save ConfigInfo to disk fail", e);
             throw new ConfigServiceException(e);
         }
     }
@@ -179,16 +153,6 @@ public class ConfigService {
         return persistService.findConfigInfo(dataId, group);
     }
 
-
-    /**
-     * 分页查找配置信息
-     * 
-     * @param pageNo
-     * @param pageSize
-     * @param group
-     * @param dataId
-     * @return
-     */
     public Page<ConfigInfo> findConfigInfo(final int pageNo, final int pageSize, final String group, final String dataId) {
         if (StringUtils.hasLength(dataId) && StringUtils.hasLength(group)) {
             ConfigInfo ConfigInfo = this.persistService.findConfigInfo(dataId, group);
@@ -212,16 +176,6 @@ public class ConfigService {
         }
     }
 
-
-    /**
-     * 分页模糊查找配置信息
-     * 
-     * @param pageNo
-     * @param pageSize
-     * @param group
-     * @param dataId
-     * @return
-     */
     public Page<ConfigInfo> findConfigInfoLike(final int pageNo, final int pageSize, final String group,
             final String dataId) {
         return this.persistService.findConfigInfoLike(pageNo, pageSize, dataId, group);
@@ -230,13 +184,13 @@ public class ConfigService {
 
     private void checkParameter(String dataId, String group, String content) {
         if (!StringUtils.hasLength(dataId) || StringUtils.containsWhitespace(dataId))
-            throw new ConfigServiceException("无效的dataId");
+            throw new ConfigServiceException("Illegal dataId");
 
         if (!StringUtils.hasLength(group) || StringUtils.containsWhitespace(group))
-            throw new ConfigServiceException("无效的group");
+            throw new ConfigServiceException("Illegal group");
 
         if (!StringUtils.hasLength(content))
-            throw new ConfigServiceException("无效的content");
+            throw new ConfigServiceException("Illegal content");
     }
 
 

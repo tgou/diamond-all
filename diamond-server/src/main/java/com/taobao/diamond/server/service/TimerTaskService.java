@@ -13,8 +13,6 @@ import java.util.concurrent.TimeUnit;
 
 
 /**
- * 定时任务服务
- * 
  * @author boyan
  */
 @Service

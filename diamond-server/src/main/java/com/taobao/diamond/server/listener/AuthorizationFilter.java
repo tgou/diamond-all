@@ -19,8 +19,6 @@ import java.io.IOException;
 
 
 /**
- * ��Ȩ��֤
- * 
  * @author boyan
  * @date 2010-5-5
  */
@@ -37,7 +35,6 @@ public class AuthorizationFilter implements Filter {
         HttpSession session = httpRequest.getSession();
         SessionHolder.setSession(session);
         try {
-            // �ж��Ƿ��¼��û�о���ת����¼ҳ��
             if (session.getAttribute("user") == null)
                 ((HttpServletResponse) response).sendRedirect(httpRequest.getContextPath() + "/jsp/login.jsp");
             else

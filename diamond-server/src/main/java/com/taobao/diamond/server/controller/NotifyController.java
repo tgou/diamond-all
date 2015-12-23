@@ -18,8 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 
 /**
- * 用于其他节点通知的控制器
- * 
  * @author boyan
  * @date 2010-5-7
  */
@@ -40,18 +38,12 @@ public class NotifyController {
         this.configService = configService;
     }
 
-
-    /**
-     * 通知配置信息改变
-     * 
-     * @param id
-     * @return
-     */
     @RequestMapping(method = RequestMethod.GET, params = "method=notifyConfigInfo")
     public String notifyConfigInfo(@RequestParam("dataId") String dataId, @RequestParam("group") String group) {
         dataId = dataId.trim();
         group = group.trim();
         this.configService.loadConfigInfoToDisk(dataId, group);
+
         return "200";
     }
 

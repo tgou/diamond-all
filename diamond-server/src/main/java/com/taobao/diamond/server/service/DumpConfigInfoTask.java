@@ -9,8 +9,6 @@ import java.io.IOException;
 
 
 /**
- * Dump配置信息任务
- * 
  * @author boyan
  * @date 2010-5-10
  */
@@ -32,7 +30,6 @@ public final class DumpConfigInfoTask implements Runnable {
         try {
             Page<ConfigInfo> page = this.timerTaskService.getPersistService().findAllConfigInfo(1, PAGE_SIZE);
             if (page != null) {
-                // 总页数
                 int totalPages = page.getPagesAvailable();
                 updateConfigInfo(page);
                 if (totalPages > 1) {
@@ -57,7 +54,6 @@ public final class DumpConfigInfoTask implements Runnable {
                 continue;
             }
             try {
-                // 写入磁盘，更新缓存
                 this.timerTaskService.getConfigService().updateMD5Cache(configInfo);
                 this.timerTaskService.getDiskService().saveToDisk(configInfo);
             }

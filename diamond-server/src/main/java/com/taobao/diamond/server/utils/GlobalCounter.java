@@ -10,8 +10,6 @@
 package com.taobao.diamond.server.utils;
 
 /**
- * 全局计数器
- * 
  * @author boyan
  * @date 2010-5-31
  */

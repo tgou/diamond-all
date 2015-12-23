@@ -25,9 +25,6 @@ public class SystemConfig {
 
     private static final Log log = LogFactory.getLog(SystemConfig.class);
 
-    /**
-     * Dump配置信息的时间间隔，默认10分钟
-     */
     private static int dumpConfigInterval = 600;
 
     public static final String LOCAL_IP = getHostAddress();
@@ -41,7 +38,7 @@ public class SystemConfig {
             dumpConfigInterval = Integer.parseInt(props.getProperty("dump_config_interval", "600"));
         }
         catch (IOException e) {
-            log.error("加载system.properties出错", e);
+            log.error("load system.properties error", e);
         }
         finally {
             if (in != null) {
@@ -49,7 +46,7 @@ public class SystemConfig {
                     in.close();
                 }
                 catch (IOException e) {
-                    log.error("关闭system.properties出错", e);
+                    log.error("close system.properties error", e);
                 }
             }
         }

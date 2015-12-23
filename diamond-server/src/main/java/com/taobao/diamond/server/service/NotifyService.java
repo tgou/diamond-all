@@ -28,8 +28,6 @@ import java.util.Properties;
 
 
 /**
- * 通知服务，用于通知其他节点
- * 
  * @author boyan
  * @date 2010-5-6
  */
@@ -59,7 +57,7 @@ public class NotifyService {
             nodeProperties.load(in);
         }
         catch (IOException e) {
-            log.error("加载节点配置文件失败");
+            log.error("load node.properties fail");
         }
         finally {
             try {
@@ -67,18 +65,12 @@ public class NotifyService {
                     in.close();
             }
             catch (IOException e) {
-                log.error("关闭node.properties失败", e);
+                log.error("close node.properties fail", e);
             }
         }
-        log.info("节点列表:" + nodeProperties);
+        log.info("node list:" + nodeProperties);
     }
 
-
-    /**
-     * 通知配置信息改变
-     * 
-     * @param id
-     */
     public void notifyConfigInfoChange(String dataId, String group) {
         Enumeration<?> enu = nodeProperties.propertyNames();
         while (enu.hasMoreElements()) {
@@ -88,7 +80,7 @@ public class NotifyService {
             }
             String urlString = generateNotifyConfigInfoPath(dataId, group, address);
             final String result = invokeURL(urlString);
-            log.info("通知节点" + address + "分组信息改变：" + result);
+            log.info("notify node address=" + address + "group changed info" + result);
         }
     }
 
@@ -96,7 +88,6 @@ public class NotifyService {
     String generateNotifyConfigInfoPath(String dataId, String group, String address) {
         String specialUrl = this.nodeProperties.getProperty(address);
         String urlString = PROTOCOL + address + URL_PREFIX;
-        // 如果有指定url，使用指定的url
         if (specialUrl != null && StringUtils.hasLength(specialUrl.trim())) {
             urlString = specialUrl;
         }
@@ -106,7 +97,7 @@ public class NotifyService {
 
 
     /**
-     * http get调用
+     * http get
      * 
      * @param urlString
      * @return
@@ -139,7 +130,7 @@ public class NotifyService {
 
         }
         catch (Exception e) {
-            log.error("http调用失败,url=" + urlString, e);
+            log.error("http invoke fail,url=" + urlString, e);
         }
         finally {
             if (conn != null) {

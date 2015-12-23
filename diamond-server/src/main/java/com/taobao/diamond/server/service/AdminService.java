@@ -26,8 +26,6 @@ import java.util.Properties;
 
 
 /**
- * 管理服务
- * 
  * @author boyan
  * @date 2010-5-5
  */
@@ -38,9 +36,6 @@ public class AdminService {
 
     private volatile Properties properties = new Properties();
 
-    /**
-     * user.properties的路径url
-     */
     private URL url;
 
 
@@ -63,7 +58,7 @@ public class AdminService {
             tempProperties.load(in);
         }
         catch (IOException e) {
-            log.error("加载user.properties文件失败", e);
+            log.error("Load user.properties error", e);
         }
         finally {
             if (in != null) {
@@ -71,7 +66,7 @@ public class AdminService {
                     in.close();
                 }
                 catch (IOException e) {
-                    log.error("关闭user.properties文件失败", e);
+                    log.error("Close user.properties error", e);
                 }
             }
         }
@@ -106,7 +101,7 @@ public class AdminService {
             return true;
         }
         catch (IOException e) {
-            log.error("保存user.properties文件失败", e);
+            log.error("Save user.properties error", e);
             return false;
         }
         finally {
@@ -115,7 +110,7 @@ public class AdminService {
                     out.close();
                 }
                 catch (IOException e) {
-                    log.error("关闭user.properties文件失败", e);
+                    log.error("Close user.properties error", e);
                 }
             }
         }

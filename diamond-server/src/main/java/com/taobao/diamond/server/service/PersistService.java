@@ -22,8 +22,6 @@ import java.util.Properties;
 
 
 /**
- * 数据库服务，提供ConfigInfo在数据库的存取<br>
- * 
  * @author boyan
  * @author leiwen.zh
  * @since 1.0
@@ -34,10 +32,8 @@ public class PersistService {
 
     private static final String JDBC_DRIVER_NAME = "com.mysql.jdbc.Driver";
 
-    // 最大记录条数
     private static final int MAX_ROWS = 10000;
-    // JDBC执行超时时间, 单位秒
-    private static final int QUERY_TIMEOUT = 2;
+    private static final int QUERY_TIMEOUT = 2; // seconds
 
     private static final ConfigInfoRowMapper CONFIG_INFO_ROW_MAPPER = new ConfigInfoRowMapper();
 
@@ -66,7 +62,7 @@ public class PersistService {
 
 
     /**
-     * 单元测试用
+     * for unit test
      * 
      * @return
      */
@@ -77,7 +73,6 @@ public class PersistService {
 
     @PostConstruct
     public void initDataSource() throws Exception {
-        // 读取jdbc.properties配置, 加载数据源
         Properties props = ResourceUtils.getResourceAsProperties("jdbc.properties");
         BasicDataSource ds = new BasicDataSource();
         ds.setDriverClassName(JDBC_DRIVER_NAME);
@@ -93,9 +88,7 @@ public class PersistService {
 
         this.jt = new JdbcTemplate();
         this.jt.setDataSource(ds);
-        // 设置最大记录数，防止内存膨胀
         this.jt.setMaxRows(MAX_ROWS);
-        // 设置JDBC执行超时时间
         this.jt.setQueryTimeout(QUERY_TIMEOUT);
     }
 
@@ -155,7 +148,6 @@ public class PersistService {
                 new Object[] { dataId, group }, CONFIG_INFO_ROW_MAPPER);
         }
         catch (EmptyResultDataAccessException e) {
-            // 是EmptyResultDataAccessException, 表明数据不存在, 返回null
             return null;
         }
     }

@@ -17,13 +17,6 @@ public class DiamondUtils {
     static final char[] INVALID_CHAR = { ';', '&', '%', '#', '$', '@', ',', '*', '^', '~', '(', ')', '/', '\\', '|',
                                         '+' };
 
-
-    /**
-     * ÅÐ¶Ï×Ö·û´®ÊÇ·ñÓÐ¿Õ¸ñ
-     * 
-     * @param str
-     * @return
-     */
     public static boolean hasInvalidChar(String str) {
         if (str == null || str.length() == 0)
             return true;

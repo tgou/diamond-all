@@ -21,8 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 
 
 /**
- * ��¼�ǳ�������
- * 
  * @author boyan
  * @date 2010-5-6
  */
@@ -41,7 +39,7 @@ public class LoginController {
             return "admin/admin";
         }
         else {
-            modelMap.addAttribute("message", "��¼ʧ�ܣ��û������벻ƥ��");
+            modelMap.addAttribute("message", "Login fail.");
             return "login";
         }
     }
