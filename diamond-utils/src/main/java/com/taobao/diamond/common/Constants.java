@@ -45,13 +45,13 @@ public class Constants {
 
     public static final String SPACING_INTERVAL = "client-spacing-interval";
 
-    public static final int POLLING_INTERVAL_TIME = 15;// 秒
+    public static final int POLLING_INTERVAL_TIME = 15;// Second
 
-    public static final int ONCE_TIMEOUT = 2000;// 毫秒
+    public static final int ONCE_TIMEOUT = 2000;// Millisecond
 
-    public static final int CONN_TIMEOUT = 2000;// 毫秒
+    public static final int CONN_TIMEOUT = 2000;// Millisecond
 
-    public static final int RECV_WAIT_TIMEOUT = ONCE_TIMEOUT * 5;// 毫秒
+    public static final int RECV_WAIT_TIMEOUT = ONCE_TIMEOUT * 5;// Millisecond
 
     public static final String HTTP_URI_FILE = "/config.co";
 
@@ -71,22 +71,12 @@ public class Constants {
 
     public static final String DEFAULT_PASSWORD = "xxx";
     
-    /*
-     * 批量操作时, 单条数据的状态码
-     */
-    // 发生异常
     public static final int BATCH_OP_ERROR = -1;
-    // 查询成功, 数据存在
     public static final int BATCH_QUERY_EXISTS = 1;
-    // 查询成功, 数据不存在
     public static final int BATCH_QUERY_NONEXISTS = 2;
-    // 新增成功
     public static final int BATCH_ADD_SUCCESS = 3;
-    // 更新成功
     public static final int BATCH_UPDATE_SUCCESS = 4;
-    // HTTP请求失败
     public static final int BATCH_HTTP_EXCEPTION = 5;
-    // HTTP IOException
     public static final int BATCH_IO_EXCEPTION = 6;
 
     public static final int GETCONFIG_LOCAL_SERVER_SNAPSHOT = 1;

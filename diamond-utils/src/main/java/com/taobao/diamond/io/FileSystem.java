@@ -13,8 +13,6 @@ import com.taobao.diamond.io.watch.WatchService;
 
 
 /**
- * 文件系统类，提供基础操作
- * 
  * @author boyan
  * @date 2010-5-4
  */
@@ -34,11 +32,6 @@ public class FileSystem {
     }
 
 
-    /**
-     * 生成一个新的WatchService
-     * 
-     * @return
-     */
     public WatchService newWatchService() {
         return new WatchService(Long.valueOf(interval));
     }

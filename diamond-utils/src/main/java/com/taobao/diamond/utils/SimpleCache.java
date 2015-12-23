@@ -16,8 +16,6 @@ import java.util.concurrent.ConcurrentMap;
 
 
 /**
- * һ����TTL�ļ�Cache�����ڹ��ڵ�entryû������
- * 
  * @author fenghan
  * 
  * @param <E>

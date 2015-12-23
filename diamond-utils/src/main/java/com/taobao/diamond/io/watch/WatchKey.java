@@ -17,8 +17,6 @@ import java.util.*;
 
 
 /**
- * WatchKey����ʾһ��ע��ĵ�ƾ֤
- * 
  * @author boyan
  * @date 2010-5-4
  */
@@ -39,7 +37,6 @@ public class WatchKey {
             WatchEvent.Kind<?>... events) {
         valid = true;
         this.watcher = watcher;
-        // �����ڴ�����
         this.root = new PathNode(path, true);
         if (events != null) {
             for (WatchEvent.Kind<?> event : events) {
@@ -51,12 +48,6 @@ public class WatchKey {
         this.changedEvents = changedEvents;
     }
 
-
-    /**
-     * ����Ŀ¼
-     * 
-     * @param node
-     */
     private void index(PathNode node, boolean fireCreatedEventOnIndex, LinkedList<WatchEvent<?>> changedEvents) {
         File file = node.getPath().getFile();
         if (!file.isDirectory()) {
@@ -103,12 +94,6 @@ public class WatchKey {
         return null;
     }
 
-
-    /**
-     * ����Ƿ��б仯
-     * 
-     * @return
-     */
     boolean check() {
         if (this.changedEvents != null && this.changedEvents.size() > 0)
             return true;
@@ -148,27 +133,23 @@ public class WatchKey {
     private boolean checkNodeChildren(PathNode node, List<WatchEvent<?>> changedEvents, File nodeNewFile) {
         boolean changed = false;
         Iterator<PathNode> it = node.getChildren().iterator();
-        // �����ж��Ƿ��������ļ�����Ŀ¼���������Ƽ���
         Set<String> childNameSet = new HashSet<String>();
         while (it.hasNext()) {
             PathNode child = it.next();
             Path childPath = child.getPath();
             childNameSet.add(childPath.getName());
             File childNewFile = new File(childPath.getAbsolutePath());
-            // 1���ж��ļ��Ƿ񻹴���
             if (!childNewFile.exists() && filterSet.contains(StandardWatchEventKind.ENTRY_DELETE)) {
                 changed = true;
                 changedEvents.add(new WatchEvent<Path>(StandardWatchEventKind.ENTRY_DELETE, 1, childPath));
-                it.remove();// �Ƴ��ڵ�
+                it.remove();
             }
-            // 2��������ļ����ж��Ƿ��޸�
             if (childPath.isFile()) {
                 if (checkFile(changedEvents, child, childNewFile) && !changed) {
                     changed = true;
                 }
 
             }
-            // 3���ݹ���Ŀ¼
             if (childPath.isDirectory()) {
                 if (check(child, changedEvents) && !changed) {
                     changed = true;
@@ -176,7 +157,6 @@ public class WatchKey {
             }
         }
 
-        // �鿴�Ƿ��������ļ�
         File[] newChildFiles = nodeNewFile.listFiles();
         if(newChildFiles!=null)
         for (File newChildFile : newChildFiles) {
@@ -186,8 +166,7 @@ public class WatchKey {
                 Path newChildPath = new Path(newChildFile);
                 changedEvents.add(new WatchEvent<Path>(StandardWatchEventKind.ENTRY_CREATE, 1, newChildPath));
                 PathNode newSubNode = new PathNode(newChildPath, false);
-                node.addChild(newSubNode);// �����ӽڵ�
-                // �����Ŀ¼���ݹ����
+                node.addChild(newSubNode);
                 if (newChildFile.isDirectory()) {
                     checkNodeChildren(newSubNode, changedEvents, newChildFile);
                 }
@@ -199,13 +178,12 @@ public class WatchKey {
 
     private boolean checkFile(List<WatchEvent<?>> changedEvents, PathNode child, File childNewFile) {
         boolean changed = false;
-        // �鿴�ļ��Ƿ��޸�
         if (childNewFile.lastModified() != child.lastModified()
                 && filterSet.contains(StandardWatchEventKind.ENTRY_MODIFY)) {
             changed = true;
             Path newChildPath = new Path(childNewFile);
             changedEvents.add(new WatchEvent<Path>(StandardWatchEventKind.ENTRY_MODIFY, 1, newChildPath));
-            child.setPath(newChildPath);// ����path
+            child.setPath(newChildPath);
         }
         return changed;
     }

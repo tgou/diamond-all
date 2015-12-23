@@ -67,12 +67,6 @@ public class MD5 {
     }
 
 
-    /**
-     * ���ַ�������md5
-     * 
-     * @param str
-     * @return md5 byte[16]
-     */
     public byte[] hash(String str) {
         opLock.lock();
         try {
@@ -90,13 +84,6 @@ public class MD5 {
         }
     }
 
-
-    /**
-     * �Զ��������ݽ���md5
-     * 
-     * @param str
-     * @return md5 byte[16]
-     */
     public byte[] hash(byte[] data) {
         opLock.lock();
         try {
@@ -111,13 +98,6 @@ public class MD5 {
         }
     }
 
-
-    /**
-     * ��һ���ֽ�����ת��Ϊ�ɼ����ַ���
-     * 
-     * @param bt
-     * @return
-     */
     public String bytes2string(byte[] bt) {
         int l = bt.length;
 
@@ -135,19 +115,12 @@ public class MD5 {
         return new String(out);
     }
 
-
-    /**
-     * ���ַ���ת��Ϊbytes
-     * 
-     * @param str
-     * @return byte[]
-     */
     public byte[] string2bytes(String str) {
         if (null == str) {
-            throw new NullPointerException("��������Ϊ��");
+            throw new NullPointerException("str is null");
         }
         if (str.length() != 32) {
-            throw new IllegalArgumentException("�ַ������ȱ�����32");
+            throw new IllegalArgumentException("str length must be 32");
         }
         byte[] data = new byte[16];
         char[] chs = str.toCharArray();

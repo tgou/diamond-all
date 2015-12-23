@@ -16,8 +16,6 @@ import java.io.Serializable;
 
 
 /**
- * ≈‰÷√–≈œ¢¿‡
- * 
  * @author boyan
  * @date 2010-5-4
  */

@@ -20,13 +20,6 @@ import java.io.File;
 import java.util.Enumeration;
 import java.util.Properties;
 
-
-/**
- * 
- * 
- * logger��ʼ��������־�����Ӧ�õ�Ŀ¼��
- * 
- */
 public class LoggerInit {
     static public final String LOG_NAME_CONFIG_DATA = "DiamondConfigDataLog";
 
@@ -58,16 +51,11 @@ public class LoggerInit {
         Thread.currentThread().setContextClassLoader(LoggerInit.class.getClassLoader());
 
         try {
-            // ʹȱʡ��������Ч(Logger, Appender)
             PropertyConfigurator.configure(defaultProperties);
 
-            /**
-             * �ҵ��ϲ�Ӧ����Root Logger�����õ�FileAppender���Լ�HSF���õ�FileAppender��
-             * Ŀ����Ϊ����HSF����־���ϲ�Ӧ�õ���־�����ͬһ��Ŀ¼��
-             */
             FileAppender bizFileAppender = getFileAppender(Logger.getRootLogger());
             if (null == bizFileAppender) {
-                log.warn("�ϲ�ҵ���û����ROOT LOGGER������FileAppender!!!");
+                log.warn("Create new ROOT LOGGER FileAppender!!!");
                 bizFileAppender = new FileAppender();
                 bizFileAppender.setFile(System.getProperty("user.home") + "/diamond/logs/diamond_config_data.log");
             }
@@ -89,8 +77,8 @@ public class LoggerInit {
         File newLogFile = new File(bizLogDir, fileAppender.getFile());
 
         fileAppender.setFile(newLogFile.getAbsolutePath());
-        fileAppender.activateOptions(); // ����Ҫ������ԭ����־���ݻᱻ���
-        log.warn("�ɹ�Ϊ" + logName + "���Appender. ���·��:" + newLogFile.getAbsolutePath());
+        fileAppender.activateOptions();
+        log.warn("Log name=" + logName + "Appender path:" + newLogFile.getAbsolutePath());
     }
 
 

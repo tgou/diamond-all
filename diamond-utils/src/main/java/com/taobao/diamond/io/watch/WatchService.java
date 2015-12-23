@@ -18,8 +18,6 @@ import java.util.concurrent.*;
 
 
 /**
- * Watch服务，为文件系统提供监视功能，当文件或者目录添加、删除或者更改的时候提供主动通知服务
- * 
  * @author boyan
  * @date 2010-5-4
  */
@@ -45,10 +43,6 @@ public final class WatchService {
 
     }
 
-
-    /**
-     * 主动check
-     */
     public void check() {
         synchronized (this) {
             Iterator<WatchKey> it = watchedKeys.iterator();
@@ -61,27 +55,19 @@ public final class WatchService {
                     }
                 }
                 catch (Throwable t) {
-                    log.error("检测WatchKey异常,key=" + key, t);
+                    log.error("WatchService check error,key=" + key, t);
                 }
             }
         }
     }
 
-
-    /**
-     * 注册目录
-     * 
-     * @param root
-     * @param events
-     * @return
-     */
     public WatchKey register(Path root, WatchEvent.Kind<?>... events) {
         if (events == null || events.length == 0)
             throw new UnsupportedOperationException("null events");
         if (this.service.isShutdown())
-            throw new IllegalStateException("服务已经关闭");
+            throw new IllegalStateException("service has shutdown");
         if (!root.exists())
-            throw new IllegalArgumentException("监视的目录不存在");
+            throw new IllegalArgumentException("root not exist");
         WatchKey key = new WatchKey(root, this, false, events);
         resetKey(key);
         return key;
@@ -92,9 +78,9 @@ public final class WatchService {
         if (events == null || events.length == 0)
             throw new UnsupportedOperationException("null events");
         if (this.service.isShutdown())
-            throw new IllegalStateException("服务已经关闭");
+            throw new IllegalStateException("service has shutdown");
         if (!root.exists())
-            throw new IllegalArgumentException("监视的目录不存在");
+            throw new IllegalArgumentException("root not exist");
         WatchKey key = new WatchKey(root, this, fireCreatedEventOnIndex, events);
         resetKey(key);
         return key;
@@ -105,40 +91,18 @@ public final class WatchService {
         return this.watchedKeys.add(key);
     }
 
-
-    /**
-     * 停止服务
-     */
     public void close() {
         this.service.shutdown();
     }
 
-
-    /**
-     * 获取改变的WatchKey
-     * 
-     * @return
-     */
     public WatchKey poll() {
         return changedKeys.poll();
     }
 
-
-    /**
-     * 获取改变的WatchKey
-     * 
-     * @return
-     */
     public WatchKey poll(long timeout, TimeUnit unit) throws InterruptedException {
         return changedKeys.poll(timeout, unit);
     }
 
-
-    /**
-     * 获取改变的WatchKey
-     * 
-     * @return
-     */
     public WatchKey take() throws InterruptedException {
         return changedKeys.take();
     }

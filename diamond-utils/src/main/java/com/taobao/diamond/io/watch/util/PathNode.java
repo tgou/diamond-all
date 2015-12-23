@@ -16,8 +16,6 @@ import java.util.List;
 
 
 /**
- * ����Ŀ¼�ṹ�Ľڵ㣬����lastModified
- * 
  * @author boyan
  * 
  */

@@ -22,8 +22,6 @@ import java.net.URI;
 
 
 /**
- * File����ķ�װ
- * 
  * @author boyan
  * @date 2010-5-4
  */

@@ -33,7 +33,7 @@ public class FileUtils {
     public static String getFileName(String path) {
         File file = new File(path);
         if (!file.isFile()) {
-            throw new RuntimeException("��·�����Ĳ����ļ�");
+            throw new RuntimeException("not file path=" + path);
         }
         return file.getName();
     }
@@ -42,14 +42,14 @@ public class FileUtils {
     public static String getParentDir(String path) {
         File file = new File(path);
         if (!file.isFile()) {
-            throw new RuntimeException("��·�����Ĳ����ļ�");
+            throw new RuntimeException("not file path=" + path);
         }
         File parent = file.getParentFile();
         if (parent.isDirectory()) {
             return parent.getName();
         }
         else {
-            throw new RuntimeException("��Ŀ¼����Ŀ¼");
+            throw new RuntimeException("parent is not directory path=" + path);
         }
     }
 
@@ -57,7 +57,7 @@ public class FileUtils {
     public static String getGrandpaDir(String path) {
         File file = new File(path);
         if (file.isDirectory()) {
-            throw new RuntimeException("��·�����Ĳ����ļ�");
+            throw new RuntimeException("can't be directory path=" + path);
         }
         File parent = file.getParentFile();
         if (parent.isDirectory()) {
@@ -66,11 +66,11 @@ public class FileUtils {
                 return grandpa.getName();
             }
             else {
-                throw new RuntimeException("��Ŀ¼����Ŀ¼");
+                throw new RuntimeException("grand parent is not directory path=" + path);
             }
         }
         else {
-            throw new RuntimeException("��Ŀ¼����Ŀ¼");
+            throw new RuntimeException("parent is not directory path=" + path);
         }
     }
 
@@ -78,7 +78,7 @@ public class FileUtils {
     public static String getFileContent(String path) throws IOException {
         File tFile = new File(path);
         if (!tFile.isFile()) {
-            throw new RuntimeException("�����ļ�");
+            throw new RuntimeException("not file path=" + path);
         }
         RandomAccessFile file = new RandomAccessFile(tFile, "r");
         long fileSize = file.length();
