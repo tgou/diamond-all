@@ -114,17 +114,17 @@ public class DefaultDiamondManager implements DiamondManager {
 
 
     public String getConfigureInfomation(long timeout) {
-        return diamondSubscriber.getConfigureInfomation(this.dataId, this.group, timeout);
+        return diamondSubscriber.getConfigureInformation(this.dataId, this.group, timeout);
     }
 
 
     public String getAvailableConfigureInfomation(long timeout) {
-        return diamondSubscriber.getAvailableConfigureInfomation(dataId, group, timeout);
+        return diamondSubscriber.getAvailableConfigureInformation(dataId, group, timeout);
     }
 
 
     public String getAvailableConfigureInfomationFromSnapshot(long timeout) {
-        return diamondSubscriber.getAvailableConfigureInfomationFromSnapshot(dataId, group, timeout);
+        return diamondSubscriber.getAvailableConfigureInformationFromSnapshot(dataId, group, timeout);
     }
 
 

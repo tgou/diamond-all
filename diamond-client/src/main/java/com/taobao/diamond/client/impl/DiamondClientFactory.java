@@ -13,8 +13,6 @@ import com.taobao.diamond.client.DiamondSubscriber;
 
 
 /**
- * Diamond客户端工厂类，可以产生一个单例的DiamondSubscriber，供所有的DiamondManager共用 不同的集群对应不同的单例
- * 
  * @author aoqiong
  * 
  */

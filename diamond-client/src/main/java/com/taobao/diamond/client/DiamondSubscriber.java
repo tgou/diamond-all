@@ -48,7 +48,7 @@ public interface DiamondSubscriber extends DiamondClientSub {
      * @param timeout
      * @return
      */
-    public String getConfigureInfomation(String dataId, String group, long timeout);
+    public String getConfigureInformation(String dataId, String group, long timeout);
 
 
     /**
@@ -59,7 +59,7 @@ public interface DiamondSubscriber extends DiamondClientSub {
      * @param timeout
      * @return
      */
-    public String getConfigureInfomation(String dataId, long timeout);
+    public String getConfigureInformation(String dataId, long timeout);
 
 
     /**
@@ -71,7 +71,7 @@ public interface DiamondSubscriber extends DiamondClientSub {
      * @param timeout
      * @return
      */
-    public String getAvailableConfigureInfomation(String dataId, String group, long timeout);
+    public String getAvailableConfigureInformation(String dataId, String group, long timeout);
 
     /**
      * 从本地和snapshot获取配置，batch模式使用
@@ -164,7 +164,7 @@ public interface DiamondSubscriber extends DiamondClientSub {
      * @param timeout
      * @return
      */
-    public String getAvailableConfigureInfomationFromSnapshot(String dataId, String group, long timeout);
+    public String getAvailableConfigureInformationFromSnapshot(String dataId, String group, long timeout);
 
     /**
      * 批量获取配置信息
@@ -173,5 +173,5 @@ public interface DiamondSubscriber extends DiamondClientSub {
      * @param timeout
      * @return
      */
-    public BatchHttpResult getConfigureInfomationBatch(List<String> dataIds, String group, int timeout);
+    public BatchHttpResult getConfigureInformationBatch(List<String> dataIds, String group, int timeout);
 }

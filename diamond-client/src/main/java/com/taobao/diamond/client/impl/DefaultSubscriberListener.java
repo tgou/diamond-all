@@ -18,14 +18,11 @@ import java.util.concurrent.Executor;
 
 
 /**
- * ҵ��������ľۼ���
- * 
  * @author leiwen.zh
  * 
  */
 public class DefaultSubscriberListener implements SubscriberListener {
 
-    // �ص���־������¼
     private static final Log dataLog = LogFactory.getLog(LoggerInit.LOG_NAME_CONFIG_DATA);
 
     private final ConcurrentMap<String/* dataId + group */, CopyOnWriteArrayList<ManagerListener>/* listeners */> allListeners =
@@ -94,10 +91,6 @@ public class DefaultSubscriberListener implements SubscriberListener {
         }
     }
 
-
-    /**
-     * ���һ��DataID��Ӧ��ManagerListener
-     */
     public void addManagerListener(String dataId, String group, ManagerListener listener) {
         List<ManagerListener> list = new ArrayList<ManagerListener>();
         list.add(listener);
@@ -114,12 +107,6 @@ public class DefaultSubscriberListener implements SubscriberListener {
         return new ArrayList<ManagerListener>(allListeners.get(key));
     }
 
-
-    /**
-     * ɾ��һ��DataID��Ӧ�����е�ManagerListeners
-     * 
-     * @param dataId
-     */
     public void removeManagerListeners(String dataId, String group) {
         if (null == dataId) {
             return;
@@ -129,13 +116,6 @@ public class DefaultSubscriberListener implements SubscriberListener {
         allListeners.remove(key);
     }
 
-
-    /**
-     * ���һ��DataID��Ӧ��һЩManagerListener
-     * 
-     * @param dataId
-     * @param addListeners
-     */
     public void addManagerListeners(String dataId, String group, List<ManagerListener> addListeners) {
         if (null == dataId || null == addListeners) {
             return;

@@ -47,9 +47,9 @@ public class DiamondEnv {
 
         switch (fromWhere) {
             case Constants.GETCONFIG_LOCAL_SERVER_SNAPSHOT:
-                return diamondSubscriber.getAvailableConfigureInfomation(dataId, group, timeout);
+                return diamondSubscriber.getAvailableConfigureInformation(dataId, group, timeout);
             case Constants.GETCONFIG_SNAPSHOT_LOCAL_SERVER:
-                return diamondSubscriber.getAvailableConfigureInfomationFromSnapshot(dataId, group, timeout);
+                return diamondSubscriber.getAvailableConfigureInformationFromSnapshot(dataId, group, timeout);
             default:
                 throw new IllegalArgumentException("FromWhere is illegal.");
         }
@@ -61,7 +61,7 @@ public class DiamondEnv {
             return result;
         }
 
-        return diamondSubscriber.getConfigureInfomationBatch(dataIds, group, timeout);
+        return diamondSubscriber.getConfigureInformationBatch(dataIds, group, timeout);
     }
 
     private BatchHttpResult batchQueryFromLocal(List<String> dataIds, String group, int timeout) {

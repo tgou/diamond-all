@@ -55,15 +55,12 @@ import static com.taobao.diamond.common.Constants.WORD_SEPARATOR;
 
 
 /**
- * »± °µƒDiamondSubscriber
- * 
  * @author aoqiong
- * 
  */
 class DefaultDiamondSubscriber implements DiamondSubscriber {
-    // ±æµÿŒƒº˛º‡ ”ƒø¬º
+    // Êú¨Âú∞Êñá‰ª∂ÁõëËßÜÁõÆÂΩï
     private static final String DATA_DIR = "data";
-    // …œ“ª¥Œ’˝»∑≈‰÷√µƒæµœÒƒø¬º
+    // ‰∏ä‰∏ÄÊ¨°Ê≠£Á°ÆÈÖçÁΩÆÁöÑÈïúÂÉèÁõÆÂΩï
     private static final String SNAPSHOT_DIR = "snapshot";
 
     private static final Log log = LogFactory.getLog(DefaultDiamondSubscriber.class);
@@ -79,30 +76,22 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
     static {
         try {
             LoggerInit.initLogFromBizLog();
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
         }
     }
+
     private final Log dataLog = LogFactory.getLog(LoggerInit.LOG_NAME_CONFIG_DATA);
 
     private final ConcurrentHashMap<String/* DataID */, ConcurrentHashMap<String/* Group */, CacheData>> cache =
             new ConcurrentHashMap<String, ConcurrentHashMap<String, CacheData>>();
-
+    private final LocalConfigInfoProcessor localConfigInfoProcessor = new LocalConfigInfoProcessor();
+    private final SimpleCache<String> contentCache = new SimpleCache<String>();
+    private final AtomicInteger domainNamePos = new AtomicInteger(0);
     private volatile SubscriberListener subscriberListener = null;
     private volatile DiamondConfigure diamondConfigure;
-
     private ScheduledExecutorService scheduledExecutor = null;
-
-    private final LocalConfigInfoProcessor localConfigInfoProcessor = new LocalConfigInfoProcessor();
-
     private SnapshotConfigInfoProcessor snapshotConfigInfoProcessor;
-
-    private final SimpleCache<String> contentCache = new SimpleCache<String>();
-
     private ServerAddressProcessor serverAddressProcessor = null;
-
-    private final AtomicInteger domainNamePos = new AtomicInteger(0);
-
     private volatile boolean isRun = false;
 
     private HttpClient httpClient = null;
@@ -115,12 +104,6 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         this.diamondConfigure = new DiamondConfigure();
     }
 
-
-    /**
-     * ∆Ù∂ØDiamondSubscriber£∫<br>
-     * 1.◊Ë»˚÷˜∂ØªÒ»°À˘”–µƒDataId≈‰÷√–≈œ¢<br>
-     * 2.∆Ù∂Ø∂® ±œﬂ≥Ã∂® ±ªÒ»°À˘”–µƒDataId≈‰÷√–≈œ¢<br>
-     */
     public synchronized void start() {
         if (isRun) {
             return;
@@ -134,27 +117,21 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         serverAddressProcessor = new ServerAddressProcessor(this.diamondConfigure, this.scheduledExecutor);
         serverAddressProcessor.start();
 
-        this.snapshotConfigInfoProcessor =
-                new SnapshotConfigInfoProcessor(this.diamondConfigure.getFilePath() + "/" + SNAPSHOT_DIR);
-        // …Ë÷√domainNamePos÷µ
+        this.snapshotConfigInfoProcessor = new SnapshotConfigInfoProcessor(this.diamondConfigure.getFilePath() + "/" + SNAPSHOT_DIR);
         randomDomainNamePos();
         initHttpClient();
 
-        // ≥ı ºªØÕÍ±œ
         isRun = true;
 
         if (log.isInfoEnabled()) {
-            log.info("µ±«∞ π”√µƒ”Ú√˚”–£∫" + this.diamondConfigure.getDomainNameList());
+            log.info("Current using domains:" + this.diamondConfigure.getDomainNameList());
         }
 
         if (MockServer.isTestMode()) {
             bFirstCheck = false;
-        }
-        else {
-            // …Ë÷√¬÷—Øº‰∏Ù ±º‰
+        } else {
             this.diamondConfigure.setPollingIntervalTime(Constants.POLLING_INTERVAL_TIME);
         }
-        // ¬÷—Ø
         rotateCheckConfigInfo();
 
         addShutdownHook();
@@ -162,7 +139,6 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
 
     private void randomDomainNamePos() {
-        // ÀÊª˙ªØ∆ º∑˛ŒÒ∆˜µÿ÷∑
         Random rand = new Random();
         List<String> domainList = this.diamondConfigure.getDomainNameList();
         if (!domainList.isEmpty()) {
@@ -176,7 +152,6 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
             @Override
             public void run() {
-                // πÿ±’µ•¿˝∂©‘ƒ’ﬂ
                 close();
             }
 
@@ -189,8 +164,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             return;
         }
         HostConfiguration hostConfiguration = new HostConfiguration();
-        hostConfiguration.setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()),
-            diamondConfigure.getPort());
+        hostConfiguration.setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()), diamondConfigure.getPort());
 
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
         connectionManager.closeIdleConnections(diamondConfigure.getPollingIntervalTime() * 4000);
@@ -200,8 +174,6 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         params.setMaxConnectionsPerHost(hostConfiguration, diamondConfigure.getMaxHostConnections());
         params.setMaxTotalConnections(diamondConfigure.getMaxTotalConnections());
         params.setConnectionTimeout(diamondConfigure.getConnectionTimeout());
-        // …Ë÷√∂¡≥¨ ±Œ™1∑÷÷”,
-        // boyan@taobao.com
         params.setSoTimeout(60 * 1000);
 
         connectionManager.setParams(params);
@@ -211,35 +183,29 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
 
     /**
-     * Ωˆπ©≤‚ ‘£¨«–Œµ˜”√
-     * 
+     * for test, do not use
+     *
      * @param pos
      */
     void setDomainNamesPos(int pos) {
         this.domainNamePos.set(pos);
     }
 
-
-    /**
-     * —≠ª∑ÃΩ≤‚≈‰÷√–≈œ¢ «∑Ò±‰ªØ£¨»Áπ˚±‰ªØ£¨‘Ú‘Ÿ¥ŒœÚDiamondServer«Î«ÛªÒ»°∂‘”¶µƒ≈‰÷√–≈œ¢
-     */
     private void rotateCheckConfigInfo() {
         scheduledExecutor.schedule(new Runnable() {
             public void run() {
                 if (!isRun) {
-                    log.warn("DiamondSubscriber≤ª‘⁄‘À––◊¥Ã¨÷–£¨ÕÀ≥ˆ≤È—Ø—≠ª∑");
+                    log.warn("DiamondSubscriber is not running. so quit.");
                     return;
                 }
                 try {
                     checkLocalConfigInfo();
                     checkDiamondServerConfigInfo();
                     checkSnapshot();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
-                    log.error("—≠ª∑ÃΩ≤‚∑¢…˙“Ï≥£", e);
-                }
-                finally {
+                    log.error("rotateCheckConfigInfo error:", e);
+                } finally {
                     rotateCheckConfigInfo();
                 }
             }
@@ -248,24 +214,17 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         bFirstCheck = false;
     }
 
-
-    /**
-     * œÚDiamondServer«Î«ÛdataId∂‘”¶µƒ≈‰÷√–≈œ¢£¨≤¢Ω´Ω·π˚≈◊∏¯øÕªßµƒº‡Ã˝∆˜
-     * 
-     * @param cacheData
-     */
     private void receiveConfigInfo(final CacheData cacheData) {
         scheduledExecutor.execute(new Runnable() {
             public void run() {
                 if (!isRun) {
-                    log.warn("DiamondSubscriber≤ª‘⁄‘À––◊¥Ã¨÷–£¨ÕÀ≥ˆ≤È—Ø—≠ª∑");
+                    log.warn("DiamondSubscriber is not running. so quit.");
                     return;
                 }
 
                 try {
-                    String configInfo =
-                            getConfigureInfomation(cacheData.getDataId(), cacheData.getGroup(),
-                                diamondConfigure.getReceiveWaitTime(), true);
+                    String configInfo = getConfigureInformation(cacheData.getDataId(), cacheData.getGroup(),
+                            diamondConfigure.getReceiveWaitTime(), true);
                     if (null == configInfo) {
                         return;
                     }
@@ -276,9 +235,8 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                     }
 
                     popConfigInfo(cacheData, configInfo);
-                }
-                catch (Exception e) {
-                    log.error("œÚDiamond∑˛ŒÒ∆˜À˜“™≈‰÷√–≈œ¢µƒπ˝≥Ã≈◊“Ï≥£", e);
+                } catch (Exception e) {
+                    log.error("receiveConfigInfo error:", e);
                 }
             }
         });
@@ -293,9 +251,8 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             }
             for (Entry<String, CacheData> cacheDataEntry : cacheDatas.entrySet()) {
                 final CacheData cacheData = cacheDataEntry.getValue();
-                // √ª”–ªÒ»°±æµÿ≈‰÷√£¨“≤√ª”–¥”diamond serverªÒ»°≈‰÷√≥…π¶,‘Úº”‘ÿ…œ“ª¥Œµƒsnapshot
                 if (!cacheData.isUseLocalConfigInfo() && cacheData.getFetchCount() == 0) {
-                    String configInfo = getSnapshotConfiginfomation(cacheData.getDataId(), cacheData.getGroup());
+                    String configInfo = getSnapshotConfigInformation(cacheData.getDataId(), cacheData.getGroup());
                     if (configInfo != null) {
                         popConfigInfo(cacheData, configInfo);
                     }
@@ -308,10 +265,9 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
     private void checkDiamondServerConfigInfo() {
         Set<String> updateDataIdGroupPairs = checkUpdateDataIds(diamondConfigure.getReceiveWaitTime());
         if (null == updateDataIdGroupPairs || updateDataIdGroupPairs.size() == 0) {
-            log.debug("√ª”–±ª–ﬁ∏ƒµƒDataID");
+            log.debug("DataID not changed.");
             return;
         }
-        // ∂‘”⁄√ø∏ˆ∑¢…˙±‰ªØµƒDataID£¨∂º«Î«Û“ª¥Œ∂‘”¶µƒ≈‰÷√–≈œ¢
         for (String freshDataIdGroupPair : updateDataIdGroupPairs) {
             int middleIndex = freshDataIdGroupPair.indexOf(WORD_SEPARATOR);
             if (middleIndex == -1)
@@ -334,7 +290,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
     private void checkLocalConfigInfo() {
         for (Entry<String/* dataId */, ConcurrentHashMap<String/* group */, CacheData>> cacheDatasEntry : cache
-            .entrySet()) {
+                .entrySet()) {
             ConcurrentHashMap<String, CacheData> cacheDatas = cacheDatasEntry.getValue();
             if (null == cacheDatas) {
                 continue;
@@ -345,7 +301,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                     String configInfo = getLocalConfigureInfomation(cacheData);
                     if (null != configInfo) {
                         if (log.isInfoEnabled()) {
-                            log.info("±æµÿ≈‰÷√–≈œ¢±ª∂¡»°, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
+                            log.info("Read local configure, dataId:" + cacheData.getDataId() + ", group:" + cacheData.getGroup());
                         }
                         popConfigInfo(cacheData, configInfo);
                         continue;
@@ -353,19 +309,13 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                     if (cacheData.isUseLocalConfigInfo()) {
                         continue;
                     }
-                }
-                catch (Exception e) {
-                    log.error("œÚ±æµÿÀ˜“™≈‰÷√–≈œ¢µƒπ˝≥Ã≈◊“Ï≥£", e);
+                } catch (Exception e) {
+                    log.error("checkLocalConfigInfo error:", e);
                 }
             }
         }
     }
 
-
-    /**
-     * Ω´∂©‘ƒ–≈œ¢≈◊∏¯øÕªßµƒº‡Ã˝∆˜
-     * 
-     */
     void popConfigInfo(final CacheData cacheData, final String configInfo) {
         final ConfigureInfomation configureInfomation = new ConfigureInfomation();
         configureInfomation.setConfigureInfomation(configInfo);
@@ -380,20 +330,17 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                     try {
                         subscriberListener.receiveConfigInfo(configureInfomation);
                         saveSnapshot(dataId, group, configInfo);
-                    }
-                    catch (Throwable t) {
-                        log.error("≈‰÷√–≈œ¢º‡Ã˝∆˜÷–”–“Ï≥££¨groupŒ™£∫" + group + ", dataIdŒ™£∫" + dataId, t);
+                    } catch (Throwable t) {
+                        log.error("popConfigInfo listener receiveConfigInfo error: group=" + group + ", dataId=" + dataId, t);
                     }
                 }
             });
-        }
-        else {
+        } else {
             try {
                 subscriberListener.receiveConfigInfo(configureInfomation);
                 saveSnapshot(dataId, group, configInfo);
-            }
-            catch (Throwable t) {
-                log.error("≈‰÷√–≈œ¢º‡Ã˝∆˜÷–”–“Ï≥££¨groupŒ™£∫" + group + ", dataIdŒ™£∫" + dataId, t);
+            } catch (Throwable t) {
+                log.error("popConfigInfo listener receiveConfigInfo error: group=" + group + ", dataId=" + dataId, t);
             }
         }
     }
@@ -403,7 +350,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         if (!isRun) {
             return;
         }
-        log.warn("ø™ ºπÿ±’DiamondSubscriber");
+        log.warn("Close DiamondSubscriber begin.");
 
         localConfigInfoProcessor.stop();
         serverAddressProcessor.stop();
@@ -411,18 +358,9 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         scheduledExecutor.shutdown();
         cache.clear();
 
-        log.warn("πÿ±’DiamondSubscriberÕÍ≥…");
+        log.warn("Close DiamondSubscriber end.");
     }
 
-
-    /**
-     * 
-     * @param waitTime
-     *            ±æ¥Œ≤È—Ø“—æ≠∫ƒ∑—µƒ ±º‰(“—æ≠≤È—Øµƒ∂‡¥ŒHTTP∫ƒ∑—µƒ ±º‰)
-     * @param timeout
-     *            ±æ¥Œ≤È—Ø◊‹µƒø…∫ƒ∑— ±º‰(ø…π©∂‡¥ŒHTTP≤È—Ø π”√)
-     * @return ±æ¥ŒHTTP≤È—Øƒ‹πª π”√µƒ ±º‰
-     */
     long getOnceTimeOut(long waitTime, long timeout) {
         long onceTimeOut = this.diamondConfigure.getOnceTimeout();
         long remainTime = timeout - waitTime;
@@ -435,38 +373,34 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
     public String getLocalConfigureInfomation(CacheData cacheData) throws IOException {
         if (!isRun) {
-            throw new RuntimeException("DiamondSubscriber≤ª‘⁄‘À––◊¥Ã¨÷–£¨Œﬁ∑®ªÒ»°±æµÿConfigureInfomation");
+            throw new RuntimeException("DiamondSubscriber is not running, can't fetch local ConfigureInfomation");
         }
         return localConfigInfoProcessor.getLocalConfigureInfomation(cacheData, false);
     }
 
 
-    public String getConfigureInfomation(String dataId, long timeout) {
-        return getConfigureInfomation(dataId, null, timeout);
+    public String getConfigureInformation(String dataId, long timeout) {
+        return getConfigureInformation(dataId, null, timeout);
     }
 
 
-    public String getConfigureInfomation(String dataId, String group, long timeout) {
-        // Õ¨≤ΩΩ”ø⁄¡˜øÿ
-        // flowControl();
+    public String getConfigureInformation(String dataId, String group, long timeout) {
         if (null == group) {
             group = Constants.DEFAULT_GROUP;
         }
         CacheData cacheData = getCacheData(dataId, group);
-        // ”≈œ» π”√±æµÿ≈‰÷√
         try {
             String localConfig = localConfigInfoProcessor.getLocalConfigureInfomation(cacheData, true);
             if (localConfig != null) {
                 cacheData.incrementFetchCountAndGet();
                 saveSnapshot(dataId, group, localConfig);
+
                 return localConfig;
             }
+        } catch (IOException e) {
+            log.error("getLocalConfigureInfomation error:", e);
         }
-        catch (IOException e) {
-            log.error("ªÒ»°±æµÿ≈‰÷√Œƒº˛≥ˆ¥Ì", e);
-        }
-        // ªÒ»°±æµÿ≈‰÷√ ß∞‹£¨¥”Õ¯¬Á»°
-        String result = getConfigureInfomation(dataId, group, timeout, false);
+        String result = getConfigureInformation(dataId, group, timeout, false);
         if (result != null) {
             saveSnapshot(dataId, group, result);
             cacheData.incrementFetchCountAndGet();
@@ -478,56 +412,48 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
     private void saveSnapshot(String dataId, String group, String config) {
         if (config != null) {
             try {
-                this.snapshotConfigInfoProcessor.saveSnaptshot(dataId, group, config);
-            }
-            catch (IOException e) {
-                log.error("±£¥Êsnapshot≥ˆ¥Ì,dataId=" + dataId + ",group=" + group, e);
+                this.snapshotConfigInfoProcessor.saveSnapshot(dataId, group, config);
+            } catch (IOException e) {
+                log.error("saveSnapshot error,dataId=" + dataId + ",group=" + group, e);
             }
         }
     }
 
 
-    public String getAvailableConfigureInfomation(String dataId, String group, long timeout) {
-        // ≥¢ ‘œ»¥”±æµÿ∫ÕÕ¯¬ÁªÒ»°≈‰÷√–≈œ¢
+    public String getAvailableConfigureInformation(String dataId, String group, long timeout) {
         try {
-            String result = getConfigureInfomation(dataId, group, timeout);
+            String result = getConfigureInformation(dataId, group, timeout);
+
             if (result != null && result.length() > 0) {
                 return result;
             }
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
 
-        // ≤‚ ‘ƒ£ Ω≤ª π”√±æµÿdump
         if (MockServer.isTestMode()) {
             return null;
         }
-        return getSnapshotConfiginfomation(dataId, group);
+        return getSnapshotConfigInformation(dataId, group);
     }
 
     public String getFromLocalAndSnapshot(String dataId, String group, long timeout) {
-        // ≥¢ ‘œ»¥”±æµÿªÒ»°≈‰÷√–≈œ¢
         try {
             String result = getConfigureInfomationFromLocal(dataId, group, timeout);
             if (result != null && result.length() > 0) {
                 return result;
             }
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
 
-        // ≤‚ ‘ƒ£ Ω≤ª π”√±æµÿdump
         if (MockServer.isTestMode()) {
             return null;
         }
-        return getSnapshotConfiginfomation(dataId, group);
+        return getSnapshotConfigInformation(dataId, group);
     }
 
     public String getConfigureInfomationFromLocal(String dataId, String group, long timeout) {
-        // Õ¨≤ΩΩ”ø⁄¡˜øÿ
-        // flowControl();
         if (null == group) {
             group = Constants.DEFAULT_GROUP;
         }
@@ -540,25 +466,24 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
                 return localConfig;
             }
-        }
-        catch (IOException e) {
-            log.error("ªÒ»°±æµÿ≈‰÷√Œƒº˛≥ˆ¥Ì", e);
+        } catch (IOException e) {
+            log.error("getLocalConfigureInfomation error", e);
         }
 
         return null;
     }
 
 
-    public String getAvailableConfigureInfomationFromSnapshot(String dataId, String group, long timeout) {
-        String result = getSnapshotConfiginfomation(dataId, group);
+    public String getAvailableConfigureInformationFromSnapshot(String dataId, String group, long timeout) {
+        String result = getSnapshotConfigInformation(dataId, group);
         if (!StringUtils.isBlank(result)) {
             return result;
         }
-        return getConfigureInfomation(dataId, group, timeout);
+        return getConfigureInformation(dataId, group, timeout);
     }
 
 
-    private String getSnapshotConfiginfomation(String dataId, String group) {
+    private String getSnapshotConfigInformation(String dataId, String group) {
         if (group == null) {
             group = Constants.DEFAULT_GROUP;
         }
@@ -569,39 +494,25 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                 cacheData.incrementFetchCountAndGet();
             }
             return config;
-        }
-        catch (Exception e) {
-            log.error("ªÒ»°snapshot≥ˆ¥Ì£¨ dataId=" + dataId + ",group=" + group, e);
+        } catch (Exception e) {
+            log.error("getSnapshotConfigInformation error dataId=" + dataId + ",group=" + group, e);
             return null;
         }
     }
 
-
-    /**
-     * 
-     * @param dataId
-     * @param group
-     * @param timeout
-     * @param skipContentCache
-     *             «∑Ò π”√±æµÿµƒƒ⁄»›cache°£÷˜∂Øget ±ª· π”√£¨”–check¥•∑¢µƒ“Ï≤Ωget≤ª π”√±æµÿcache°£
-     * @return
-     */
-    String getConfigureInfomation(String dataId, String group, long timeout, boolean skipContentCache) {
+    String getConfigureInformation(String dataId, String group, long timeout, boolean skipContentCache) {
         start();
         if (!isRun) {
-            throw new RuntimeException("DiamondSubscriber≤ª‘⁄‘À––◊¥Ã¨÷–£¨Œﬁ∑®ªÒ»°ConfigureInfomation");
+            throw new RuntimeException("DiamondSubscriber is not running, so can't fetch from ConfigureInformation");
         }
         if (null == group) {
             group = Constants.DEFAULT_GROUP;
         }
-        // ======================= π”√≤‚ ‘ƒ£ Ω=======================
+        // ======================= πÔøΩ√≤ÔøΩÔøΩÔøΩƒ£ Ω=======================
         if (MockServer.isTestMode()) {
             return MockServer.getConfigInfo(dataId, group);
         }
-        // ==========================================================
-        /**
-         *  π”√¥¯”–TTLµƒcache£¨
-         */
+
         if (!skipContentCache) {
             String key = makeCacheKey(dataId, group);
             String content = contentCache.get(key);
@@ -619,22 +530,18 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
         CacheData cacheData = getCacheData(dataId, group);
 
-        // ◊‹µƒ÷ÿ ‘¥Œ ˝
         int retryTimes = this.getDiamondConfigure().getRetrieveDataRetryTimes();
-        log.info("…Ë∂®µƒªÒ»°≈‰÷√ ˝æ›µƒ÷ÿ ‘¥Œ ˝Œ™£∫" + retryTimes);
-        // “—æ≠≥¢ ‘π˝µƒ¥Œ ˝
+        log.info("Retry times is " + retryTimes);
         int tryCount = 0;
 
         while (0 == timeout || timeout > waitTime) {
-            // ≥¢ ‘¥Œ ˝º”1
             tryCount++;
             if (tryCount > retryTimes + 1) {
-                log.warn("“—æ≠µΩ¥Ô¡À…Ë∂®µƒ÷ÿ ‘¥Œ ˝");
+                log.warn("Retry time reach the limit, so break");
                 break;
             }
-            log.info("ªÒ»°≈‰÷√ ˝æ›£¨µ⁄" + tryCount + "¥Œ≥¢ ‘, waitTime:" + waitTime);
+            log.info("Fetch config " + tryCount + "times, waitTime:" + waitTime);
 
-            // …Ë÷√≥¨ ± ±º‰
             long onceTimeOut = getOnceTimeOut(waitTime, timeout);
             waitTime += onceTimeOut;
 
@@ -647,53 +554,47 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
                 switch (httpStatus) {
 
-                case SC_OK: {
-                    String result = getSuccess(dataId, group, cacheData, httpMethod);
-                    return result;
-                }
+                    case SC_OK: {
+                        String result = getSuccess(dataId, group, cacheData, httpMethod);
+                        return result;
+                    }
 
-                case SC_NOT_MODIFIED: {
-                    String result = getNotModified(dataId, cacheData, httpMethod);
-                    return result;
-                }
+                    case SC_NOT_MODIFIED: {
+                        String result = getNotModified(dataId, cacheData, httpMethod);
+                        return result;
+                    }
 
-                case SC_NOT_FOUND: {
-                    log.warn("√ª”–’“µΩDataIDŒ™:" + dataId + "∂‘”¶µƒ≈‰÷√–≈œ¢");
-                    cacheData.setMd5(Constants.NULL);
-                    this.snapshotConfigInfoProcessor.removeSnapshot(dataId, group);
-                    return null;
-                }
+                    case SC_NOT_FOUND: {
+                        log.warn("DataID:" + dataId + "not found");
+                        cacheData.setMd5(Constants.NULL);
+                        this.snapshotConfigInfoProcessor.removeSnapshot(dataId, group);
+                        return null;
+                    }
 
-                case SC_SERVICE_UNAVAILABLE: {
-                    rotateToNextDomain();
-                }
+                    case SC_SERVICE_UNAVAILABLE: {
+                        rotateToNextDomain();
+                    }
                     break;
 
-                default: {
-                    log.warn("HTTP State: " + httpStatus + ":" + httpClient.getState());
-                    rotateToNextDomain();
+                    default: {
+                        log.warn("HTTP State: " + httpStatus + ":" + httpClient.getState());
+                        rotateToNextDomain();
+                    }
                 }
-                }
-            }
-            catch (HttpException e) {
-                log.error("ªÒ»°≈‰÷√–≈œ¢Http“Ï≥£", e);
+            } catch (HttpException e) {
+                log.error("Fetch config HttpException", e);
                 rotateToNextDomain();
-            }
-            catch (IOException e) {
-
-                log.error("ªÒ»°≈‰÷√–≈œ¢IO“Ï≥£", e);
+            } catch (IOException e) {
+                log.error("Fetch config IOException", e);
                 rotateToNextDomain();
-            }
-            catch (Exception e) {
-                log.error("Œ¥÷™“Ï≥£", e);
+            } catch (Exception e) {
+                log.error("Unknown Exception", e);
                 rotateToNextDomain();
-            }
-            finally {
+            } finally {
                 httpMethod.releaseConnection();
             }
         }
-        throw new RuntimeException("ªÒ»°ConfigureInfomation≥¨ ±, DataID" + dataId + ", GroupŒ™£∫" + group + ",≥¨ ± ±º‰Œ™£∫"
-                + timeout);
+        throw new RuntimeException("Fetch config timeout, DataID=" + dataId + ", Group=" + group + ",timeout=" + timeout);
     }
 
 
@@ -717,61 +618,47 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return cacheData;
     }
 
-
-    /**
-     * ªÿ¿°µƒΩ·π˚Œ™RP_NO_CHANGE£¨‘Ú’˚∏ˆ¡˜≥ÃŒ™£∫<br>
-     * 1.ºÏ≤Èª∫¥Ê÷–µƒMD5¬Î”Î∑µªÿµƒMD5¬Î «∑Ò“ª÷¬£¨»Áπ˚≤ª“ª÷¬£¨‘Ú…æ≥˝ª∫¥Ê––°£÷ÿ–¬‘Ÿ¥Œ≤È—Ø°£<br>
-     * 2.»Áπ˚MD5¬Î“ª÷¬£¨‘Ú÷±Ω”∑µªÿNULL<br>
-     */
     private String getNotModified(String dataId, CacheData cacheData, HttpMethod httpMethod) {
         Header md5Header = httpMethod.getResponseHeader(Constants.CONTENT_MD5);
         if (null == md5Header) {
-            throw new RuntimeException("RP_NO_CHANGE∑µªÿµƒΩ·π˚÷–√ª”–MD5¬Î");
+            throw new RuntimeException("RP_NO_CHANGE response not contain MD5");
         }
         String md5 = md5Header.getValue();
         if (!cacheData.getMd5().equals(md5)) {
             String lastMd5 = cacheData.getMd5();
             cacheData.setMd5(Constants.NULL);
             cacheData.setLastModifiedHeader(Constants.NULL);
-            throw new RuntimeException("MD5¬Î–£—È∂‘±»≥ˆ¥Ì,DataIDŒ™:[" + dataId + "]…œ¥ŒMD5Œ™:[" + lastMd5 + "]±æ¥ŒMD5Œ™:[" + md5
-                    + "]");
+
+            throw new RuntimeException("MD5 verify error,DataID:[" + dataId + "]MD5 last:[" + lastMd5 + "]MD5 current:[" + md5 + "]");
         }
 
         cacheData.setMd5(md5);
         changeSpacingInterval(httpMethod);
         if (log.isInfoEnabled()) {
-            log.info("DataId: " + dataId + ", ∂‘”¶µƒconfigInfo√ª”–±‰ªØ");
+            log.info("DataId: " + dataId + ",not changed");
         }
         return null;
     }
 
-
-    /**
-     * ªÿ¿°µƒΩ·π˚Œ™RP_OK£¨‘Ú’˚∏ˆ¡˜≥ÃŒ™£∫<br>
-     * 1.ªÒ»°≈‰÷√–≈œ¢£¨»Áπ˚≈‰÷√–≈œ¢Œ™ø’ªÚ’ﬂ≈◊≥ˆ“Ï≥££¨‘Ú≈◊≥ˆ‘À–– ±“Ï≥£<br>
-     * 2.ºÏ≤‚≈‰÷√–≈œ¢ «∑Ò∑˚∫œªÿ¿°Ω·π˚÷–µƒMD5¬Î£¨≤ª∑˚∫œ£¨‘Ú‘Ÿ¥ŒªÒ»°≈‰÷√–≈œ¢£¨≤¢º«¬º»’÷æ<br>
-     * 3.∑˚∫œ£¨‘Ú¥Ê¥¢LastModified–≈œ¢∫ÕMD5¬Î£¨µ˜’˚≤È—Øµƒº‰∏Ù ±º‰£¨Ω´ªÒ»°µƒ≈‰÷√–≈œ¢∑¢ÀÕ∏¯øÕªßµƒº‡Ã˝∆˜<br>
-     */
     private String getSuccess(String dataId, String group, CacheData cacheData, HttpMethod httpMethod) {
         String configInfo = Constants.NULL;
         configInfo = getContent(httpMethod);
         if (null == configInfo) {
-            throw new RuntimeException("RP_OKªÒ»°¡À¥ÌŒÛµƒ≈‰÷√–≈œ¢");
+            throw new RuntimeException("RP_OK configInfo is null");
         }
 
         Header md5Header = httpMethod.getResponseHeader(Constants.CONTENT_MD5);
         if (null == md5Header) {
-            throw new RuntimeException("RP_OK∑µªÿµƒΩ·π˚÷–√ª”–MD5¬Î, " + configInfo);
+            throw new RuntimeException("RP_OK not contain MD5, " + configInfo);
         }
         String md5 = md5Header.getValue();
         if (!checkContent(configInfo, md5)) {
-            throw new RuntimeException("≈‰÷√–≈œ¢µƒMD5¬Î–£—È≥ˆ¥Ì,DataIDŒ™:[" + dataId + "]≈‰÷√–≈œ¢Œ™:[" + configInfo + "]MD5Œ™:[" + md5
-                    + "]");
+            throw new RuntimeException("MD5 verify error,DataID:[" + dataId + "]ConfigInfo:[" + configInfo + "]MD5:[" + md5 + "]");
         }
 
         Header lastModifiedHeader = httpMethod.getResponseHeader(Constants.LAST_MODIFIED);
         if (null == lastModifiedHeader) {
-            throw new RuntimeException("RP_OK∑µªÿµƒΩ·π˚÷–√ª”–lastModifiedHeader");
+            throw new RuntimeException("RP_OK result not contain lastModifiedHeader");
         }
         String lastModified = lastModifiedHeader.getValue();
 
@@ -780,11 +667,9 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
         changeSpacingInterval(httpMethod);
 
-        // …Ë÷√µΩ±æµÿcache
         String key = makeCacheKey(dataId, group);
         contentCache.put(key, configInfo);
 
-        // º«¬ºΩ” ’µΩµƒ ˝æ›
         StringBuilder buf = new StringBuilder();
         buf.append("dataId=").append(dataId);
         buf.append(" ,group=").append(group);
@@ -796,7 +681,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
 
     private void configureHttpMethod(boolean skipContentCache, CacheData cacheData, long onceTimeOut,
-            HttpMethod httpMethod) {
+                                     HttpMethod httpMethod) {
         if (skipContentCache && null != cacheData) {
             if (null != cacheData.getLastModifiedHeader() && Constants.NULL != cacheData.getLastModifiedHeader()) {
                 httpMethod.addRequestHeader(Constants.IF_MODIFIED_SINCE, cacheData.getLastModifiedHeader());
@@ -808,13 +693,10 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
         httpMethod.addRequestHeader(Constants.ACCEPT_ENCODING, "gzip,deflate");
 
-        // …Ë÷√HttpMethodµƒ≤Œ ˝
         HttpMethodParams params = new HttpMethodParams();
         params.setSoTimeout((int) onceTimeOut);
-        // ///////////////////////
         httpMethod.setParams(params);
-        httpClient.getHostConfiguration().setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()),
-            diamondConfigure.getPort());
+        httpClient.getHostConfiguration().setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()), diamondConfigure.getPort());
     }
 
 
@@ -823,32 +705,21 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return key;
     }
 
-
-    /**
-     * ¥”DiamondServerªÒ»°÷µ±‰ªØ¡ÀµƒDataID¡–±Ì
-     * 
-     * @param timeout
-     * @return
-     */
     Set<String> checkUpdateDataIds(long timeout) {
         if (!isRun) {
-            throw new RuntimeException("DiamondSubscriber≤ª‘⁄‘À––◊¥Ã¨÷–£¨Œﬁ∑®ªÒ»°–ﬁ∏ƒπ˝µƒDataID¡–±Ì");
+            throw new RuntimeException("DiamondSubscriber is not running. checkUpdateDataIds return.");
         }
-        // ======================= π”√≤‚ ‘ƒ£ Ω=======================
         if (MockServer.isTestMode()) {
             return testData();
         }
-        // ==========================================================
         long waitTime = 0;
 
-        // Set<String> localModifySet = getLocalUpdateDataIds();
         String probeUpdateString = getProbeUpdateString();
         if (StringUtils.isBlank(probeUpdateString)) {
             return null;
         }
 
         while (0 == timeout || timeout > waitTime) {
-            // …Ë÷√≥¨ ± ±º‰
             long onceTimeOut = getOnceTimeOut(waitTime, timeout);
             waitTime += onceTimeOut;
 
@@ -856,54 +727,48 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
             postMethod.addParameter(Constants.PROBE_MODIFY_REQUEST, probeUpdateString);
 
-            // …Ë÷√HttpMethodµƒ≤Œ ˝
             HttpMethodParams params = new HttpMethodParams();
             params.setSoTimeout((int) onceTimeOut);
-            // ///////////////////////
             postMethod.setParams(params);
 
             try {
                 httpClient.getHostConfiguration()
-                    .setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()),
-                        this.diamondConfigure.getPort());
+                        .setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()),
+                                this.diamondConfigure.getPort());
 
                 int httpStatus = httpClient.executeMethod(postMethod);
 
                 switch (httpStatus) {
-                case SC_OK: {
-                    Set<String> result = getUpdateDataIds(postMethod);
-                    return result;
-                }
+                    case SC_OK: {
+                        Set<String> result = getUpdateDataIds(postMethod);
+                        return result;
+                    }
 
-                case SC_SERVICE_UNAVAILABLE: {
-                    rotateToNextDomain();
-                }
+                    case SC_SERVICE_UNAVAILABLE: {
+                        rotateToNextDomain();
+                    }
                     break;
 
-                default: {
-                    log.warn("ªÒ»°–ﬁ∏ƒπ˝µƒDataID¡–±Ìµƒ«Î«Ûªÿ”¶µƒHTTP State: " + httpStatus);
-                    rotateToNextDomain();
+                    default: {
+                        log.warn("checkUpdateDataIds HTTP State: " + httpStatus);
+                        rotateToNextDomain();
+                    }
                 }
-                }
-            }
-            catch (HttpException e) {
-                log.error("ªÒ»°≈‰÷√–≈œ¢Http“Ï≥£", e);
+            } catch (HttpException e) {
+                log.error("checkUpdateDataIds HttpException", e);
                 rotateToNextDomain();
-            }
-            catch (IOException e) {
-                log.error("ªÒ»°≈‰÷√–≈œ¢IO“Ï≥£", e);
+            } catch (IOException e) {
+                log.error("checkUpdateDataIds IOException", e);
                 rotateToNextDomain();
-            }
-            catch (Exception e) {
-                log.error("Œ¥÷™“Ï≥£", e);
+            } catch (Exception e) {
+                log.error("checkUpdateDataIds Unknown Exception", e);
                 rotateToNextDomain();
-            }
-            finally {
+            } finally {
                 postMethod.releaseConnection();
             }
         }
-        throw new RuntimeException("ªÒ»°–ﬁ∏ƒπ˝µƒDataID¡–±Ì≥¨ ± "
-                + diamondConfigure.getDomainNameList().get(this.domainNamePos.get()) + ", ≥¨ ± ±º‰Œ™£∫" + timeout);
+        throw new RuntimeException("checkUpdateDataIds timeout "
+                + diamondConfigure.getDomainNameList().get(this.domainNamePos.get()) + ", timeout=" + timeout);
     }
 
 
@@ -920,14 +785,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return dataIdList;
     }
 
-
-    /**
-     * ªÒ»°ÃΩ≤‚∏¸–¬µƒDataIDµƒ«Î«Û◊÷∑˚¥Æ
-     * 
-     * @return
-     */
     private String getProbeUpdateString() {
-        // ªÒ»°checkµƒDataID:Group:MD5¥Æ
         StringBuilder probeModifyBuilder = new StringBuilder();
         for (Entry<String, ConcurrentHashMap<String, CacheData>> cacheDatasEntry : this.cache.entrySet()) {
             String dataId = cacheDatasEntry.getKey();
@@ -937,23 +795,20 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             }
             for (Entry<String, CacheData> cacheDataEntry : cacheDatas.entrySet()) {
                 final CacheData data = cacheDataEntry.getValue();
-                // ∑« π”√±æµÿ≈‰÷√£¨≤≈»•diamond serverºÏ≤È
                 if (!data.isUseLocalConfigInfo()) {
                     probeModifyBuilder.append(dataId).append(WORD_SEPARATOR);
 
                     if (null != cacheDataEntry.getValue().getGroup()
                             && Constants.NULL != cacheDataEntry.getValue().getGroup()) {
                         probeModifyBuilder.append(cacheDataEntry.getValue().getGroup()).append(WORD_SEPARATOR);
-                    }
-                    else {
+                    } else {
                         probeModifyBuilder.append(WORD_SEPARATOR);
                     }
 
                     if (null != cacheDataEntry.getValue().getMd5()
                             && Constants.NULL != cacheDataEntry.getValue().getMd5()) {
                         probeModifyBuilder.append(cacheDataEntry.getValue().getMd5()).append(LINE_SEPARATOR);
-                    }
-                    else {
+                    } else {
                         probeModifyBuilder.append(LINE_SEPARATOR);
                     }
                 }
@@ -971,22 +826,14 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             index = -index;
         }
         if (domainNameCount == 0) {
-            log.error("diamond∑˛ŒÒ∆˜µÿ÷∑¡–±Ì≥§∂»Œ™¡„, «Î¡™œµ∏∫‘»À≈≈≤È");
+            log.error("rotateToNextDomain domainNameCount is 0, administrator should resolve this");
             return;
         }
         domainNamePos.set(index % domainNameCount);
         if (diamondConfigure.getDomainNameList().size() > 0)
-            log.warn("¬÷ªªDiamondServer”Ú√˚µΩ£∫" + diamondConfigure.getDomainNameList().get(domainNamePos.get()));
+            log.warn("Rotate domain name to " + diamondConfigure.getDomainNameList().get(domainNamePos.get()));
     }
 
-
-    /**
-     * ªÒ»°≤È—ØUriµƒString
-     * 
-     * @param dataId
-     * @param group
-     * @return
-     */
     String getUriString(String dataId, String group) {
         StringBuilder uriBuilder = new StringBuilder();
         uriBuilder.append(Constants.HTTP_URI_FILE);
@@ -999,35 +846,20 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return uriBuilder.toString();
     }
 
-
-    /**
-     * …Ë÷√–¬µƒœ˚œ¢¬÷—Øº‰∏Ù ±º‰
-     * 
-     * @param httpMethod
-     */
     void changeSpacingInterval(HttpMethod httpMethod) {
         Header[] spacingIntervalHeaders = httpMethod.getResponseHeaders(Constants.SPACING_INTERVAL);
         if (spacingIntervalHeaders.length >= 1) {
             try {
                 diamondConfigure.setPollingIntervalTime(Integer.parseInt(spacingIntervalHeaders[0].getValue()));
-            }
-            catch (RuntimeException e) {
-                log.error("…Ë÷√œ¬¥Œº‰∏Ù ±º‰ ß∞‹", e);
+            } catch (RuntimeException e) {
+                log.error("ÔøΩÔøΩÔøΩÔøΩÔøΩ¬¥ŒºÔøΩÔøΩ ±ÔøΩÔøΩ ßÔøΩÔøΩ", e);
             }
         }
     }
 
-
-    /**
-     * ªÒ»°Responseµƒ≈‰÷√–≈œ¢
-     * 
-     * @param httpMethod
-     * @return
-     */
     String getContent(HttpMethod httpMethod) {
         StringBuilder contentBuilder = new StringBuilder();
         if (isZipContent(httpMethod)) {
-            // ¥¶¿Ì—πÀıπ˝µƒ≈‰÷√–≈œ¢µƒ¬ﬂº≠
             InputStream is = null;
             GZIPInputStream gzin = null;
             InputStreamReader isr = null;
@@ -1035,52 +867,43 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             try {
                 is = httpMethod.getResponseBodyAsStream();
                 gzin = new GZIPInputStream(is);
-                isr = new InputStreamReader(gzin, ((HttpMethodBase) httpMethod).getResponseCharSet()); // …Ë÷√∂¡»°¡˜µƒ±‡¬Î∏Ò Ω£¨◊‘∂®“Â±‡¬Î
+                isr = new InputStreamReader(gzin, ((HttpMethodBase) httpMethod).getResponseCharSet()); // ÔøΩÔøΩÔøΩ√∂ÔøΩ»°ÔøΩÔøΩÔøΩƒ±ÔøΩÔøΩÔøΩÔøΩ ΩÔøΩÔøΩÔøΩ‘∂ÔøΩÔøΩÔøΩÔøΩÔøΩÔøΩ
                 br = new BufferedReader(isr);
                 char[] buffer = new char[4096];
                 int readlen = -1;
                 while ((readlen = br.read(buffer, 0, 4096)) != -1) {
                     contentBuilder.append(buffer, 0, readlen);
                 }
-            }
-            catch (Exception e) {
-                log.error("Ω‚—πÀı ß∞‹", e);
-            }
-            finally {
+            } catch (Exception e) {
+                log.error("Unzip fail", e);
+            } finally {
                 try {
                     br.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     isr.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     gzin.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     is.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
             }
-        }
-        else {
-            // ¥¶¿Ì√ª”–±ª—πÀıπ˝µƒ≈‰÷√–≈œ¢µƒ¬ﬂº≠
+        } else {
             String content = null;
             try {
                 content = httpMethod.getResponseBodyAsString();
-            }
-            catch (Exception e) {
-                log.error("ªÒ»°≈‰÷√–≈œ¢ ß∞‹", e);
+            } catch (Exception e) {
+                log.error("Fetch config error:", e);
             }
             if (null == content) {
                 return null;
@@ -1096,8 +919,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         try {
             String modifiedDataIdsString = httpMethod.getResponseBodyAsString();
             return convertStringToSet(modifiedDataIdsString);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
         return modifiedDataIdSet;
@@ -1120,17 +942,15 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
 
         try {
             modifiedDataIdsString = URLDecoder.decode(modifiedDataIdsString, "UTF-8");
-        }
-        catch (Exception e) {
-            log.error("Ω‚¬ÎmodifiedDataIdsString≥ˆ¥Ì", e);
+        } catch (Exception e) {
+            log.error("Decode modifiedDataIdsString error:", e);
         }
 
         if (log.isInfoEnabled() && modifiedDataIdsString != null) {
             if (modifiedDataIdsString.startsWith("OK")) {
-                log.debug("ÃΩ≤‚µƒ∑µªÿΩ·π˚:" + modifiedDataIdsString);
-            }
-            else {
-                log.info("ÃΩ≤‚µΩ ˝æ›±‰ªØ:" + modifiedDataIdsString);
+                log.debug("modifiedDataIdsString is " + modifiedDataIdsString);
+            } else {
+                log.info("modifiedDataIdsString changed:" + modifiedDataIdsString);
             }
         }
 
@@ -1144,25 +964,11 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
     }
 
 
-    /**
-     * ºÏ≤‚≈‰÷√–≈œ¢ƒ⁄»›”ÎMD5¬Î «∑Ò“ª÷¬
-     * 
-     * @param configInfo
-     * @param md5
-     * @return
-     */
     boolean checkContent(String configInfo, String md5) {
         String realMd5 = MD5.getInstance().getMD5String(configInfo);
         return realMd5 == null ? md5 == null : realMd5.equals(md5);
     }
 
-
-    /**
-     * ≤Èø¥ «∑ÒŒ™—πÀıµƒƒ⁄»›
-     * 
-     * @param httpMethod
-     * @return
-     */
     boolean isZipContent(HttpMethod httpMethod) {
         if (null != httpMethod.getResponseHeader(Constants.CONTENT_ENCODING)) {
             String acceptEncoding = httpMethod.getResponseHeader(Constants.CONTENT_ENCODING).getValue();
@@ -1173,19 +979,16 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         return false;
     }
 
+    public SubscriberListener getSubscriberListener() {
+        return this.subscriberListener;
+    }
 
     public void setSubscriberListener(SubscriberListener subscriberListener) {
         this.subscriberListener = subscriberListener;
     }
 
-
-    public SubscriberListener getSubscriberListener() {
-        return this.subscriberListener;
-    }
-
-
     public void addDataId(String dataId, String group) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyƒÍMM‘¬dd»’   HH:mm:ss");
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         log.info("diamond client start:" + formatter.format(new Date(System.currentTimeMillis())));
         if (null == group) {
             group = Constants.DEFAULT_GROUP;
@@ -1197,8 +1000,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             ConcurrentHashMap<String, CacheData> oldCacheDatas = this.cache.putIfAbsent(dataId, newCacheDatas);
             if (null != oldCacheDatas) {
                 cacheDatas = oldCacheDatas;
-            }
-            else {
+            } else {
                 cacheDatas = newCacheDatas;
             }
         }
@@ -1206,7 +1008,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         if (null == cacheData) {
             cacheDatas.putIfAbsent(group, new CacheData(dataId, group));
             if (log.isInfoEnabled()) {
-                log.info("ÃÌº”¡ÀDataID[" + dataId + "]£¨∆‰GroupŒ™" + group);
+                log.info("Added DataID[" + dataId + "]Group=" + group);
             }
             this.start();
         }
@@ -1265,11 +1067,11 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         }
         cacheDatas.remove(group);
 
-        log.warn("…æ≥˝¡ÀDataID[" + dataId + "]÷–µƒGroup: " + group);
+        log.warn("Remove DataID[" + dataId + "]Group: " + group);
 
         if (cacheDatas.size() == 0) {
             this.cache.remove(dataId);
-            log.warn("…æ≥˝¡ÀDataID[" + dataId + "]");
+            log.warn("Remove DataID[" + dataId + "]");
         }
     }
 
@@ -1282,21 +1084,18 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
     public void setDiamondConfigure(DiamondConfigure diamondConfigure) {
         if (!isRun) {
             this.diamondConfigure = diamondConfigure;
-        }
-        else {
-            // ‘À––÷Æ∫Û£¨ƒ≥–©≤Œ ˝Œﬁ∑®∏¸–¬
+        } else {
             copyDiamondConfigure(diamondConfigure);
         }
     }
 
 
     private void copyDiamondConfigure(DiamondConfigure diamondConfigure) {
-        // TODO ƒƒ–©÷µø…“‘‘⁄‘À–– ±∂ØÃ¨∏¸–¬?
+        // TODO which config can dynamic update?
     }
 
     @Override
-    public BatchHttpResult getConfigureInfomationBatch(List<String> dataIds, String group, int timeout) {
-        // ≈–∂œlist «∑ÒŒ™null
+    public BatchHttpResult getConfigureInformationBatch(List<String> dataIds, String group, int timeout) {
         if (dataIds == null) {
             log.error("dataId list cannot be null,group=" + group);
             return new BatchHttpResult(HttpStatus.SC_BAD_REQUEST);
@@ -1305,30 +1104,25 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
             group = Constants.DEFAULT_GROUP;
         }
 
-        // Ω´dataIdµƒlist¥¶¿ÌŒ™”√“ª∏ˆ≤ªø…º˚◊÷∑˚∑÷∏Ùµƒ◊÷∑˚¥Æ
         StringBuilder dataIdBuilder = new StringBuilder();
         for (String dataId : dataIds) {
             dataIdBuilder.append(dataId).append(Constants.LINE_SEPARATOR);
         }
         String dataIdStr = dataIdBuilder.toString();
 
-        // ππ‘ÏHTTP method
         PostMethod post = new PostMethod(Constants.HTTP_URI_FILE_BATCH);
-        // …Ë÷√«Î«Û≥¨ ± ±º‰
         post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, timeout);
 
         BatchHttpResult response = null;
         try {
-            // …Ë÷√≤Œ ˝
             NameValuePair dataIdValue = new NameValuePair("dataIds", dataIdStr);
             NameValuePair groupValue = new NameValuePair("group", group);
 
-            post.setRequestBody(new NameValuePair[] { dataIdValue, groupValue });
+            post.setRequestBody(new NameValuePair[]{dataIdValue, groupValue});
 
             httpClient.getHostConfiguration()
                     .setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()),
                             this.diamondConfigure.getPort());
-            // ÷¥––∑Ω∑®≤¢∑µªÿhttp◊¥Ã¨¬Î
             int status = httpClient.executeMethod(post);
             String responseMsg = post.getResponseBodyAsString();
 
@@ -1348,37 +1142,29 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
                         configInfoExList.add(configInfoEx);
                     }
 
-                    // ∑¥–Ú¡–ªØ≥…π¶, ±æ¥Œ≈˙¡ø≤È—Ø≥…π¶
                     response = new BatchHttpResult(configInfoExList);
                     log.info("batch query success,dataIds=" + dataIdStr + ",group="
                             + group + ",json=" + json);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     response = new BatchHttpResult(Constants.BATCH_OP_ERROR);
                     log.error("batch query deserialize error,dataIdStr=" + dataIdStr
                             + ",group=" + group + ",json=" + json, e);
                 }
 
-            }
-            else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
+            } else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response = new BatchHttpResult(HttpStatus.SC_REQUEST_TIMEOUT);
                 log.error("batch query timeout, socket timeout(ms):" + timeout + ",dataIds=" + dataIdStr + ",group=" + group);
-            }
-            else {
+            } else {
                 response = new BatchHttpResult(status);
                 log.error("batch query fail, status:" + status + ", response:" + responseMsg + ",dataIds=" + dataIdStr + ",group=" + group);
             }
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response = new BatchHttpResult(Constants.BATCH_HTTP_EXCEPTION);
             log.error("batch query http exception,dataIds=" + dataIdStr + ",group=" + group, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response = new BatchHttpResult(Constants.BATCH_IO_EXCEPTION);
             log.error("batch query io exception, dataIds=" + dataIdStr + ",group=" + group, e);
-        }
-        finally {
-            //  Õ∑≈¡¨Ω”◊ ‘¥
+        } finally {
             post.releaseConnection();
         }
 

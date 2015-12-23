@@ -75,7 +75,7 @@ public class SnapshotConfigInfoProcessor {
      * @param config
      * @throws IOException
      */
-    public void saveSnaptshot(String dataId, String group, String config) throws IOException {
+    public void saveSnapshot(String dataId, String group, String config) throws IOException {
         if (StringUtils.isBlank(dataId)) {
             throw new IllegalArgumentException("blank dataId");
         }

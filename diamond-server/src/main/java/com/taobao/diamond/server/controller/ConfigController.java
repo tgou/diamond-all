@@ -50,7 +50,7 @@ public class ConfigController {
     private DiskService diskService;
 
     public String getConfig(HttpServletRequest request, HttpServletResponse response, String dataId, String group) {
-        response.setHeader("Content-Type", "text/html;charset=GBK");
+        response.setHeader("Content-Type", "text/html;charset=UTF-8");
         final String address = getRemortIP(request);
         if (address == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -86,7 +86,7 @@ public class ConfigController {
 
 
     public String getProbeModifyResult(HttpServletRequest request, HttpServletResponse response, String probeModify) {
-        response.setHeader("Content-Type", "text/html;charset=GBK");
+        response.setHeader("Content-Type", "text/html;charset=UTF-8");
         final String address = getRemortIP(request);
         if (address == null) {
             response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
