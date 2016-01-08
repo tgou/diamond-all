@@ -355,7 +355,9 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         localConfigInfoProcessor.stop();
         serverAddressProcessor.stop();
         isRun = false;
-        scheduledExecutor.shutdown();
+
+        // because of rotateCheckConfigInfo recursive call, so must use shutdownNow, shutdown can't do close
+        scheduledExecutor.shutdownNow();
         cache.clear();
 
         log.warn("Close DiamondSubscriber end.");
