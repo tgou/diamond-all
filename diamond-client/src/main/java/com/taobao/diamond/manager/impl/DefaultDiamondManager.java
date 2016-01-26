@@ -27,8 +27,9 @@ import java.util.Properties;
 
 /**
  * @author aoqiong
- * 
+ * Do not use again
  */
+@Deprecated
 public class DefaultDiamondManager implements DiamondManager {
 
     private static final Log log = LogFactory.getLog(DefaultDiamondManager.class);

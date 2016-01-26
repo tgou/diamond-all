@@ -1,12 +1,16 @@
 package com.taobao.diamond.client;
 
 import com.taobao.diamond.client.impl.DiamondEnv;
+import com.taobao.diamond.client.impl.DiamondEnvRepo;
 import com.taobao.diamond.domain.ConfigInfoEx;
+import com.taobao.diamond.manager.ManagerListener;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by diwayou on 2015/11/25.
@@ -17,12 +21,12 @@ public class DiamondEnvTest {
 
     @Before
     public void before() {
-        diamondEnv = new DiamondEnv();
+        diamondEnv = DiamondEnvRepo.defaultEnv;
     }
 
     @Test
     public void batchQueryTest() {
-        BatchHttpResult result = diamondEnv.batchQuery(Arrays.asList("a", "aa"), null, 10000);
+        BatchHttpResult result = diamondEnv.batchQuery(Arrays.asList("a", "diwayou"), "TEST", 10000);
 
         if (result.isSuccess()) {
             List<ConfigInfoEx> configInfoExList = result.getResult();
@@ -32,5 +36,24 @@ public class DiamondEnvTest {
         } else {
             System.out.println(result.getStatusCode());
         }
+    }
+
+    @Test
+    public void addListenerTest() throws InterruptedException {
+        ManagerListener managerListener = new ManagerListener() {
+            @Override
+            public Executor getExecutor() {
+                return null;
+            }
+
+            @Override
+            public void receiveConfigInfo(String configInfo) {
+                System.out.println(configInfo);
+            }
+        };
+
+        diamondEnv.addListeners("diwayou", "TEST", managerListener);
+
+        TimeUnit.HOURS.sleep(1);
     }
 }

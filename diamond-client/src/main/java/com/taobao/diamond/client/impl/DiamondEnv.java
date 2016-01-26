@@ -108,6 +108,8 @@ public class DiamondEnv {
             ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener())
                     .addManagerListener(dataId, group, managerListener);
         }
+
+        diamondSubscriber.addDataId(dataId, group);
     }
 
     public void removeListener(String dataId, String group) {
@@ -117,5 +119,7 @@ public class DiamondEnv {
 
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener())
                 .removeManagerListeners(dataId, group);
+
+        diamondSubscriber.removeDataId(dataId, group);
     }
 }
