@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -104,7 +105,12 @@ public class DefaultSubscriberListener implements SubscriberListener {
         }
 
         String key = makeKey(dataId, group);
-        return new ArrayList<ManagerListener>(allListeners.get(key));
+        List<ManagerListener> listeners = allListeners.get(key);
+        if (listeners == null) {
+            return Collections.emptyList();
+        }
+
+        return new ArrayList<ManagerListener>(listeners);
     }
 
     public void removeManagerListeners(String dataId, String group) {
