@@ -56,12 +56,12 @@ public class DiamondEnv {
     }
 
     public BatchHttpResult batchQuery(List<String> dataIds, String group, int timeout) {
-        BatchHttpResult result = batchQueryFromLocal(dataIds, group, timeout);
+        BatchHttpResult result = diamondSubscriber.getConfigureInformationBatch(dataIds, group, timeout);
         if (result.isSuccess()) {
             return result;
         }
 
-        return diamondSubscriber.getConfigureInformationBatch(dataIds, group, timeout);
+        return batchQueryFromLocal(dataIds, group, timeout);
     }
 
     private BatchHttpResult batchQueryFromLocal(List<String> dataIds, String group, int timeout) {
