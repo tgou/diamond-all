@@ -82,7 +82,8 @@ public class ServerAddressProcessor {
     private void initHttpClient() {
         HostConfiguration hostConfiguration = new HostConfiguration();
 
-        SimpleHttpConnectionManager connectionManager = new SimpleHttpConnectionManager();
+        // set parameter alwaysClose true, so no connection reuse.
+        SimpleHttpConnectionManager connectionManager = new SimpleHttpConnectionManager(true);
         connectionManager.closeIdleConnections(5000L);
 
         HttpConnectionManagerParams params = new HttpConnectionManagerParams();

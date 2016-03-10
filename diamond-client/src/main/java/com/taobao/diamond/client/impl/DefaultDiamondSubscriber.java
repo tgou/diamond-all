@@ -167,7 +167,7 @@ class DefaultDiamondSubscriber implements DiamondSubscriber {
         hostConfiguration.setHost(diamondConfigure.getDomainNameList().get(this.domainNamePos.get()), diamondConfigure.getPort());
 
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
-        connectionManager.closeIdleConnections(diamondConfigure.getPollingIntervalTime() * 4000);
+        connectionManager.closeIdleConnections(diamondConfigure.getPollingIntervalTime() * 10);
 
         HttpConnectionManagerParams params = new HttpConnectionManagerParams();
         params.setStaleCheckingEnabled(diamondConfigure.isConnectionStaleCheckingEnabled());
