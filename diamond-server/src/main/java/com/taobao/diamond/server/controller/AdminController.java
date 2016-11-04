@@ -294,7 +294,7 @@ public class AdminController {
             throw new IllegalArgumentException("batch query, group can't be blank or contain illegal character");
         }
 
-        String[] dataIdArray = dataIds.split(Constants.WORD_SEPARATOR);
+        String[] dataIdArray = dataIds.split(Constants.LINE_SEPARATOR);
         group = group.trim();
 
         List<ConfigInfoEx> configInfoExList = new ArrayList<ConfigInfoEx>();
@@ -469,7 +469,7 @@ public class AdminController {
             return listUser(request, response, modelMap);
         }
         if (this.adminService.updatePassword(userName, password)) {
-            modelMap.addAttribute("message", "Update success, please use the new password next login£¡");
+            modelMap.addAttribute("message", "Update success, please use the new password next loginï¿½ï¿½");
         }
         else {
             modelMap.addAttribute("message", "Update fail!");

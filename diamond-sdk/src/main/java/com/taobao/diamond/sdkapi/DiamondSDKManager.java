@@ -23,30 +23,30 @@ import java.util.Map;
  */
 public interface DiamondSDKManager {
 
-    public Map<String, DiamondSDKConf> getDiamondSDKConfMaps();
+    Map<String, DiamondSDKConf> getDiamondSDKConfMaps();
 
-    public ContextResult publish(String dataId, String groupName,
-                                 String context, String serverId);
+    ContextResult publish(String dataId, String groupName,
+                          String context, String serverId);
 
-    public ContextResult publishAfterModified(String dataId, String groupName,
-                                              String context, String serverId);
+    ContextResult publishAfterModified(String dataId, String groupName,
+                                       String context, String serverId);
 
-    public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
-                                                 String groupNamePattern, String serverId, long currentPage,
-                                                 long sizeOfPerPage);
+    PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
+                                          String groupNamePattern, String serverId, long currentPage,
+                                          long sizeOfPerPage);
 
-    public PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
-                                                 String groupNamePattern, String contentPattern, String serverId,
-                                                 long currentPage, long sizeOfPerPage);
+    PageContextResult<ConfigInfo> queryBy(String dataIdPattern,
+                                          String groupNamePattern, String contentPattern, String serverId,
+                                          long currentPage, long sizeOfPerPage);
 
-    public ContextResult queryByDataIdAndGroupName(String dataId,
-                                                   String groupName, String serverId);
+    ContextResult queryByDataIdAndGroupName(String dataId,
+                                            String groupName, String serverId);
 
-    public ContextResult unpublish(String serverId, long id);
+    ContextResult unpublish(String serverId, long id);
 
-    public BatchContextResult<ConfigInfoEx> batchQuery(String serverId, String groupName, List<String> dataIds);
+    BatchContextResult<ConfigInfoEx> batchQuery(String serverId, String groupName, List<String> dataIds);
 
-    public BatchContextResult<ConfigInfoEx> batchAddOrUpdate(String serverId, String groupName,
-                                                             Map<String/* dataId */, String/* content */> dataId2ContentMap);
+    BatchContextResult<ConfigInfoEx> batchAddOrUpdate(String serverId, String groupName,
+                                                      Map<String/* dataId */, String/* content */> dataId2ContentMap);
 
 }

@@ -26,7 +26,7 @@ public class DiamondEnvTest {
 
     @Test
     public void batchQueryTest() {
-        BatchHttpResult result = diamondEnv.batchQuery(Arrays.asList("a", "diwayou"), "TEST", 10000);
+        BatchHttpResult result = diamondEnv.batchQuery(Arrays.asList("OFFLINE_URLS", "MEMBER_URLS"), "API_URL_GROUP", 10000);
 
         if (result.isSuccess()) {
             List<ConfigInfoEx> configInfoExList = result.getResult();

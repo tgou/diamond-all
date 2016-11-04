@@ -44,27 +44,45 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
 
     private Map<String, DiamondSDKConf> diamondSDKConfMaps;
 
-    private final int connection_timeout;
-    private final int require_timeout;
+    private static final int DEFAULT_CONNECTION_TIMEOUT = 1000;
 
+    private static final int DEFAULT_REQUIRE_TIMEOUT = 2000;
 
-    public DiamondSDKManagerImpl(int connection_timeout, int require_timeout) throws IllegalArgumentException {
-        if (connection_timeout < 0)
+    private final int connectionTimeout;
+
+    private final int requireTimeout;
+
+    public DiamondSDKManagerImpl() {
+        this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUIRE_TIMEOUT, null);
+    }
+
+    public DiamondSDKManagerImpl(Map<String, DiamondSDKConf> diamondSDKConfMaps) {
+        this(DEFAULT_CONNECTION_TIMEOUT, DEFAULT_REQUIRE_TIMEOUT, diamondSDKConfMaps);
+    }
+
+    public DiamondSDKManagerImpl(int connectionTimeout, int requireTimeout) {
+        this(connectionTimeout, requireTimeout, null);
+    }
+
+    public DiamondSDKManagerImpl(int connectionTimeout, int requireTimeout, Map<String, DiamondSDKConf> diamondSDKConfMaps) throws IllegalArgumentException {
+        if (connectionTimeout < 0)
             throw new IllegalArgumentException("connection_time must >= 0!");
-        if (require_timeout < 0)
-            throw new IllegalArgumentException("require_timeout must >= 0!");
-        this.connection_timeout = connection_timeout;
-        this.require_timeout = require_timeout;
+        if (requireTimeout < 0)
+            throw new IllegalArgumentException("requireTimeout must >= 0!");
+        this.connectionTimeout = connectionTimeout;
+        this.requireTimeout = requireTimeout;
+        this.diamondSDKConfMaps = diamondSDKConfMaps;
+
         int maxHostConnections = 50;
         MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 
         connectionManager.getParams().setDefaultMaxConnectionsPerHost(maxHostConnections);
         connectionManager.getParams().setStaleCheckingEnabled(true);
         this.client = new HttpClient(connectionManager);
-        client.getHttpConnectionManager().getParams().setConnectionTimeout(this.connection_timeout);
+        client.getHttpConnectionManager().getParams().setConnectionTimeout(this.connectionTimeout);
         client.getHttpConnectionManager().getParams().setSoTimeout(60 * 1000);
         client.getParams().setContentCharset("UTF-8");
-        log.info("HttpClient create success: connection_timeout" + this.connection_timeout);
+        log.info("HttpClient create success: connectionTimeout" + this.connectionTimeout);
     }
 
     public synchronized ContextResult publish(String dataId, String groupName, String context, String serverId) {
@@ -139,9 +157,9 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         if (log.isDebugEnabled())
             log.debug("processPublishByDefinedServerId(" + dataId + "," + groupName + "," + context + "," + serverId + ")");
 
-        String postUrl = "/diamond-server/admin.do?method=postConfig";
+        String postUrl = "/admin.do?method=postConfig";
         PostMethod post = new PostMethod(postUrl);
-        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
         try {
             NameValuePair dataId_value = new NameValuePair("dataId", dataId);
             NameValuePair group_value = new NameValuePair("group", groupName);
@@ -166,8 +184,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             }
             else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
-                response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
-                log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
+                response.setStatusMsg("Publish timeout: requireTimeout=" + requireTimeout);
+                log.error("Publish timeout: requireTimeout=" + requireTimeout + ", dataId=" + dataId + ",group=" + groupName
                         + ",content=" + context + ",serverId=" + serverId);
             }
             else {
@@ -215,9 +233,9 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             return response;
         }
         else {
-            String postUrl = "/diamond-server/admin.do?method=updateConfig";
+            String postUrl = "/admin.do?method=updateConfig";
             PostMethod post = new PostMethod(postUrl);
-            post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+            post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
             try {
                 NameValuePair dataId_value = new NameValuePair("dataId", dataId);
                 NameValuePair group_value = new NameValuePair("group", groupName);
@@ -241,8 +259,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 }
                 else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                     response.setSuccess(false);
-                    response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
-                    log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
+                    response.setStatusMsg("Publish timeout: requireTimeout=" + requireTimeout);
+                    log.error("Publish timeout: requireTimeout=" + requireTimeout + ", dataId=" + dataId + ",group=" + groupName
                             + ",content=" + context + ",serverId=" + serverId);
                 }
                 else {
@@ -296,8 +314,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 break;
             client.getHostConfiguration().setHost(diamondConf.getDiamondIp(),
                 Integer.parseInt(diamondConf.getDiamondPort()), "http");
-            PostMethod post = new PostMethod("/diamond-server/login.do?method=login");
-            post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+            PostMethod post = new PostMethod("/login.do?method=login");
+            post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
             NameValuePair username_value = new NameValuePair("username", diamondConf.getDiamondUsername());
             NameValuePair password_value = new NameValuePair("password", diamondConf.getDiamondPassword());
             post.setRequestBody(new NameValuePair[] { username_value, password_value });
@@ -325,16 +343,16 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 post.releaseConnection();
             }
         }
-        if (flag == false) {
+        if (!flag) {
             log.error("login fail serverId=" + serverId);
         }
         return flag;
     }
 
     static final String LIST_FORMAT_URL =
-            "/diamond-server/admin.do?method=listConfig&group=%s&dataId=%s&pageNo=%d&pageSize=%d";
+            "/admin.do?method=listConfig&group=%s&dataId=%s&pageNo=%d&pageSize=%d";
     static final String LIST_LIKE_FORMAT_URL =
-            "/diamond-server/admin.do?method=listConfigLike&group=%s&dataId=%s&pageNo=%d&pageSize=%d";
+            "/admin.do?method=listConfigLike&group=%s&dataId=%s&pageNo=%d&pageSize=%d";
 
     @SuppressWarnings("unchecked")
     private PageContextResult<ConfigInfo> processQuery(String dataIdPattern, String groupNamePattern,
@@ -438,8 +456,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 break;
             case HttpStatus.SC_REQUEST_TIMEOUT:
                 response.setSuccess(false);
-                response.setStatusMsg("processQuery timeout, require_timeout=" + require_timeout);
-                log.error("processQuery timeout: require_timeout=" + require_timeout + ", dataId=" + dataIdPattern + ",group="
+                response.setStatusMsg("processQuery timeout, requireTimeout=" + requireTimeout);
+                log.error("processQuery timeout: requireTimeout=" + requireTimeout + ", dataId=" + dataIdPattern + ",group="
                         + groupNamePattern + ",serverId=" + serverId);
                 break;
             default:
@@ -546,7 +564,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     private void configureGetMethod(GetMethod method) {
         method.addRequestHeader(Constants.ACCEPT_ENCODING, "gzip,deflate");
         method.addRequestHeader("Accept", "application/json");
-        method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+        method.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
     }
 
     private boolean validate(String dataId, String groupName, String context) {
@@ -569,7 +587,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             return response;
         }
         log.info("processDelete(" + serverId + "," + id);
-        String url = "/diamond-server/admin.do?method=deleteConfig&id=" + id;
+        String url = "/admin.do?method=deleteConfig&id=" + id;
         GetMethod method = new GetMethod(url);
         configureGetMethod(method);
         try {
@@ -585,8 +603,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 break;
             case HttpStatus.SC_REQUEST_TIMEOUT:
                 response.setSuccess(false);
-                response.setStatusMsg("processDelete timeout: require_timeout=" + require_timeout);
-                log.error("processDelete timeout: require_timeout=" + require_timeout + ", id=" + id + ",serverId=" + serverId);
+                response.setStatusMsg("processDelete timeout: requireTimeout=" + requireTimeout);
+                log.error("processDelete timeout: requireTimeout=" + requireTimeout + ", id=" + id + ",serverId=" + serverId);
                 break;
             default:
                 response.setSuccess(false);
@@ -643,8 +661,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             return response;
         }
 
-        PostMethod post = new PostMethod("/diamond-server/admin.do?method=batchQuery");
-        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+        PostMethod post = new PostMethod("/admin.do?method=batchQuery");
+        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
         try {
             NameValuePair dataId_value = new NameValuePair("dataIds", dataIdStr);
             NameValuePair group_value = new NameValuePair("group", groupName);
@@ -688,8 +706,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             }
             else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
-                response.setStatusMsg("batch query timeout, socket timeout(ms):" + require_timeout);
-                log.error("batch query timeout, socket timeout(ms):" + require_timeout + ", serverId=" + serverId
+                response.setStatusMsg("batch query timeout, socket timeout(ms):" + requireTimeout);
+                log.error("batch query timeout, socket timeout(ms):" + requireTimeout + ", serverId=" + serverId
                         + ",dataIds=" + dataIdStr + ",group=" + groupName);
             }
             else {
@@ -745,8 +763,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             return response;
         }
 
-        PostMethod post = new PostMethod("/diamond-server/admin.do?method=batchAddOrUpdate");
-        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
+        PostMethod post = new PostMethod("/admin.do?method=batchAddOrUpdate");
+        post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, requireTimeout);
         try {
             NameValuePair dataId_value = new NameValuePair("allDataIdAndContent", allDataIdAndContent);
             NameValuePair group_value = new NameValuePair("group", groupName);
@@ -787,8 +805,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             }
             else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
-                response.setStatusMsg("batch write timeout, socket timeout(ms):" + require_timeout);
-                log.error("batch write timeout, socket timeout(ms):" + require_timeout + ", serverId=" + serverId
+                response.setStatusMsg("batch write timeout, socket timeout(ms):" + requireTimeout);
+                log.error("batch write timeout, socket timeout(ms):" + requireTimeout + ", serverId=" + serverId
                         + ",allDataIdAndContent=" + allDataIdAndContent + ",group=" + groupName);
             }
             else {
@@ -817,4 +835,8 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         return response;
     }
 
+    public DiamondSDKManagerImpl setDiamondSDKConfMaps(Map<String, DiamondSDKConf> diamondSDKConfMaps) {
+        this.diamondSDKConfMaps = diamondSDKConfMaps;
+        return this;
+    }
 }
