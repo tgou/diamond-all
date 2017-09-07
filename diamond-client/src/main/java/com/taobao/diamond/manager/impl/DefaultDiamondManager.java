@@ -53,7 +53,7 @@ public class DefaultDiamondManager implements DiamondManager {
 
         this.managerListeners.add(managerListener);
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).addManagerListeners(this.dataId,
-            this.group, this.managerListeners);
+                this.group, this.managerListeners);
         diamondSubscriber.addDataId(this.dataId, this.group);
         diamondSubscriber.start();
 
@@ -72,7 +72,7 @@ public class DefaultDiamondManager implements DiamondManager {
 
         this.managerListeners.addAll(managerListenerList);
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).addManagerListeners(this.dataId,
-            this.group, this.managerListeners);
+                this.group, this.managerListeners);
         diamondSubscriber.addDataId(this.dataId, this.group);
         diamondSubscriber.start();
     }
@@ -83,15 +83,15 @@ public class DefaultDiamondManager implements DiamondManager {
         this.managerListeners.add(managerListener);
 
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).removeManagerListeners(this.dataId,
-            this.group);
+                this.group);
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).addManagerListeners(this.dataId,
-            this.group, this.managerListeners);
+                this.group, this.managerListeners);
     }
 
 
     public void close() {
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).removeManagerListeners(this.dataId,
-            this.group);
+                this.group);
 
         diamondSubscriber.removeDataId(dataId, group);
         if (diamondSubscriber.getDataIds().size() == 0) {
@@ -122,8 +122,7 @@ public class DefaultDiamondManager implements DiamondManager {
         try {
             properties.load(new StringReader(configInfo));
             return properties;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Load properties fail:" + configInfo, e);
             throw new RuntimeException("Load properties fail:" + configInfo, e);
         }
@@ -136,8 +135,7 @@ public class DefaultDiamondManager implements DiamondManager {
         try {
             properties.load(new StringReader(configInfo));
             return properties;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Load properties fail:" + configInfo, e);
             throw new RuntimeException("Load properties fail:" + configInfo, e);
         }
@@ -149,9 +147,9 @@ public class DefaultDiamondManager implements DiamondManager {
         this.managerListeners.addAll(managerListenerList);
 
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).removeManagerListeners(this.dataId,
-            this.group);
+                this.group);
         ((DefaultSubscriberListener) diamondSubscriber.getSubscriberListener()).addManagerListeners(this.dataId,
-            this.group, this.managerListeners);
+                this.group, this.managerListeners);
     }
 
 
@@ -171,8 +169,7 @@ public class DefaultDiamondManager implements DiamondManager {
         try {
             properties.load(new StringReader(configInfo));
             return properties;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Load properties fail:" + configInfo, e);
             throw new RuntimeException("Load properties fail:" + configInfo, e);
         }

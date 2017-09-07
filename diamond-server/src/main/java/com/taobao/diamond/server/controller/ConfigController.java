@@ -34,7 +34,6 @@ import static com.taobao.diamond.common.Constants.WORD_SEPARATOR;
 
 
 /**
- *
  * @author boyan
  * @date 2010-5-4
  */
@@ -105,15 +104,14 @@ public class ConfigController {
             String md5 = this.configService.getContentMD5(key.getDataId(), key.getGroup());
             if (!StringUtils.equals(md5, key.getMd5())) {
                 resultBuilder.append(key.getDataId()).append(WORD_SEPARATOR).append(key.getGroup())
-                    .append(LINE_SEPARATOR);
+                        .append(LINE_SEPARATOR);
             }
         }
 
         String returnHeader = resultBuilder.toString();
         try {
             returnHeader = URLEncoder.encode(resultBuilder.toString(), "UTF-8");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // ignore
         }
 
@@ -162,16 +160,14 @@ public class ConfigController {
                     // 没有异常, 说明查询成功, 但数据不存在, 设置不存在的状态码
                     configInfoEx.setStatus(Constants.BATCH_QUERY_NONEXISTS);
                     configInfoEx.setMessage("query data does not exist");
-                }
-                else {
+                } else {
                     // 没有异常, 说明查询成功, 而且数据存在, 设置存在的状态码
                     String content = configInfo.getContent();
                     configInfoEx.setContent(content);
                     configInfoEx.setStatus(Constants.BATCH_QUERY_EXISTS);
                     configInfoEx.setMessage("query success");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("批量查询, 在查询这个dataId时出错, dataId=" + dataId + ",group=" + group, e);
                 // 出现异常, 设置异常状态码
                 configInfoEx.setStatus(Constants.BATCH_OP_ERROR);
@@ -182,8 +178,7 @@ public class ConfigController {
         String json = null;
         try {
             json = JSONUtils.serializeObject(configInfoExList);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("批量查询结果序列化出错, json=" + json, e);
         }
 
@@ -211,7 +206,6 @@ public class ConfigController {
 
 
     /**
-     *
      * @param request
      * @return
      */

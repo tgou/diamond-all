@@ -48,7 +48,7 @@ public class DiskService {
 
     /**
      * for unit test
-     * 
+     *
      * @return
      */
     public ConcurrentHashMap<String, Boolean> getModifyMarkCache() {
@@ -58,7 +58,7 @@ public class DiskService {
 
     /**
      * for unit test
-     * 
+     *
      * @param dataId
      * @param group
      * @return
@@ -83,20 +83,17 @@ public class DiskService {
                 tempFile = createTempFile(dataId, group);
                 FileUtils.writeStringToFile(tempFile, content, Constants.ENCODE);
                 FileUtils.copyFile(tempFile, targetFile);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 String errorMsg = "save disk error, dataId=" + dataId + ",group=" + group;
                 log.error(errorMsg, e);
                 throw new ConfigServiceException(errorMsg, e);
-            }
-            finally {
+            } finally {
                 if (tempFile != null && tempFile.exists()) {
                     FileUtils.deleteQuietly(tempFile);
                 }
                 this.modifyMarkCache.remove(cacheKey);
             }
-        }
-        else {
+        } else {
             throw new ConfigServiceException("config info is being modified, dataId=" + dataId + ",group=" + group);
         }
 
@@ -133,17 +130,14 @@ public class DiskService {
                 }
 
                 FileUtils.deleteQuietly(dataFile);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 String errorMsg = "delete config info error, dataId=" + dataId + ",group=" + group;
                 log.error(errorMsg, e);
                 throw new ConfigServiceException(errorMsg, e);
-            }
-            finally {
+            } finally {
                 this.modifyMarkCache.remove(cacheKey);
             }
-        }
-        else {
+        } else {
             throw new ConfigServiceException("config info is being modified, dataId=" + dataId + ",group=" + group);
         }
     }

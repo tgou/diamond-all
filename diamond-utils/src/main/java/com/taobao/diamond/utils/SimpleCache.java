@@ -16,9 +16,8 @@ import java.util.concurrent.ConcurrentMap;
 
 
 /**
- * @author fenghan
- * 
  * @param <E>
+ * @author fenghan
  */
 public class SimpleCache<E> {
 

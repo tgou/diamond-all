@@ -15,7 +15,6 @@ import java.util.Properties;
 
 
 /**
- * 
  * @author boyan
  * @date 2010-5-4
  */
@@ -24,12 +23,10 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns the URL of the resource on the classpath
-     * 
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static URL getResourceURL(String resource) throws IOException {
         URL url = null;
@@ -47,14 +44,11 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns the URL of the resource on the classpath
-     * 
-     * @param loader
-     *            The classloader used to load the resource
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param loader   The classloader used to load the resource
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static URL getResourceURL(ClassLoader loader, String resource) throws IOException {
         URL url = null;
@@ -71,12 +65,10 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Stream object
-     * 
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static InputStream getResourceAsStream(String resource) throws IOException {
         InputStream in = null;
@@ -94,14 +86,11 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Stream object
-     * 
-     * @param loader
-     *            The classloader used to load the resource
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param loader   The classloader used to load the resource
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static InputStream getResourceAsStream(ClassLoader loader, String resource) throws IOException {
         InputStream in = null;
@@ -118,12 +107,10 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Properties object
-     * 
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static Properties getResourceAsProperties(String resource) throws IOException {
         Properties props = new Properties();
@@ -139,14 +126,11 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Properties object
-     * 
-     * @param loader
-     *            The classloader used to load the resource
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param loader   The classloader used to load the resource
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static Properties getResourceAsProperties(ClassLoader loader, String resource) throws IOException {
         Properties props = new Properties();
@@ -162,12 +146,10 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Reader object
-     * 
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static InputStreamReader getResourceAsReader(String resource) throws IOException {
         return new InputStreamReader(getResourceAsStream(resource));
@@ -177,14 +159,11 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a Reader object
-     * 
-     * @param loader
-     *            The classloader used to load the resource
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param loader   The classloader used to load the resource
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static Reader getResourceAsReader(ClassLoader loader, String resource) throws IOException {
         return new InputStreamReader(getResourceAsStream(loader, resource));
@@ -194,12 +173,10 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a File object
-     * 
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static File getResourceAsFile(String resource) throws IOException {
         return new File(getResourceURL(resource).getFile());
@@ -209,14 +186,11 @@ public class ResourceUtils extends Object {
     /** */
     /**
      * Returns a resource on the classpath as a File object
-     * 
-     * @param loader
-     *            The classloader used to load the resource
-     * @param resource
-     *            The resource to find
-     * @throws IOException
-     *             If the resource cannot be found or read
+     *
+     * @param loader   The classloader used to load the resource
+     * @param resource The resource to find
      * @return The resource
+     * @throws IOException If the resource cannot be found or read
      */
     public static File getResourceAsFile(ClassLoader loader, String resource) throws IOException {
         return new File(getResourceURL(loader, resource).getFile());

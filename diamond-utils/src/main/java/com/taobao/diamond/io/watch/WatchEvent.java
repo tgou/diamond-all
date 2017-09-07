@@ -10,10 +10,9 @@
 package com.taobao.diamond.io.watch;
 
 /**
- * 
+ * @param <T>
  * @author boyan
  * @date 2010-5-4
- * @param <T>
  */
 public class WatchEvent<T> {
     public static interface Kind<T> {

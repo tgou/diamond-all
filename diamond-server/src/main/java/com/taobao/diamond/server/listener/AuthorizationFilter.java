@@ -39,8 +39,7 @@ public class AuthorizationFilter implements Filter {
                 ((HttpServletResponse) response).sendRedirect(httpRequest.getContextPath() + "/jsp/login.jsp");
             else
                 chain.doFilter(httpRequest, response);
-        }
-        finally {
+        } finally {
             SessionHolder.invalidate();
         }
     }

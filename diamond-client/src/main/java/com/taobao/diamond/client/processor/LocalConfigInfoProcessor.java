@@ -33,7 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 public class LocalConfigInfoProcessor {
     private static final Log log = LogFactory.getLog(LocalConfigInfoProcessor.class);
-    private ScheduledExecutorService singleExecutor = Executors.newSingleThreadScheduledExecutor();;
+    private ScheduledExecutorService singleExecutor = Executors.newSingleThreadScheduledExecutor();
 
     private final Map<String/* filePath */, Long/* version */> existFiles = new HashMap<String, Long>();
 
@@ -42,8 +42,9 @@ public class LocalConfigInfoProcessor {
 
     /**
      * Get config from local
+     *
      * @param cacheData
-     * @param force if true, do not return null when config not change
+     * @param force     if true, do not return null when config not change
      * @return
      * @throws IOException
      */
@@ -77,8 +78,7 @@ public class LocalConfigInfoProcessor {
             }
 
             return content;
-        }
-        else {
+        } else {
             cacheData.setUseLocalConfigInfo(true);
 
             if (log.isInfoEnabled()) {
@@ -93,7 +93,7 @@ public class LocalConfigInfoProcessor {
     String getFilePath(String dataId, String group) {
         StringBuilder filePathBuilder = new StringBuilder();
         filePathBuilder.append(rootPath).append("/").append(Constants.BASE_DIR).append("/").append(group).append("/")
-            .append(dataId);
+                .append(dataId);
         File file = new File(filePathBuilder.toString());
         return file.getAbsolutePath();
     }
@@ -117,8 +117,7 @@ public class LocalConfigInfoProcessor {
         try {
             File flie = new File(rootPath);
             flie.mkdir();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
     }
 
@@ -138,7 +137,7 @@ public class LocalConfigInfoProcessor {
 
         Path path = new Path(new File(filePath));
         watcher.register(path, true, StandardWatchEventKind.ENTRY_CREATE, StandardWatchEventKind.ENTRY_DELETE,
-            StandardWatchEventKind.ENTRY_MODIFY);
+                StandardWatchEventKind.ENTRY_MODIFY);
         checkAtFirst(watcher);
         singleExecutor.execute(new Runnable() {
             public void run() {
@@ -147,8 +146,7 @@ public class LocalConfigInfoProcessor {
                     WatchKey key;
                     try {
                         key = watcher.take();
-                    }
-                    catch (InterruptedException x) {
+                    } catch (InterruptedException x) {
                         continue;
                     }
                     if (!processEvents(key)) {
@@ -174,7 +172,7 @@ public class LocalConfigInfoProcessor {
     }
 
 
-    @SuppressWarnings({ "unchecked" })
+    @SuppressWarnings({"unchecked"})
     private boolean processEvents(WatchKey key) {
         for (WatchEvent<?> event : key.pollEvents()) {
 
@@ -187,8 +185,7 @@ public class LocalConfigInfoProcessor {
                 String grandpaDir = null;
                 try {
                     grandpaDir = FileUtils.getGrandpaDir(realPath);
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
 
                 }
                 if (!Constants.BASE_DIR.equals(grandpaDir)) {
@@ -199,13 +196,11 @@ public class LocalConfigInfoProcessor {
                 if (log.isInfoEnabled()) {
                     log.info(realPath + "file added or updated");
                 }
-            }
-            else if (ev.kind() == StandardWatchEventKind.ENTRY_DELETE) {
+            } else if (ev.kind() == StandardWatchEventKind.ENTRY_DELETE) {
                 String grandpaDir = null;
                 try {
                     grandpaDir = FileUtils.getGrandpaDir(realPath);
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
 
                 }
                 // delete file
@@ -214,8 +209,7 @@ public class LocalConfigInfoProcessor {
                     if (log.isInfoEnabled()) {
                         log.info(realPath + "file deleted");
                     }
-                }
-                else {
+                } else {
                     // delete directory
                     Set<String> keySet = new HashSet<String>(existFiles.keySet());
                     for (String filePath : keySet) {

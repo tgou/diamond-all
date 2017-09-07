@@ -20,7 +20,6 @@ import java.util.concurrent.Executor;
 
 /**
  * @author leiwen.zh
- * 
  */
 public class DefaultSubscriberListener implements SubscriberListener {
 
@@ -53,8 +52,7 @@ public class DefaultSubscriberListener implements SubscriberListener {
         for (ManagerListener listener : listeners) {
             try {
                 notifyListener(configureInfomation, listener);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 dataLog.error("call listener error, dataId=" + dataId + ", group=" + group, t);
             }
         }
@@ -77,8 +75,7 @@ public class DefaultSubscriberListener implements SubscriberListener {
             public void run() {
                 try {
                     listener.receiveConfigInfo(content);
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     dataLog.error(t.getMessage(), t);
                 }
             }
@@ -86,8 +83,7 @@ public class DefaultSubscriberListener implements SubscriberListener {
 
         if (null != listener.getExecutor()) {
             listener.getExecutor().execute(job);
-        }
-        else {
+        } else {
             job.run();
         }
     }

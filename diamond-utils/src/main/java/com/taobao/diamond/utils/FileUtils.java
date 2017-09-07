@@ -47,8 +47,7 @@ public class FileUtils {
         File parent = file.getParentFile();
         if (parent.isDirectory()) {
             return parent.getName();
-        }
-        else {
+        } else {
             throw new RuntimeException("parent is not directory path=" + path);
         }
     }
@@ -64,12 +63,10 @@ public class FileUtils {
             File grandpa = parent.getParentFile();
             if (grandpa.isDirectory()) {
                 return grandpa.getName();
-            }
-            else {
+            } else {
                 throw new RuntimeException("grand parent is not directory path=" + path);
             }
-        }
-        else {
+        } else {
             throw new RuntimeException("parent is not directory path=" + path);
         }
     }
@@ -88,15 +85,13 @@ public class FileUtils {
             int onceLength = file.read(bytes, (int) readLength, (int) (fileSize - readLength));
             if (onceLength > 0) {
                 readLength += onceLength;
-            }
-            else {
+            } else {
                 break;
             }
         }
         try {
             file.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
         }
         return new String(bytes, Constants.ENCODE);

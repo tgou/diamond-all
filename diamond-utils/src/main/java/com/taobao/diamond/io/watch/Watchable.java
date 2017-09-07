@@ -11,7 +11,6 @@ package com.taobao.diamond.io.watch;
 
 /**
  * @author boyan
- * 
  */
 public interface Watchable {
     public WatchKey register(WatchService watcher, WatchEvent.Kind<?>... events);

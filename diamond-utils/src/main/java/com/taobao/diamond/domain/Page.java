@@ -15,9 +15,9 @@ import java.util.List;
 
 
 /**
+ * @param <E>
  * @author boyan
  * @date 2010-5-6
- * @param <E>
  */
 public class Page<E> implements Serializable {
     static final long serialVersionUID = -1L;

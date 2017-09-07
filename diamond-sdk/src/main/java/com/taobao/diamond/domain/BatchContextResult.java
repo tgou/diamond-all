@@ -7,7 +7,6 @@ import java.util.List;
 
 /**
  * @author leiwen.zh
- * 
  */
 public class BatchContextResult<T> implements Serializable {
 

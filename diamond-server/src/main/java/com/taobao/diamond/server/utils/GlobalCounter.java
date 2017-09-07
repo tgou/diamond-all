@@ -27,8 +27,7 @@ public class GlobalCounter {
     public synchronized long decrementAndGet() {
         if (count == Long.MIN_VALUE) {
             count = 0;
-        }
-        else
+        } else
             count--;
         return count;
     }

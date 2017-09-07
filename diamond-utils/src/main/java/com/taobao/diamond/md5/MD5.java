@@ -22,9 +22,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class MD5 {
     private static final Log log = LogFactory.getLog(MD5.class);
-    private static char[] digits = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+    private static char[] digits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     private static Map<Character, Integer> rDigits = new HashMap<Character, Integer>(16);
+
     static {
         for (int i = 0; i < digits.length; ++i) {
             rDigits.put(digits[i], i);
@@ -39,8 +40,7 @@ public class MD5 {
     private MD5() {
         try {
             mHasher = MessageDigest.getInstance("md5");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -75,11 +75,9 @@ public class MD5 {
                 throw new IllegalArgumentException("md5 need");
             }
             return bt;
-        }
-        catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException("unsupported utf-8 encoding", e);
-        }
-        finally {
+        } finally {
             opLock.unlock();
         }
     }
@@ -92,8 +90,7 @@ public class MD5 {
                 throw new IllegalArgumentException("md5 need");
             }
             return bt;
-        }
-        finally {
+        } finally {
             opLock.unlock();
         }
     }

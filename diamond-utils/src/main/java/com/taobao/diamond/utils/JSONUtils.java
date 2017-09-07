@@ -6,8 +6,8 @@ import org.codehaus.jackson.type.TypeReference;
 
 public class JSONUtils {
 
-	static ObjectMapper mapper = new ObjectMapper();
-	
+    static ObjectMapper mapper = new ObjectMapper();
+
     public static String serializeObject(Object o) throws Exception {
         return mapper.writeValueAsString(o);
     }
@@ -15,9 +15,9 @@ public class JSONUtils {
     public static Object deserializeObject(String s, Class<?> clazz) throws Exception {
         return mapper.readValue(s, clazz);
     }
-    
-    public static Object deserializeObject(String s,TypeReference<?> typeReference) throws Exception {
+
+    public static Object deserializeObject(String s, TypeReference<?> typeReference) throws Exception {
         return mapper.readValue(s, typeReference);
     }
-    
+
 }

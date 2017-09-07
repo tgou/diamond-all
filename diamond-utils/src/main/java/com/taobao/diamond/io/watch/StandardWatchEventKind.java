@@ -14,7 +14,6 @@ import com.taobao.diamond.io.Path;
 
 /**
  * @author boyan
- * 
  */
 public class StandardWatchEventKind {
 

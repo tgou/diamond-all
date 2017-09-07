@@ -21,14 +21,14 @@ import java.util.List;
 
 
 /**
+ * @param <E>
  * @author boyan
  * @date 2010-5-6
- * @param <E>
  */
 public class PaginationHelper<E> {
 
     public Page<E> fetchPage(final JdbcTemplate jt, final String sqlCountRows, final String sqlFetchRows,
-            final Object args[], final int pageNo, final int pageSize, final ParameterizedRowMapper<E> rowMapper) {
+                             final Object args[], final int pageNo, final int pageSize, final ParameterizedRowMapper<E> rowMapper) {
         if (pageSize == 0) {
             return null;
         }

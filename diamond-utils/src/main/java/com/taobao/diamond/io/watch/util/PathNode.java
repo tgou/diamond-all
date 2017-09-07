@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * @author boyan
- * 
  */
 public class PathNode {
     private List<PathNode> children;

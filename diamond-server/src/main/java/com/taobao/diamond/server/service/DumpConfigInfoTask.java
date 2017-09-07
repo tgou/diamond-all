@@ -41,8 +41,7 @@ public final class DumpConfigInfoTask implements Runnable {
                     }
                 }
             }
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             log.error("dump task run error", t);
         }
     }
@@ -56,10 +55,9 @@ public final class DumpConfigInfoTask implements Runnable {
             try {
                 this.timerTaskService.getConfigService().updateMD5Cache(configInfo);
                 this.timerTaskService.getDiskService().saveToDisk(configInfo);
-            }
-            catch (Throwable t) {
+            } catch (Throwable t) {
                 log.error(
-                    "dump config info error, dataId=" + configInfo.getDataId() + ", group=" + configInfo.getGroup(), t);
+                        "dump config info error, dataId=" + configInfo.getDataId() + ", group=" + configInfo.getGroup(), t);
             }
 
         }

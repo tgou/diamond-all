@@ -55,16 +55,13 @@ public class NotifyService {
         try {
             in = ResourceUtils.getResourceAsStream("node.properties");
             nodeProperties.load(in);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("load node.properties fail");
-        }
-        finally {
+        } finally {
             try {
                 if (in != null)
                     in.close();
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 log.error("close node.properties fail", e);
             }
         }
@@ -98,7 +95,7 @@ public class NotifyService {
 
     /**
      * http get
-     * 
+     *
      * @param urlString
      * @return
      */
@@ -121,18 +118,15 @@ public class NotifyService {
                 while ((line = reader.readLine()) != null) {
                     sb.append(line);
                 }
-            }
-            finally {
+            } finally {
                 if (reader != null)
                     reader.close();
             }
             return sb.toString();
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("http invoke fail,url=" + urlString, e);
-        }
-        finally {
+        } finally {
             if (conn != null) {
                 conn.disconnect();
             }

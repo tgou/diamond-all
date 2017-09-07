@@ -33,12 +33,11 @@ public class LoginController {
 
     @RequestMapping(params = "method=login", method = RequestMethod.POST)
     public String login(HttpServletRequest request, @RequestParam("username") String username,
-            @RequestParam("password") String password, ModelMap modelMap) {
+                        @RequestParam("password") String password, ModelMap modelMap) {
         if (adminService.login(username, password)) {
             request.getSession().setAttribute("user", username);
             return "admin/admin";
-        }
-        else {
+        } else {
             modelMap.addAttribute("message", "Login fail.");
             return "login";
         }

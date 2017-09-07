@@ -11,7 +11,7 @@ package com.taobao.diamond.util;
 
 public class DiamondUtils {
     public static final char[] INVALID_CHAR =
-            {';', '&', '%', '#', '$', '@', ',', '*', '^', '~', '(', ')', '/', '\\', '|', '+' };
+            {';', '&', '%', '#', '$', '@', ',', '*', '^', '~', '(', ')', '/', '\\', '|', '+'};
 
     public static boolean hasInvalidChar(String str) {
         if (str == null || str.length() == 0)

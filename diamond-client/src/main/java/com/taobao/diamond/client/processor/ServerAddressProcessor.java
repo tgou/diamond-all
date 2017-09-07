@@ -61,8 +61,7 @@ public class ServerAddressProcessor {
         initHttpClient();
         if (this.diamondConfigure.isLocalFirst()) {
             acquireServerAddressFromLocal();
-        }
-        else {
+        } else {
             synAcquireServerAddress();
             asynAcquireServerAddress();
         }
@@ -114,17 +113,14 @@ public class ServerAddressProcessor {
                     if (acquireServerAddressOnce(acquireCount)) {
                         storeServerAddressesToLocal();
                         log.info("get domain list from daily");
-                    }
-                    else {
+                    } else {
                         throw new RuntimeException("no available domain.");
                     }
-                }
-                else {
+                } else {
                     log.info("get domain list from online");
                     storeServerAddressesToLocal();
                 }
-            }
-            else {
+            } else {
                 log.info("not get domain from config server because set domain list from local");
             }
         }
@@ -147,15 +143,13 @@ public class ServerAddressProcessor {
                 if (acquireServerAddressOnce(acquireCount)) {
                     storeServerAddressesToLocal();
                     log.info("get domain list from daily config server.");
-                }
-                else {
+                } else {
                     log.info("get domain list from local");
                     reloadServerAddresses();
                     if (diamondConfigure.getDomainNameList().size() == 0)
                         throw new RuntimeException("no available domain list");
                 }
-            }
-            else {
+            } else {
                 log.info("get domain list from online");
                 storeServerAddressesToLocal();
             }
@@ -179,8 +173,7 @@ public class ServerAddressProcessor {
                     if (acquireServerAddressOnce(acquireCount)) {
                         storeServerAddressesToLocal();
                     }
-                }
-                else {
+                } else {
                     storeServerAddressesToLocal();
                 }
 
@@ -207,16 +200,13 @@ public class ServerAddressProcessor {
                 bufferedWriter.newLine();
             }
             bufferedWriter.flush();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("storeServerAddressesToLocal fail:", e);
-        }
-        finally {
+        } finally {
             if (bufferedWriter != null) {
                 try {
                     bufferedWriter.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     // ignore
                 }
             }
@@ -251,32 +241,27 @@ public class ServerAddressProcessor {
             bufferedReader.close();
             reader.close();
             fis.close();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("reloadServerAddresses fail:", e);
-        }
-        finally {
+        } finally {
             if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
 
                 }
             }
             if (reader != null) {
                 try {
                     reader.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
 
                 }
             }
             if (fis != null) {
                 try {
                     fis.close();
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
 
                 }
             }
@@ -291,8 +276,7 @@ public class ServerAddressProcessor {
         }
         if (directory.endsWith("\\") || directory.endsWith("/")) {
             sign = "";
-        }
-        else {
+        } else {
             sign = "/";
         }
         return directory + sign + fileName;
@@ -305,13 +289,11 @@ public class ServerAddressProcessor {
         if (null != diamondConfigure.getConfigServerAddress()) {
             configServerAddress = diamondConfigure.getConfigServerAddress();
             port = diamondConfigure.getConfigServerPort();
-        }
-        else {
+        } else {
             if (acquireCount == 0) {
                 configServerAddress = Constants.DEFAULT_DOMAINNAME;
                 port = Constants.DEFAULT_PORT;
-            }
-            else {
+            } else {
                 configServerAddress = Constants.DAILY_DOMAINNAME;
                 port = Constants.DEFAULT_PORT;
             }
@@ -342,21 +324,16 @@ public class ServerAddressProcessor {
                     this.diamondConfigure.setDomainNameList(newDomainNameList);
                     return true;
                 }
-            }
-            else {
+            } else {
                 log.warn("No available domain list.");
             }
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             log.error(getErrorMessage(configServerAddress) + ", " + e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error(getErrorMessage(configServerAddress) + ", " + e);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error(getErrorMessage(configServerAddress) + ", " + e);
-        }
-        finally {
+        } finally {
             httpMethod.releaseConnection();
         }
         return false;
@@ -366,8 +343,7 @@ public class ServerAddressProcessor {
     public String getErrorMessage(String configServerAddress) {
         if (configServerAddress.equals(Constants.DEFAULT_DOMAINNAME)) {
             return "get domain list http exception, if in daily env, ignore this message,configServerAddress=" + configServerAddress + ",";
-        }
-        else {
+        } else {
             return "get domain list http exception, configServerAddress=" + configServerAddress + ",";
         }
     }

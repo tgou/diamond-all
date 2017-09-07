@@ -16,750 +16,771 @@
  * http://www.opensource.org/licenses/mit-license.php
  */
 
-var ValidationDefaultOptions = function(){};
+var ValidationDefaultOptions = function () {
+};
 ValidationDefaultOptions.prototype = {
-	onSubmit : true, //ÊÇ·ñ¼àÌýformµÄsubmitÊÂ¼þ
-	onReset : true, //ÊÇ·ñ¼àÌýformµÄresetÊÂ¼þ
-	stopOnFirst : false, //±íµ¥ÑéÖ¤Ê±Í£ÁôÔÚµÚÒ»¸öÑéÖ¤µÄµØ·½,²»¼ÌÐøÑéÖ¤ÏÂÈ¥
-	immediate : false, //ÊÇ·ñÊµÊ±¼ì²éÊý¾ÝµÄºÏ·¨ÐÔ
-	focusOnError : true, //ÊÇ·ñ³ö´íÊ±½«¹â±êÖ¸ÕëÒÆµ½³ö´íµÄÊäÈë¿òÉÏ
-	useTitles : false, //ÊÇ·ñÊ¹ÓÃinputµÄtitleÊôÐÔ×÷Îª³ö´íÊ±µÄÌáÊ¾ÐÅÏ¢
-	onFormValidate : function(result, form) {return result;},//FormÑéÖ¤Ê±µÄ»Øµ÷º¯Êý,¿ÉÒÔÐÞ¸Ä×îÖÕµÄ·µ»Ø½á¹û
-	onElementValidate : function(result, elm) {} //Ä³¸öinputÑéÖ¤Ê±µÄ»Øµ÷º¯Êý
+    onSubmit: true, //ï¿½Ç·ï¿½ï¿½ï¿½ï¿½formï¿½ï¿½submitï¿½Â¼ï¿½
+    onReset: true, //ï¿½Ç·ï¿½ï¿½ï¿½ï¿½formï¿½ï¿½resetï¿½Â¼ï¿½
+    stopOnFirst: false, //ï¿½ï¿½ï¿½ï¿½Ö¤Ê±Í£ï¿½ï¿½ï¿½Úµï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ÄµØ·ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½È¥
+    immediate: false, //ï¿½Ç·ï¿½ÊµÊ±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÝµÄºÏ·ï¿½ï¿½ï¿½
+    focusOnError: true, //ï¿½Ç·ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    useTitles: false, //ï¿½Ç·ï¿½Ê¹ï¿½ï¿½inputï¿½ï¿½titleï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½Ï¢
+    onFormValidate: function (result, form) {
+        return result;
+    },//Formï¿½ï¿½Ö¤Ê±ï¿½Ä»Øµï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½ï¿½ï¿½ï¿½ÕµÄ·ï¿½ï¿½Ø½ï¿½ï¿½
+    onElementValidate: function (result, elm) {
+    } //Ä³ï¿½ï¿½inputï¿½ï¿½Ö¤Ê±ï¿½Ä»Øµï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
-var ValidatorDefaultOptions = function(){}
+var ValidatorDefaultOptions = function () {
+}
 ValidatorDefaultOptions.prototype = {
-	ignoreEmptyValue : true, //ÊÇ·ñºöÂÔ¿ÕÖµ
-	depends : [] //Ïà¹ØÒÀÀµÏî
+    ignoreEmptyValue: true, //ï¿½Ç·ï¿½ï¿½ï¿½Ô¿ï¿½Öµ
+    depends: [] //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 //compatible with prototype
-if(typeof Prototype != 'undefined' && (typeof $ != 'undefined')) {
-	$prototype = $;
+if (typeof Prototype != 'undefined' && (typeof $ != 'undefined')) {
+    $prototype = $;
 }
 
 Validator = Class.create();
 
 Validator.messageSource = {};
 Validator.messageSource['en-us'] = [
-	['validation-failed' , 'Validation failed.'],
-	['required' , 'This is a required field.'],
-	['validate-number' , 'Please enter a valid number in this field.'],
-	['validate-digits' , 'Please use numbers only in this field. please avoid spaces or other characters such as dots or commas.'],
-	['validate-alpha' , 'Please use letters only (a-z) in this field.'],
-	['validate-alphanum' , 'Please use only letters (a-z) or numbers (0-9) only in this field. No spaces or other characters are allowed.'],
-	['validate-email' , 'Please enter a valid email address. For example fred@domain.com .'],
-	['validate-url' , 'Please enter a valid URL.'],
-	['validate-currency-dollar' , 'Please enter a valid $ amount. For example $100.00 .'],
-	['validate-one-required' , 'Please select one of the above options.'],
-	['validate-integer' , 'Please enter a valid integer in this field'],
-	['validate-pattern' , 'Validation failed.'],
-	['validate-ip','Please enter a valid IP address'],
-	['min-value' , 'min value is %s.'],
-	['max-value' , 'max value is %s.'],
-	['min-length' , 'min length is %s,current length is %s.'],
-	['max-length' , 'max length is %s,current length is %s.'],
-	['int-range' , 'Please enter integer value between %s and %s'],
-	['float-range' , 'Please enter number between %s and %s'],
-	['length-range' , 'Please enter value length between %s and %s,current length is %s'],
-	['equals','Conflicting with above value.'],
-	['less-than','Input value must be less than above value.'],
-	['less-than-equal','Input value must be less than or equal above value.'],
-	['great-than','Input value must be great than above value.'],
-	['great-than-equal','Input value must be great than or equal above value.'],
-	['validate-date' , 'Please use this date format: %s. For example %s.'],
-	['validate-selection' , 'Please make a selection.'],
-	['validate-file' , function(v,elm,args,metadata) {
-		return ValidationUtils.format("Please enter file type in [%s]",[args.join(',')]);
-	}],
-	//ÖÐ¹úÌØÓÐµÄÏà¹ØÑéÖ¤ÌáÊ¾ÐÅÏ¢
-	['validate-id-number','Please enter a valid id number.'],
-	['validate-chinese','Please enter chinese'],
-	['validate-phone','Please enter a valid phone number,current length is %s.'],
-	['validate-mobile-phone','Please enter a valid mobile phone,For example 13910001000.current length is %s.'],
-	['validate-zip','Please enter a valid zip code.'],
-	['validate-qq','Please enter a valid qq number']
+    ['validation-failed', 'Validation failed.'],
+    ['required', 'This is a required field.'],
+    ['validate-number', 'Please enter a valid number in this field.'],
+    ['validate-digits', 'Please use numbers only in this field. please avoid spaces or other characters such as dots or commas.'],
+    ['validate-alpha', 'Please use letters only (a-z) in this field.'],
+    ['validate-alphanum', 'Please use only letters (a-z) or numbers (0-9) only in this field. No spaces or other characters are allowed.'],
+    ['validate-email', 'Please enter a valid email address. For example fred@domain.com .'],
+    ['validate-url', 'Please enter a valid URL.'],
+    ['validate-currency-dollar', 'Please enter a valid $ amount. For example $100.00 .'],
+    ['validate-one-required', 'Please select one of the above options.'],
+    ['validate-integer', 'Please enter a valid integer in this field'],
+    ['validate-pattern', 'Validation failed.'],
+    ['validate-ip', 'Please enter a valid IP address'],
+    ['min-value', 'min value is %s.'],
+    ['max-value', 'max value is %s.'],
+    ['min-length', 'min length is %s,current length is %s.'],
+    ['max-length', 'max length is %s,current length is %s.'],
+    ['int-range', 'Please enter integer value between %s and %s'],
+    ['float-range', 'Please enter number between %s and %s'],
+    ['length-range', 'Please enter value length between %s and %s,current length is %s'],
+    ['equals', 'Conflicting with above value.'],
+    ['less-than', 'Input value must be less than above value.'],
+    ['less-than-equal', 'Input value must be less than or equal above value.'],
+    ['great-than', 'Input value must be great than above value.'],
+    ['great-than-equal', 'Input value must be great than or equal above value.'],
+    ['validate-date', 'Please use this date format: %s. For example %s.'],
+    ['validate-selection', 'Please make a selection.'],
+    ['validate-file', function (v, elm, args, metadata) {
+        return ValidationUtils.format("Please enter file type in [%s]", [args.join(',')]);
+    }],
+    //ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ê¾ï¿½ï¿½Ï¢
+    ['validate-id-number', 'Please enter a valid id number.'],
+    ['validate-chinese', 'Please enter chinese'],
+    ['validate-phone', 'Please enter a valid phone number,current length is %s.'],
+    ['validate-mobile-phone', 'Please enter a valid mobile phone,For example 13910001000.current length is %s.'],
+    ['validate-zip', 'Please enter a valid zip code.'],
+    ['validate-qq', 'Please enter a valid qq number']
 ]
 
 Validator.messageSource['en'] = Validator.messageSource['en-us']
 
 Validator.messageSource['zh-cn'] = [
-	['validation-failed' , 'ÑéÖ¤Ê§°Ü.'],
-	['required' , 'ÇëÊäÈëÖµ.'],
-	['validate-number' , 'ÇëÊäÈëÓÐÐ§µÄÊý×Ö.'],
-	['validate-digits' , 'ÇëÊäÈëÊý×Ö.'],
-	['validate-alpha' , 'ÇëÊäÈëÓ¢ÎÄ×ÖÄ¸.'],
-	['validate-alphanum' , 'ÇëÊäÈëÓ¢ÎÄ×ÖÄ¸»òÊÇÊý×Ö,ÆäËü×Ö·ûÊÇ²»ÔÊÐíµÄ.'],
-	['validate-email' , 'ÇëÊäÈëÓÐÐ§µÄÓÊ¼þµØÖ·,Èç username@example.com.'],
-	['validate-url' , 'ÇëÊäÈëÓÐÐ§µÄURLµØÖ·.'],
-	['validate-currency-dollar' , 'Please enter a valid $ amount. For example $100.00 .'],
-	['validate-one-required' , 'ÔÚÇ°ÃæÑ¡ÏîÖÁÉÙÑ¡ÔñÒ»¸ö.'],
-	['validate-integer' , 'ÇëÊäÈëÕýÈ·µÄÕûÊý'],
-	['validate-pattern' , 'ÊäÈëµÄÖµ²»Æ¥Åä'],
-	['validate-ip','ÇëÊäÈëÕýÈ·µÄIPµØÖ·'],
-	['min-value' , '×îÐ¡ÖµÎª%s'],
-	['max-value' , '×î´óÖµÎª%s'],
-	['min-length' , '×îÐ¡³¤¶ÈÎª%s,µ±Ç°³¤¶ÈÎª%s.'],
-	['max-length', '×î´ó³¤¶ÈÎª%s,µ±Ç°³¤¶ÈÎª%s.'],
-	['int-range' , 'ÊäÈëÖµÓ¦¸ÃÎª %s ÖÁ %s µÄÕûÊý'],
-	['float-range' , 'ÊäÈëÖµÓ¦¸ÃÎª %s ÖÁ %s µÄÊý×Ö'],
-	['length-range' , 'ÊäÈëÖµµÄ³¤¶ÈÓ¦¸ÃÔÚ %s ÖÁ %s Ö®¼ä,µ±Ç°³¤¶ÈÎª%s'],
-	['equals','Á½´ÎÊäÈë²»Ò»ÖÂ,ÇëÖØÐÂÊäÈë'],
-	['less-than','ÇëÊäÈëÐ¡ÓÚÇ°ÃæµÄÖµ'],
-	['less-than-equal','ÇëÊäÈëÐ¡ÓÚ»òµÈÓÚÇ°ÃæµÄÖµ'],
-	['great-than','ÇëÊäÈë´óÓÚÇ°ÃæµÄÖµ'],
-	['great-than-equal','ÇëÊäÈë´óÓÚ»òµÈÓÚÇ°ÃæµÄÖµ'],
-	['validate-date' , 'ÇëÊäÈëÓÐÐ§µÄÈÕÆÚ,¸ñÊ½Îª %s. ÀýÈç:%s.'],
-	['validate-selection' , 'ÇëÑ¡Ôñ.'],
-	['validate-file' , function(v,elm,args,metadata) {
-		return ValidationUtils.format("ÎÄ¼þÀàÐÍÓ¦¸ÃÎª[%s]ÆäÖÐÖ®Ò»",[args.join(',')]);
-	}],
-	//ÖÐ¹úÌØÓÐµÄÏà¹ØÑéÖ¤ÌáÊ¾ÐÅÏ¢
-	['validate-id-number','ÇëÊäÈëºÏ·¨µÄÉí·ÝÖ¤ºÅÂë'],
-	['validate-chinese','ÇëÊäÈëÖÐÎÄ'],
-	['validate-phone','ÇëÊäÈëÕýÈ·µÄµç»°ºÅÂë,Èç:010-29392929,µ±Ç°³¤¶ÈÎª%s.'],
-	['validate-mobile-phone','ÇëÊäÈëÕýÈ·µÄÊÖ»úºÅÂë,µ±Ç°³¤¶ÈÎª%s.'],
-	['validate-zip','ÇëÊäÈëÓÐÐ§µÄÓÊÕþ±àÂë'],
-	['validate-qq','ÇëÊäÈëÓÐÐ§µÄQQºÅÂë.']
+    ['validation-failed', 'ï¿½ï¿½Ö¤Ê§ï¿½ï¿½.'],
+    ['required', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Öµ.'],
+    ['validate-number', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.'],
+    ['validate-digits', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.'],
+    ['validate-alpha', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½ï¿½ï¿½Ä¸.'],
+    ['validate-alphanum', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¢ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½Ç²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.'],
+    ['validate-email', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½Ö·,ï¿½ï¿½ username@example.com.'],
+    ['validate-url', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½URLï¿½ï¿½Ö·.'],
+    ['validate-currency-dollar', 'Please enter a valid $ amount. For example $100.00 .'],
+    ['validate-one-required', 'ï¿½ï¿½Ç°ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ¡ï¿½ï¿½Ò»ï¿½ï¿½.'],
+    ['validate-integer', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['validate-pattern', 'ï¿½ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½Æ¥ï¿½ï¿½'],
+    ['validate-ip', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½IPï¿½ï¿½Ö·'],
+    ['min-value', 'ï¿½ï¿½Ð¡ÖµÎª%s'],
+    ['max-value', 'ï¿½ï¿½ï¿½ÖµÎª%s'],
+    ['min-length', 'ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ï¿½Îª%s,ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Îª%s.'],
+    ['max-length', 'ï¿½ï¿½ó³¤¶ï¿½Îª%s,ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Îª%s.'],
+    ['int-range', 'ï¿½ï¿½ï¿½ï¿½ÖµÓ¦ï¿½ï¿½Îª %s ï¿½ï¿½ %s ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['float-range', 'ï¿½ï¿½ï¿½ï¿½ÖµÓ¦ï¿½ï¿½Îª %s ï¿½ï¿½ %s ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['length-range', 'ï¿½ï¿½ï¿½ï¿½Öµï¿½Ä³ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½ %s ï¿½ï¿½ %s Ö®ï¿½ï¿½,ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Îª%s'],
+    ['equals', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ë²»Ò»ï¿½ï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['less-than', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Öµ'],
+    ['less-than-equal', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½Ú»ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Öµ'],
+    ['great-than', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Öµ'],
+    ['great-than-equal', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú»ï¿½ï¿½ï¿½ï¿½Ç°ï¿½ï¿½ï¿½Öµ'],
+    ['validate-date', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ê½Îª %s. ï¿½ï¿½ï¿½ï¿½:%s.'],
+    ['validate-selection', 'ï¿½ï¿½Ñ¡ï¿½ï¿½.'],
+    ['validate-file', function (v, elm, args, metadata) {
+        return ValidationUtils.format("ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½ï¿½Îª[%s]ï¿½ï¿½ï¿½ï¿½Ö®Ò»", [args.join(',')]);
+    }],
+    //ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ê¾ï¿½ï¿½Ï¢
+    ['validate-id-number', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½ï¿½ï¿½'],
+    ['validate-chinese', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['validate-phone', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½Äµç»°ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½:010-29392929,ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Îª%s.'],
+    ['validate-mobile-phone', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½Îª%s.'],
+    ['validate-zip', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'],
+    ['validate-qq', 'ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½QQï¿½ï¿½ï¿½ï¿½.']
 ]
 
 ValidationUtils = {
-	isVisible : function(elm) {
-		while(elm && elm.tagName != 'BODY') {
-			if(!$prototype(elm).visible()) return false;
-			elm = elm.parentNode;
-		}
-		return true;
-	},
-	getReferenceForm : function(elm) {
-		while(elm && elm.tagName != 'BODY') {
-			if(elm.tagName == 'FORM') return elm;
-			elm = elm.parentNode;
-		}
-		return null;
-	},
-	getInputValue : function(elm) {
-		var elm = $prototype(elm);
-		if(elm.type.toLowerCase() == 'file') {
-			return elm.value;
-		}else {
-			return $F(elm);
-		}
-	},
-	getElmID : function(elm) {
-		return elm.id ? elm.id : elm.name;
-	},
-	format : function(str,args) {
-		args = args || [];
-		ValidationUtils.assert(args.constructor == Array,"ValidationUtils.format() arguement 'args' must is Array");
-		var result = str
-		for (var i = 0; i < args.length; i++){
-			result = result.replace(/%s/, args[i]);	
-		}
-		return result;
-	},
-	// Í¨¹ýclassname´«µÝµÄ²ÎÊý±ØÐëÍ¨¹ý'-'·Ö¸ô¸÷¸ö²ÎÊý
-	// ·µ»ØÖµ°üº¬Ò»¸ö²ÎÊýsingleArgument,Àý:validate-pattern-/[a-c]/gi,singleArgumentÖµÎª/[a-c]/gi
-	getArgumentsByClassName : function(prefix,className) {
-		if(!className || !prefix)
-			return [];
-		var pattern = new RegExp(prefix+'-(\\S+)');
-		var matchs = className.match(pattern);
-		if(!matchs)
-			return [];
-		var results = [];
-		results.singleArgument = matchs[1];
-		var args =  matchs[1].split('-');
-		for(var i = 0; i < args.length; i++) {
-			if(args[i] == '') {
-				if(i+1 < args.length) args[i+1] = '-'+args[i+1];
-			}else{
-				results.push(args[i]);
-			}
-		}
-		return results;
-	},
-	assert : function(condition,message) {
-		var errorMessage = message || ("assert failed error,condition="+condition);
-		if (!condition) {
-			alert(errorMessage);
-			throw new Error(errorMessage);
-		}else {
-			return condition;
-		}
-	},
-	isDate : function(v,dateFormat) {
-		var MONTH = "MM";
-	   	var DAY = "dd";
-	   	var YEAR = "yyyy";
-		var regex = '^'+dateFormat.replace(YEAR,'\\d{4}').replace(MONTH,'\\d{2}').replace(DAY,'\\d{2}')+'$';
-		if(!new RegExp(regex).test(v)) return false;
+    isVisible: function (elm) {
+        while (elm && elm.tagName != 'BODY') {
+            if (!$prototype(elm).visible()) return false;
+            elm = elm.parentNode;
+        }
+        return true;
+    },
+    getReferenceForm: function (elm) {
+        while (elm && elm.tagName != 'BODY') {
+            if (elm.tagName == 'FORM') return elm;
+            elm = elm.parentNode;
+        }
+        return null;
+    },
+    getInputValue: function (elm) {
+        var elm = $prototype(elm);
+        if (elm.type.toLowerCase() == 'file') {
+            return elm.value;
+        } else {
+            return $F(elm);
+        }
+    },
+    getElmID: function (elm) {
+        return elm.id ? elm.id : elm.name;
+    },
+    format: function (str, args) {
+        args = args || [];
+        ValidationUtils.assert(args.constructor == Array, "ValidationUtils.format() arguement 'args' must is Array");
+        var result = str
+        for (var i = 0; i < args.length; i++) {
+            result = result.replace(/%s/, args[i]);
+        }
+        return result;
+    },
+    // Í¨ï¿½ï¿½classnameï¿½ï¿½ï¿½ÝµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½ï¿½'-'ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    // ï¿½ï¿½ï¿½ï¿½Öµï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½singleArgument,ï¿½ï¿½:validate-pattern-/[a-c]/gi,singleArgumentÖµÎª/[a-c]/gi
+    getArgumentsByClassName: function (prefix, className) {
+        if (!className || !prefix)
+            return [];
+        var pattern = new RegExp(prefix + '-(\\S+)');
+        var matchs = className.match(pattern);
+        if (!matchs)
+            return [];
+        var results = [];
+        results.singleArgument = matchs[1];
+        var args = matchs[1].split('-');
+        for (var i = 0; i < args.length; i++) {
+            if (args[i] == '') {
+                if (i + 1 < args.length) args[i + 1] = '-' + args[i + 1];
+            } else {
+                results.push(args[i]);
+            }
+        }
+        return results;
+    },
+    assert: function (condition, message) {
+        var errorMessage = message || ("assert failed error,condition=" + condition);
+        if (!condition) {
+            alert(errorMessage);
+            throw new Error(errorMessage);
+        } else {
+            return condition;
+        }
+    },
+    isDate: function (v, dateFormat) {
+        var MONTH = "MM";
+        var DAY = "dd";
+        var YEAR = "yyyy";
+        var regex = '^' + dateFormat.replace(YEAR, '\\d{4}').replace(MONTH, '\\d{2}').replace(DAY, '\\d{2}') + '$';
+        if (!new RegExp(regex).test(v)) return false;
 
-		var year = v.substr(dateFormat.indexOf(YEAR),4);
-		var month = v.substr(dateFormat.indexOf(MONTH),2);
-		var day = v.substr(dateFormat.indexOf(DAY),2);
-		
-		var d = new Date(ValidationUtils.format('%s/%s/%s',[year,month,day]));
-		return ( parseInt(month, 10) == (1+d.getMonth()) ) && 
-					(parseInt(day, 10) == d.getDate()) && 
-					(parseInt(year, 10) == d.getFullYear() );		
-	},
-	//document: http://ajaxcn.org/space/start/2006-05-15/2
-	fireSubmit: function(form) {
-	    var form = $prototype(form);
-	    if (form.fireEvent) { //for ie
-	    	if(form.fireEvent('onsubmit'))
-	    		form.submit();
-	    } else if (document.createEvent) { // for dom level 2
-			var evt = document.createEvent("HTMLEvents");
-	      	//true for can bubble, true for cancelable
-	      	evt.initEvent('submit', false, true); 
-	      	form.dispatchEvent(evt);
-	    }
- 	},
- 	getLanguage : function() {
- 		var lang = null;
-		if (typeof navigator.userLanguage == 'undefined')
-			lang = navigator.language.toLowerCase();
-		else
-			lang = navigator.userLanguage.toLowerCase();
- 		return lang;
- 	},
- 	getMessageSource : function() {
- 		var lang = ValidationUtils.getLanguage();
- 		var messageSource = Validator.messageSource['zh-cn'];
-		if(Validator.messageSource[lang]) {
-			messageSource = Validator.messageSource[lang];
-		}
-		
-		var results = {};
-		for(var i = 0; i < messageSource.length; i++) {
-			results[messageSource[i][0]] = messageSource[i][1];
-		}
-		return results;
- 	},
- 	getI18nMsg : function(key) {
- 		return ValidationUtils.getMessageSource()[key];
- 	}
+        var year = v.substr(dateFormat.indexOf(YEAR), 4);
+        var month = v.substr(dateFormat.indexOf(MONTH), 2);
+        var day = v.substr(dateFormat.indexOf(DAY), 2);
+
+        var d = new Date(ValidationUtils.format('%s/%s/%s', [year, month, day]));
+        return ( parseInt(month, 10) == (1 + d.getMonth()) ) &&
+            (parseInt(day, 10) == d.getDate()) &&
+            (parseInt(year, 10) == d.getFullYear() );
+    },
+    //document: http://ajaxcn.org/space/start/2006-05-15/2
+    fireSubmit: function (form) {
+        var form = $prototype(form);
+        if (form.fireEvent) { //for ie
+            if (form.fireEvent('onsubmit'))
+                form.submit();
+        } else if (document.createEvent) { // for dom level 2
+            var evt = document.createEvent("HTMLEvents");
+            //true for can bubble, true for cancelable
+            evt.initEvent('submit', false, true);
+            form.dispatchEvent(evt);
+        }
+    },
+    getLanguage: function () {
+        var lang = null;
+        if (typeof navigator.userLanguage == 'undefined')
+            lang = navigator.language.toLowerCase();
+        else
+            lang = navigator.userLanguage.toLowerCase();
+        return lang;
+    },
+    getMessageSource: function () {
+        var lang = ValidationUtils.getLanguage();
+        var messageSource = Validator.messageSource['zh-cn'];
+        if (Validator.messageSource[lang]) {
+            messageSource = Validator.messageSource[lang];
+        }
+
+        var results = {};
+        for (var i = 0; i < messageSource.length; i++) {
+            results[messageSource[i][0]] = messageSource[i][1];
+        }
+        return results;
+    },
+    getI18nMsg: function (key) {
+        return ValidationUtils.getMessageSource()[key];
+    }
 }
 
 Validator.prototype = {
-	initialize : function(className, test, options) {
-		this.options = Object.extend(new ValidatorDefaultOptions(), options || {});
-		this._test = test ? test : function(v,elm){ return true };
-		this._error = ValidationUtils.getI18nMsg(className) ? ValidationUtils.getI18nMsg(className) : ValidationUtils.getI18nMsg('validation-failed');
-		this.className = className;
-		this._dependsTest = this._dependsTest.bind(this);
-		this.testAndGetError = this.testAndGetError.bind(this);
-		this.testAndGetDependsError = this.testAndGetDependsError.bind(this);
-	},
-	_dependsTest : function(v,elm) {
-		if(this.options.depends && this.options.depends.length > 0) {
-			var dependsResult = $A(this.options.depends).all(function(depend){
-				return Validation.get(depend).test(v,elm);
-			});
-			return dependsResult;
-		}
-		return true;
-	},
-	test : function(v, elm) {
-		if(!this._dependsTest(v,elm))
-			return false;
-		if(!elm) elm = {}
-		var isEmpty = (this.options.ignoreEmptyValue && ((v == null) || (v.length == 0)));
-		return  isEmpty || this._test(v,elm,ValidationUtils.getArgumentsByClassName(this.className,elm.className),this);
-	},
-	testAndGetDependsError : function(v,elm) {
-		var depends = this.options.depends;
-		if(depends && depends.length > 0) {
-			var dependsError = null;
-			for(var i = 0; i < depends.length; i++) {
-				var dependsError = Validation.get(depends[i]).testAndGetError(v,elm);
-				if(dependsError) return dependsError;
-			}
-		}
-		return null;
-	},	
-	testAndGetError : function(v, elm,useTitle) {
-		var dependsError = this.testAndGetDependsError(v,elm);
-		if(dependsError) return dependsError;
-		
-		if(!elm) elm = {}
-		var isEmpty = (this.options.ignoreEmptyValue && ((v == null) || (v.length == 0)));
-		var result = isEmpty || this._test(v,elm,ValidationUtils.getArgumentsByClassName(this.className,elm.className),this);
-		if(!result) return this.error(v,elm,useTitle);
-		return null;
-	},
-	error : function(v,elm,useTitle) {
-		var args  = ValidationUtils.getArgumentsByClassName(this.className,elm.className);
-		var error = this._error;
-		if(typeof error == 'string') {
-			if(v) args.push(v.length);
-			error = ValidationUtils.format(this._error,args);
-		}else if(typeof error == 'function') {
-			error = error(v,elm,args,this);
-		}else {
-			alert('property "_error" must type of string or function,current type:'+typeof error+" current className:"+this.className);
-		}
-		if(!useTitle) useTitle = elm.className.indexOf('useTitle') >= 0;
-		return useTitle ? ((elm && elm.title) ? elm.title : error) : error;
-	}
+    initialize: function (className, test, options) {
+        this.options = Object.extend(new ValidatorDefaultOptions(), options || {});
+        this._test = test ? test : function (v, elm) {
+            return true
+        };
+        this._error = ValidationUtils.getI18nMsg(className) ? ValidationUtils.getI18nMsg(className) : ValidationUtils.getI18nMsg('validation-failed');
+        this.className = className;
+        this._dependsTest = this._dependsTest.bind(this);
+        this.testAndGetError = this.testAndGetError.bind(this);
+        this.testAndGetDependsError = this.testAndGetDependsError.bind(this);
+    },
+    _dependsTest: function (v, elm) {
+        if (this.options.depends && this.options.depends.length > 0) {
+            var dependsResult = $A(this.options.depends).all(function (depend) {
+                return Validation.get(depend).test(v, elm);
+            });
+            return dependsResult;
+        }
+        return true;
+    },
+    test: function (v, elm) {
+        if (!this._dependsTest(v, elm))
+            return false;
+        if (!elm) elm = {}
+        var isEmpty = (this.options.ignoreEmptyValue && ((v == null) || (v.length == 0)));
+        return isEmpty || this._test(v, elm, ValidationUtils.getArgumentsByClassName(this.className, elm.className), this);
+    },
+    testAndGetDependsError: function (v, elm) {
+        var depends = this.options.depends;
+        if (depends && depends.length > 0) {
+            var dependsError = null;
+            for (var i = 0; i < depends.length; i++) {
+                var dependsError = Validation.get(depends[i]).testAndGetError(v, elm);
+                if (dependsError) return dependsError;
+            }
+        }
+        return null;
+    },
+    testAndGetError: function (v, elm, useTitle) {
+        var dependsError = this.testAndGetDependsError(v, elm);
+        if (dependsError) return dependsError;
+
+        if (!elm) elm = {}
+        var isEmpty = (this.options.ignoreEmptyValue && ((v == null) || (v.length == 0)));
+        var result = isEmpty || this._test(v, elm, ValidationUtils.getArgumentsByClassName(this.className, elm.className), this);
+        if (!result) return this.error(v, elm, useTitle);
+        return null;
+    },
+    error: function (v, elm, useTitle) {
+        var args = ValidationUtils.getArgumentsByClassName(this.className, elm.className);
+        var error = this._error;
+        if (typeof error == 'string') {
+            if (v) args.push(v.length);
+            error = ValidationUtils.format(this._error, args);
+        } else if (typeof error == 'function') {
+            error = error(v, elm, args, this);
+        } else {
+            alert('property "_error" must type of string or function,current type:' + typeof error + " current className:" + this.className);
+        }
+        if (!useTitle) useTitle = elm.className.indexOf('useTitle') >= 0;
+        return useTitle ? ((elm && elm.title) ? elm.title : error) : error;
+    }
 }
 
 var Validation = Class.create();
 
 Validation.prototype = {
-	initialize : function(form, options){
-		this.options = Object.extend(new ValidationDefaultOptions(), options || {});
-		this.form = $prototype(form);
-		var formId =  ValidationUtils.getElmID($prototype(form));
-		Validation.validations[formId] = this;
-		if(this.options.onSubmit) Event.observe(this.form,'submit',this.onSubmit.bind(this),false);
-		if(this.options.onReset) Event.observe(this.form,'reset',this.reset.bind(this),false);
-		if(this.options.immediate) {
-			var useTitles = this.options.useTitles;
-			var callback = this.options.onElementValidate;
-			var elements = $A(Form.getElements(this.form));
-			for(var i = 0; i < elements.length; i++) {
-				var input = elements[i];
-				Event.observe(input, 'blur', function(ev) { Validation.validateElement(Event.element(ev),{useTitle : useTitles, onElementValidate : callback}); });
-			}
-		}
-	},
-	onSubmit :  function(ev){
-		if(!this.validate()) Event.stop(ev);
-	},
-	validate : function() {
-		var result = true;
-		var useTitles = this.options.useTitles;
-		var callback = this.options.onElementValidate;
-		if(this.options.stopOnFirst) {
-			var elements = $A(Form.getElements(this.form));
-			for(var i = 0; i < elements.length; i++) {
-				var elm = elements[i];
-				result = Validation.validateElement(elm,{useTitle : useTitles, onElementValidate : callback});
-				if(!result) break;
-			}
-		} else {
-			var elements = $A(Form.getElements(this.form));
-			for(var i = 0; i < elements.length; i++) {
-				var elm = elements[i];
-				if(!Validation.validateElement(elm,{useTitle : useTitles, onElementValidate : callback})) {
-					result = false;
-				}
-			}
-		}
-		
-		if(!result && this.options.focusOnError) {
-			var first = Form.getElements(this.form).findAll(function(elm){return $prototype(elm).hasClassName('validation-failed')})[0];
-			if(first.select) first.select(); 
-			first.focus();
-		}
-		return this.options.onFormValidate(result, this.form);
-	},
-	reset : function() {
-		var elements = $A(Form.getElements(this.form))
-		for(var i = 0; i < elements.length; i++)
-			Validation.reset(elements[i]);
-	}
+    initialize: function (form, options) {
+        this.options = Object.extend(new ValidationDefaultOptions(), options || {});
+        this.form = $prototype(form);
+        var formId = ValidationUtils.getElmID($prototype(form));
+        Validation.validations[formId] = this;
+        if (this.options.onSubmit) Event.observe(this.form, 'submit', this.onSubmit.bind(this), false);
+        if (this.options.onReset) Event.observe(this.form, 'reset', this.reset.bind(this), false);
+        if (this.options.immediate) {
+            var useTitles = this.options.useTitles;
+            var callback = this.options.onElementValidate;
+            var elements = $A(Form.getElements(this.form));
+            for (var i = 0; i < elements.length; i++) {
+                var input = elements[i];
+                Event.observe(input, 'blur', function (ev) {
+                    Validation.validateElement(Event.element(ev), {useTitle: useTitles, onElementValidate: callback});
+                });
+            }
+        }
+    },
+    onSubmit: function (ev) {
+        if (!this.validate()) Event.stop(ev);
+    },
+    validate: function () {
+        var result = true;
+        var useTitles = this.options.useTitles;
+        var callback = this.options.onElementValidate;
+        if (this.options.stopOnFirst) {
+            var elements = $A(Form.getElements(this.form));
+            for (var i = 0; i < elements.length; i++) {
+                var elm = elements[i];
+                result = Validation.validateElement(elm, {useTitle: useTitles, onElementValidate: callback});
+                if (!result) break;
+            }
+        } else {
+            var elements = $A(Form.getElements(this.form));
+            for (var i = 0; i < elements.length; i++) {
+                var elm = elements[i];
+                if (!Validation.validateElement(elm, {useTitle: useTitles, onElementValidate: callback})) {
+                    result = false;
+                }
+            }
+        }
+
+        if (!result && this.options.focusOnError) {
+            var first = Form.getElements(this.form).findAll(function (elm) {
+                return $prototype(elm).hasClassName('validation-failed')
+            })[0];
+            if (first.select) first.select();
+            first.focus();
+        }
+        return this.options.onFormValidate(result, this.form);
+    },
+    reset: function () {
+        var elements = $A(Form.getElements(this.form))
+        for (var i = 0; i < elements.length; i++)
+            Validation.reset(elements[i]);
+    }
 }
 
 Object.extend(Validation, {
-	validateElement : function(elm, options){
-		options = Object.extend({
-			useTitle : false,
-			onElementValidate : function(result, elm) {}
-		}, options || {});
-		elm = $prototype(elm);
-		var cn = $A(elm.classNames());
-		for(var i = 0; i < cn.length; i++) {
-			var value = cn[i];
-			var test = Validation.test(value,elm,options.useTitle);
-			options.onElementValidate(test, elm);
-			if(!test) return false;
-		}
-		return true;
-	},
-	newErrorMsgAdvice : function(name,elm,errorMsg) {
-		var advice = '<div class="validation-advice" id="advice-' + name + '-' + ValidationUtils.getElmID(elm) +'" style="display:none">' + errorMsg + '</div>'
-		switch (elm.type.toLowerCase()) {
-			case 'checkbox':
-			case 'radio':
-				var p = elm.parentNode;
-				if(p) {
-					new Insertion.Bottom(p, advice);
-				} else {
-					new Insertion.After(elm, advice);
-				}
-				break;
-			default:
-				new Insertion.After(elm, advice);
-	    }
-		advice = $prototype('advice-' + name + '-' + ValidationUtils.getElmID(elm));
-		return advice;
-	},
-	showErrorMsg : function(name,elm,errorMsg) {
-		var elm = $prototype(elm);
-		if(typeof Tooltip != 'undefined') {
-			if (!elm.tooltip) {
-				elm.tooltip = new Tooltip(elm, {backgroundColor:"#FC9", borderColor:"#C96", textColor:"#000", textShadowColor:"#FFF"});
-			}
-			elm.tooltip.content = errorMsg;
-		}else {
-			var prop = Validation._getAdviceProp(name);
-			var advice = Validation.getAdvice(name, elm);
-			if(!elm[prop]) {
-				if(!advice) {
-					advice = Validation.newErrorMsgAdvice(name,elm,errorMsg);
-				}
-			}
-			if(advice && !advice.visible()) {
-				if(typeof Effect == 'undefined') {
-					advice.style.display = '';
-				} else {
-					new Effect.Appear(advice, {duration : 1 });
-				}			
-			}
-			advice.innerHTML = errorMsg;
-			elm[prop] = true;
-		}
-		
-		elm.removeClassName('validation-passed');
-		elm.addClassName('validation-failed');
-	},
-	hideErrorMsg : function(name,elm) {
-		var elm = $prototype(elm);
-		if(typeof Tooltip != 'undefined') {
-			if (elm.tooltip) {
-				elm.tooltip.stop();
-				elm.tooltip = false;
-			}
-		}else {
-			var prop = Validation._getAdviceProp(name);
-			var advice = Validation.getAdvice(name, elm);
-			if(advice && elm[prop]) {
-				if(typeof Effect == 'undefined')
-					advice.hide()
-				else 
-					new Effect.Fade(advice, {duration : 1 });
-			}
-			elm[prop] = false;
-		}
-		
-		elm.removeClassName('validation-failed');
-		elm.addClassName('validation-passed');
-	},
-	_getAdviceProp : function(validatorName) {
-		return '__advice'+validatorName;
-	},
-	test : function(name, elm, useTitle) {
-		var v = Validation.get(name);
-		var errorMsg = null;
-		if(ValidationUtils.isVisible(elm)) 
-			errorMsg = v.testAndGetError(ValidationUtils.getInputValue(elm),elm,useTitle);
-		if(errorMsg) {
-			Validation.showErrorMsg(name,elm,errorMsg);
-			return false;
-		} else {
-			Validation.hideErrorMsg(name,elm);
-			return true;
-		}
-	},
-	getAdvice : function(name, elm) {
-		return $prototype('advice-' + name + '-' + ValidationUtils.getElmID(elm)) || $prototype('advice-' + ValidationUtils.getElmID(elm));
-	},
-	reset : function(elm) {
-		elm = $prototype(elm);
-		var cn = $A(elm.classNames());
-		for(var i = 0; i < cn.length; i++) {
-			var value = cn[i];
-			var prop = Validation._getAdviceProp(value);
-			if(elm[prop]) {
-				var advice = Validation.getAdvice(value, elm);
-				advice.hide();
-				elm[prop] = '';
-			}
-			elm.removeClassName('validation-failed');
-			elm.removeClassName('validation-passed');			
-		}
-	},
-	add : function(className, test, options) {
-		var nv = {};
-		var testFun = test;
-		if(test instanceof RegExp)
-			testFun = function(v,elm,args,metadata){ return test.test(v); }
-		nv[className] = new Validator(className, testFun, options);
-		Object.extend(Validation.methods, nv);
-	},
-	addAllThese : function(validators) {
-		var validators = $A(validators);
-		for(var i = 0; i < validators.length; i++) {
-			var value = validators[i];
-			Validation.add(value[0], value[1], (value.length > 2 ? value[2] : {}));
-		}
-	},
-	get : function(name) {
-		var resultMethodName;
-		for(var methodName in Validation.methods) {
-			if(name == methodName) {
-				resultMethodName = methodName;
-				break;
-			}
-			if(name.indexOf(methodName) >= 0) {
-				resultMethodName = methodName;
-			}
-		}
-		return Validation.methods[resultMethodName] ? Validation.methods[resultMethodName] : new Validator();
-	},
-	$ : function(formId) {
-		return Validation.validations[formId];
-	},
-	methods : {},
-	validations : {}
+    validateElement: function (elm, options) {
+        options = Object.extend({
+            useTitle: false,
+            onElementValidate: function (result, elm) {
+            }
+        }, options || {});
+        elm = $prototype(elm);
+        var cn = $A(elm.classNames());
+        for (var i = 0; i < cn.length; i++) {
+            var value = cn[i];
+            var test = Validation.test(value, elm, options.useTitle);
+            options.onElementValidate(test, elm);
+            if (!test) return false;
+        }
+        return true;
+    },
+    newErrorMsgAdvice: function (name, elm, errorMsg) {
+        var advice = '<div class="validation-advice" id="advice-' + name + '-' + ValidationUtils.getElmID(elm) + '" style="display:none">' + errorMsg + '</div>'
+        switch (elm.type.toLowerCase()) {
+            case 'checkbox':
+            case 'radio':
+                var p = elm.parentNode;
+                if (p) {
+                    new Insertion.Bottom(p, advice);
+                } else {
+                    new Insertion.After(elm, advice);
+                }
+                break;
+            default:
+                new Insertion.After(elm, advice);
+        }
+        advice = $prototype('advice-' + name + '-' + ValidationUtils.getElmID(elm));
+        return advice;
+    },
+    showErrorMsg: function (name, elm, errorMsg) {
+        var elm = $prototype(elm);
+        if (typeof Tooltip != 'undefined') {
+            if (!elm.tooltip) {
+                elm.tooltip = new Tooltip(elm, {
+                    backgroundColor: "#FC9",
+                    borderColor: "#C96",
+                    textColor: "#000",
+                    textShadowColor: "#FFF"
+                });
+            }
+            elm.tooltip.content = errorMsg;
+        } else {
+            var prop = Validation._getAdviceProp(name);
+            var advice = Validation.getAdvice(name, elm);
+            if (!elm[prop]) {
+                if (!advice) {
+                    advice = Validation.newErrorMsgAdvice(name, elm, errorMsg);
+                }
+            }
+            if (advice && !advice.visible()) {
+                if (typeof Effect == 'undefined') {
+                    advice.style.display = '';
+                } else {
+                    new Effect.Appear(advice, {duration: 1});
+                }
+            }
+            advice.innerHTML = errorMsg;
+            elm[prop] = true;
+        }
+
+        elm.removeClassName('validation-passed');
+        elm.addClassName('validation-failed');
+    },
+    hideErrorMsg: function (name, elm) {
+        var elm = $prototype(elm);
+        if (typeof Tooltip != 'undefined') {
+            if (elm.tooltip) {
+                elm.tooltip.stop();
+                elm.tooltip = false;
+            }
+        } else {
+            var prop = Validation._getAdviceProp(name);
+            var advice = Validation.getAdvice(name, elm);
+            if (advice && elm[prop]) {
+                if (typeof Effect == 'undefined')
+                    advice.hide()
+                else
+                    new Effect.Fade(advice, {duration: 1});
+            }
+            elm[prop] = false;
+        }
+
+        elm.removeClassName('validation-failed');
+        elm.addClassName('validation-passed');
+    },
+    _getAdviceProp: function (validatorName) {
+        return '__advice' + validatorName;
+    },
+    test: function (name, elm, useTitle) {
+        var v = Validation.get(name);
+        var errorMsg = null;
+        if (ValidationUtils.isVisible(elm))
+            errorMsg = v.testAndGetError(ValidationUtils.getInputValue(elm), elm, useTitle);
+        if (errorMsg) {
+            Validation.showErrorMsg(name, elm, errorMsg);
+            return false;
+        } else {
+            Validation.hideErrorMsg(name, elm);
+            return true;
+        }
+    },
+    getAdvice: function (name, elm) {
+        return $prototype('advice-' + name + '-' + ValidationUtils.getElmID(elm)) || $prototype('advice-' + ValidationUtils.getElmID(elm));
+    },
+    reset: function (elm) {
+        elm = $prototype(elm);
+        var cn = $A(elm.classNames());
+        for (var i = 0; i < cn.length; i++) {
+            var value = cn[i];
+            var prop = Validation._getAdviceProp(value);
+            if (elm[prop]) {
+                var advice = Validation.getAdvice(value, elm);
+                advice.hide();
+                elm[prop] = '';
+            }
+            elm.removeClassName('validation-failed');
+            elm.removeClassName('validation-passed');
+        }
+    },
+    add: function (className, test, options) {
+        var nv = {};
+        var testFun = test;
+        if (test instanceof RegExp)
+            testFun = function (v, elm, args, metadata) {
+                return test.test(v);
+            }
+        nv[className] = new Validator(className, testFun, options);
+        Object.extend(Validation.methods, nv);
+    },
+    addAllThese: function (validators) {
+        var validators = $A(validators);
+        for (var i = 0; i < validators.length; i++) {
+            var value = validators[i];
+            Validation.add(value[0], value[1], (value.length > 2 ? value[2] : {}));
+        }
+    },
+    get: function (name) {
+        var resultMethodName;
+        for (var methodName in Validation.methods) {
+            if (name == methodName) {
+                resultMethodName = methodName;
+                break;
+            }
+            if (name.indexOf(methodName) >= 0) {
+                resultMethodName = methodName;
+            }
+        }
+        return Validation.methods[resultMethodName] ? Validation.methods[resultMethodName] : new Validator();
+    },
+    $: function (formId) {
+        return Validation.validations[formId];
+    },
+    methods: {},
+    validations: {}
 });
 
 Validation.addAllThese([
-	['required', function(v) {
-				return !((v == null) || (v.length == 0) || /^[\s|\u3000]+$/.test(v));
-			},{ignoreEmptyValue:false}],
-	['validate-number', function(v) {
-				return (!isNaN(v) && !/^\s+$/.test(v));
-			}],
-	['validate-digits', function(v) {
-				return !/[^\d]/.test(v);
-			}],
-	['validate-alphanum', function(v) {
-				return !/\W/.test(v)
-			}],
-	['validate-one-required', function (v,elm) {
-				var p = elm.parentNode;
-				var options = p.getElementsByTagName('INPUT');
-				return $A(options).any(function(elm) {
-					return $F(elm);
-				});
-			},{ignoreEmptyValue : false}],
-			
-	['validate-digits',/^[\d]+$/],		
-	['validate-alphanum',/^[a-zA-Z0-9]+$/],		
-	['validate-alpha',/^[a-zA-Z]+$/],
-	['validate-email',/\w{1,}[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/],
-	['validate-url',/^(http|https|ftp):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)(:(\d+))?\/?/i],
-	// [$]1[##][,###]+[.##]
-	// [$]1###+[.##]
-	// [$]0.##
-	// [$].##
-	['validate-currency-dollar',/^\$?\-?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}\d*(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/]
+    ['required', function (v) {
+        return !((v == null) || (v.length == 0) || /^[\s|\u3000]+$/.test(v));
+    }, {ignoreEmptyValue: false}],
+    ['validate-number', function (v) {
+        return (!isNaN(v) && !/^\s+$/.test(v));
+    }],
+    ['validate-digits', function (v) {
+        return !/[^\d]/.test(v);
+    }],
+    ['validate-alphanum', function (v) {
+        return !/\W/.test(v)
+    }],
+    ['validate-one-required', function (v, elm) {
+        var p = elm.parentNode;
+        var options = p.getElementsByTagName('INPUT');
+        return $A(options).any(function (elm) {
+            return $F(elm);
+        });
+    }, {ignoreEmptyValue: false}],
+
+    ['validate-digits', /^[\d]+$/],
+    ['validate-alphanum', /^[a-zA-Z0-9]+$/],
+    ['validate-alpha', /^[a-zA-Z]+$/],
+    ['validate-email', /\w{1,}[@][\w\-]{1,}([.]([\w\-]{1,})){1,3}$/],
+    ['validate-url', /^(http|https|ftp):\/\/(([A-Z0-9][A-Z0-9_-]*)(\.[A-Z0-9][A-Z0-9_-]*)+)(:(\d+))?\/?/i],
+    // [$]1[##][,###]+[.##]
+    // [$]1###+[.##]
+    // [$]0.##
+    // [$].##
+    ['validate-currency-dollar', /^\$?\-?([1-9]{1}[0-9]{0,2}(\,[0-9]{3})*(\.[0-9]{0,2})?|[1-9]{1}\d*(\.[0-9]{0,2})?|0(\.[0-9]{0,2})?|(\.[0-9]{1,2})?)$/]
 ]);
 
 //custom validate start
 
 Validation.addAllThese([
-	/**
-	 * Usage : equals-$otherInputId
-	 * Example : equals-username or equals-email etc..
-	 */
-	['equals', function(v,elm,args,metadata) {
-				return $F(args[0]) == v;
-			},{ignoreEmptyValue:false}],
-	/**
-	 * Usage : less-than-$otherInputId
-	 */
-	['less-than', function(v,elm,args,metadata) {
-				if(Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
-					return parseFloat(v) < parseFloat($F(args[0]));
-				return v < $F(args[0]);
-			}],
-	/**
-	 * Usage : less-than-equal-$otherInputId
-	 */
-	['less-than-equal', function(v,elm,args,metadata) {
-				if(Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
-					return parseFloat(v) <= parseFloat($F(args[0]));
-				return v < $F(args[0]) || v == $F(args[0]);
-			}],			
-	/**
-	 * Usage : great-than-$otherInputId
-	 */
-	['great-than', function(v,elm,args,metadata) {
-				if(Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
-					return parseFloat(v) > parseFloat($F(args[0]));
-				return v > $F(args[0]);
-			}],
-	/**
-	 * Usage : great-than-equal-$otherInputId
-	 */
-	['great-than-equal', function(v,elm,args,metadata) {
-				if(Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
-					return parseFloat(v) >= parseFloat($F(args[0]));
-				return v > $F(args[0]) || v == $F(args[0]);
-			}],			
-	/*
-	 * Usage: min-length-$number
-	 * Example: min-length-10
-	 */
-	['min-length',function(v,elm,args,metadata) {
-		return v.length >= parseInt(args[0]);
-	}],
-	/*
-	 * Usage: max-length-$number
-	 * Example: max-length-10
-	 */
-	['max-length',function(v,elm,args,metadata) {
-		return v.length <= parseInt(args[0]);
-	}],
-	/*
-	 * Usage: validate-file-$type1-$type2-$typeX
-	 * Example: validate-file-png-jpg-jpeg
-	 */
-	['validate-file',function(v,elm,args,metadata) {
-		return $A(args).any(function(extentionName) {
-			return new RegExp('\\.'+extentionName+'$','i').test(v);
-		});
-	}],
-	/*
-	 * Usage: float-range-$minValue-$maxValue
-	 * Example: -2.1 to 3 = float-range--2.1-3
-	 */
-	['float-range',function(v,elm,args,metadata) {
-		return (parseFloat(v) >= parseFloat(args[0]) && parseFloat(v) <= parseFloat(args[1]))
-	},{depends : ['validate-number']}],
-	/*
-	 * Usage: int-range-$minValue-$maxValue
-	 * Example: -10 to 20 = int-range--10-20
-	 */
-	['int-range',function(v,elm,args,metadata) {
-		return (parseInt(v) >= parseInt(args[0]) && parseInt(v) <= parseInt(args[1]))
-	},{depends : ['validate-integer']}],
-	/*
-	 * Usage: length-range-$minLength-$maxLength
-	 * Example: 10 to 20 = length-range-10-20
-	 */
-	['length-range',function(v,elm,args,metadata) {
-		return (v.length >= parseInt(args[0]) && v.length <= parseInt(args[1]))
-	}],
-	/*
-	 * Usage: max-value-$number
-	 * Example: max-value-10
-	 */
-	['max-value',function(v,elm,args,metadata) {
-		return parseFloat(v) <= parseFloat(args[0]);
-	},{depends : ['validate-number']}],
-	/*
-	 * Usage: min-value-$number
-	 * Example: min-value-10
-	 */
-	['min-value',function(v,elm,args,metadata) {
-		return parseFloat(v) >= parseFloat(args[0]);
-	},{depends : ['validate-number']}],
-	/*
-	 * Usage: validate-pattern-$RegExp
-	 * Example: <input id='sex' class='validate-pattern-/^[fm]$/i'>
-	 */
-	['validate-pattern',function(v,elm,args,metadata) {
-		return eval('('+args.singleArgument+'.test(v))');
-	}],
-	/*
-	 * Usage: validate-ajax-$url
-	 * Example: <input id='email' class='validate-ajax-http://localhost:8080/validate-email.jsp'>
-	 */
-	['validate-ajax',function(v,elm,args,metadata) {
-		var form = ValidationUtils.getReferenceForm(elm);
-		var params = (form ? Form.serialize(form) : Form.Element.serialize(elm));
-		params += ValidationUtils.format("&what=%s&value=%s",[elm.name,encodeURIComponent(v)]);
-		var request = new Ajax.Request(args.singleArgument,{
-			parameters : params,
-			asynchronous : false,
-			method : "get"
-		});
-		
-		var responseText = request.transport.responseText;
-		if("" == responseText.strip()) return true;
-		metadata._error = responseText;
-		return false;
-	}],
-	/*
-	 * Usage: validate-dwr-${service}.${method}
-	 * Example: <input id='email' class='validate-dwr-service.method'>
-	 */
-	['validate-dwr',function(v,elm,args,metadata) {
-		var result = false;
-		var callback = function(methodResult) {
-			if(methodResult) 
-				metadata._error = methodResult;
-			else 
-				result = true;
-		}
-		var call = args.singleArgument+"('"+v+"',callback)";
-		DWREngine.setAsync(false);
-		eval(call);
-		DWREngine.setAsync(true);
-		return result;
-	}],
-	/*
-	 * Usage: validate-buffalo-${service}.${method}
-	 * Example: <input id='email' class='validate-buffalo-service.method'>
-	 */
-	['validate-buffalo',function(v,elm,args,metadata) {
-		var result = false;
-		var callback = function(reply) {
-			if(replay.getResult()) 
-				metadata._error = replay.getResult();
-			else 
-				result = true;
-		}
-		if(!BUFFALO_END_POINT) alert('not found "BUFFALO_END_POINT" variable');
-		var buffalo = new Buffalo(BUFFALO_END_POINT,false);
-		buffalo.remoteCall(args.singleArgument,v,callback);
-		return result;
-	}],
-	/*
-	 * Usage: validate-date-$dateFormat or validate-date($dateFormat default is yyyy-MM-dd)
-	 * Example: validate-date-yyyy/MM/dd
-	 */
-	['validate-date', function(v,elm,args,metadata) {
-			var dateFormat = args.singleArgument || 'yyyy-MM-dd';
-			metadata._error = ValidationUtils.format(ValidationUtils.getI18nMsg(metadata.className),[dateFormat,dateFormat.replace('yyyy','2006').replace('MM','03').replace('dd','12')]);
-			return ValidationUtils.isDate(v,dateFormat);
-		}],
-	['validate-selection', function(v,elm,args,metadata) {
-			return elm.options ? elm.selectedIndex > 0 : !((v == null) || (v.length == 0));
-		}],	
-	['validate-integer',/^[-+]?[1-9]\d*$|^0$/],
-	['validate-ip',/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/],
-	
-	//ÖÐ¹úÏà¹ØÑéÖ¤¿ªÊ¼
-	['validate-id-number',function(v,elm,args,metadata) {
-		if(!(/^\d{17}(\d|x)$/i.test(v) || /^\d{15}$/i.test(v))) return false;
-		var provinceCode = parseInt(v.substr(0,2));
-		if((provinceCode < 11) || (provinceCode > 91)) return false;
-		var forTestDate = v.length == 18 ? v : v.substr(0,6)+"19"+v.substr(6,15);
-		var birthday = forTestDate.substr(6,8);
-		if(!ValidationUtils.isDate(birthday,'yyyyMMdd')) return false;
-		if(v.length == 18) {
-			v = v.replace(/x$/i,"a");
-			var verifyCode = 0;
-			for(var i = 17;i >= 0;i--)   
-            	verifyCode += (Math.pow(2,i) % 11) * parseInt(v.charAt(17 - i),11);
-            if(verifyCode % 11 != 1) return false;
-		}
-		return true;
-	}],
-	['validate-chinese',/^[\u4e00-\u9fa5]+$/],
-	['validate-phone',/^((0[1-9]{3})?(0[12][0-9])?[-])?\d{6,8}$/],
-	['validate-mobile-phone',/(^0?[1][358][0-9]{9}$)/],
-	['validate-zip',/^[1-9]\d{5}$/],
-	['validate-qq',/^[1-9]\d{4,8}$/]
+    /**
+     * Usage : equals-$otherInputId
+     * Example : equals-username or equals-email etc..
+     */
+    ['equals', function (v, elm, args, metadata) {
+        return $F(args[0]) == v;
+    }, {ignoreEmptyValue: false}],
+    /**
+     * Usage : less-than-$otherInputId
+     */
+    ['less-than', function (v, elm, args, metadata) {
+        if (Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
+            return parseFloat(v) < parseFloat($F(args[0]));
+        return v < $F(args[0]);
+    }],
+    /**
+     * Usage : less-than-equal-$otherInputId
+     */
+    ['less-than-equal', function (v, elm, args, metadata) {
+        if (Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
+            return parseFloat(v) <= parseFloat($F(args[0]));
+        return v < $F(args[0]) || v == $F(args[0]);
+    }],
+    /**
+     * Usage : great-than-$otherInputId
+     */
+    ['great-than', function (v, elm, args, metadata) {
+        if (Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
+            return parseFloat(v) > parseFloat($F(args[0]));
+        return v > $F(args[0]);
+    }],
+    /**
+     * Usage : great-than-equal-$otherInputId
+     */
+    ['great-than-equal', function (v, elm, args, metadata) {
+        if (Validation.get('validate-number').test(v) && Validation.get('validate-number').test($F(args[0])))
+            return parseFloat(v) >= parseFloat($F(args[0]));
+        return v > $F(args[0]) || v == $F(args[0]);
+    }],
+    /*
+     * Usage: min-length-$number
+     * Example: min-length-10
+     */
+    ['min-length', function (v, elm, args, metadata) {
+        return v.length >= parseInt(args[0]);
+    }],
+    /*
+     * Usage: max-length-$number
+     * Example: max-length-10
+     */
+    ['max-length', function (v, elm, args, metadata) {
+        return v.length <= parseInt(args[0]);
+    }],
+    /*
+     * Usage: validate-file-$type1-$type2-$typeX
+     * Example: validate-file-png-jpg-jpeg
+     */
+    ['validate-file', function (v, elm, args, metadata) {
+        return $A(args).any(function (extentionName) {
+            return new RegExp('\\.' + extentionName + '$', 'i').test(v);
+        });
+    }],
+    /*
+     * Usage: float-range-$minValue-$maxValue
+     * Example: -2.1 to 3 = float-range--2.1-3
+     */
+    ['float-range', function (v, elm, args, metadata) {
+        return (parseFloat(v) >= parseFloat(args[0]) && parseFloat(v) <= parseFloat(args[1]))
+    }, {depends: ['validate-number']}],
+    /*
+     * Usage: int-range-$minValue-$maxValue
+     * Example: -10 to 20 = int-range--10-20
+     */
+    ['int-range', function (v, elm, args, metadata) {
+        return (parseInt(v) >= parseInt(args[0]) && parseInt(v) <= parseInt(args[1]))
+    }, {depends: ['validate-integer']}],
+    /*
+     * Usage: length-range-$minLength-$maxLength
+     * Example: 10 to 20 = length-range-10-20
+     */
+    ['length-range', function (v, elm, args, metadata) {
+        return (v.length >= parseInt(args[0]) && v.length <= parseInt(args[1]))
+    }],
+    /*
+     * Usage: max-value-$number
+     * Example: max-value-10
+     */
+    ['max-value', function (v, elm, args, metadata) {
+        return parseFloat(v) <= parseFloat(args[0]);
+    }, {depends: ['validate-number']}],
+    /*
+     * Usage: min-value-$number
+     * Example: min-value-10
+     */
+    ['min-value', function (v, elm, args, metadata) {
+        return parseFloat(v) >= parseFloat(args[0]);
+    }, {depends: ['validate-number']}],
+    /*
+     * Usage: validate-pattern-$RegExp
+     * Example: <input id='sex' class='validate-pattern-/^[fm]$/i'>
+     */
+    ['validate-pattern', function (v, elm, args, metadata) {
+        return eval('(' + args.singleArgument + '.test(v))');
+    }],
+    /*
+     * Usage: validate-ajax-$url
+     * Example: <input id='email' class='validate-ajax-http://localhost:8080/validate-email.jsp'>
+     */
+    ['validate-ajax', function (v, elm, args, metadata) {
+        var form = ValidationUtils.getReferenceForm(elm);
+        var params = (form ? Form.serialize(form) : Form.Element.serialize(elm));
+        params += ValidationUtils.format("&what=%s&value=%s", [elm.name, encodeURIComponent(v)]);
+        var request = new Ajax.Request(args.singleArgument, {
+            parameters: params,
+            asynchronous: false,
+            method: "get"
+        });
+
+        var responseText = request.transport.responseText;
+        if ("" == responseText.strip()) return true;
+        metadata._error = responseText;
+        return false;
+    }],
+    /*
+     * Usage: validate-dwr-${service}.${method}
+     * Example: <input id='email' class='validate-dwr-service.method'>
+     */
+    ['validate-dwr', function (v, elm, args, metadata) {
+        var result = false;
+        var callback = function (methodResult) {
+            if (methodResult)
+                metadata._error = methodResult;
+            else
+                result = true;
+        }
+        var call = args.singleArgument + "('" + v + "',callback)";
+        DWREngine.setAsync(false);
+        eval(call);
+        DWREngine.setAsync(true);
+        return result;
+    }],
+    /*
+     * Usage: validate-buffalo-${service}.${method}
+     * Example: <input id='email' class='validate-buffalo-service.method'>
+     */
+    ['validate-buffalo', function (v, elm, args, metadata) {
+        var result = false;
+        var callback = function (reply) {
+            if (replay.getResult())
+                metadata._error = replay.getResult();
+            else
+                result = true;
+        }
+        if (!BUFFALO_END_POINT) alert('not found "BUFFALO_END_POINT" variable');
+        var buffalo = new Buffalo(BUFFALO_END_POINT, false);
+        buffalo.remoteCall(args.singleArgument, v, callback);
+        return result;
+    }],
+    /*
+     * Usage: validate-date-$dateFormat or validate-date($dateFormat default is yyyy-MM-dd)
+     * Example: validate-date-yyyy/MM/dd
+     */
+    ['validate-date', function (v, elm, args, metadata) {
+        var dateFormat = args.singleArgument || 'yyyy-MM-dd';
+        metadata._error = ValidationUtils.format(ValidationUtils.getI18nMsg(metadata.className), [dateFormat, dateFormat.replace('yyyy', '2006').replace('MM', '03').replace('dd', '12')]);
+        return ValidationUtils.isDate(v, dateFormat);
+    }],
+    ['validate-selection', function (v, elm, args, metadata) {
+        return elm.options ? elm.selectedIndex > 0 : !((v == null) || (v.length == 0));
+    }],
+    ['validate-integer', /^[-+]?[1-9]\d*$|^0$/],
+    ['validate-ip', /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/],
+
+    //ï¿½Ð¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ê¼
+    ['validate-id-number', function (v, elm, args, metadata) {
+        if (!(/^\d{17}(\d|x)$/i.test(v) || /^\d{15}$/i.test(v))) return false;
+        var provinceCode = parseInt(v.substr(0, 2));
+        if ((provinceCode < 11) || (provinceCode > 91)) return false;
+        var forTestDate = v.length == 18 ? v : v.substr(0, 6) + "19" + v.substr(6, 15);
+        var birthday = forTestDate.substr(6, 8);
+        if (!ValidationUtils.isDate(birthday, 'yyyyMMdd')) return false;
+        if (v.length == 18) {
+            v = v.replace(/x$/i, "a");
+            var verifyCode = 0;
+            for (var i = 17; i >= 0; i--)
+                verifyCode += (Math.pow(2, i) % 11) * parseInt(v.charAt(17 - i), 11);
+            if (verifyCode % 11 != 1) return false;
+        }
+        return true;
+    }],
+    ['validate-chinese', /^[\u4e00-\u9fa5]+$/],
+    ['validate-phone', /^((0[1-9]{3})?(0[12][0-9])?[-])?\d{6,8}$/],
+    ['validate-mobile-phone', /(^0?[1][358][0-9]{9}$)/],
+    ['validate-zip', /^[1-9]\d{5}$/],
+    ['validate-qq', /^[1-9]\d{4,8}$/]
 ]);
 
 
-Validation.autoBind = function() {
-	 var forms = $A(document.getElementsByClassName('required-validate'));
-	 for(var i = 0; i < forms.length; i++) {
-	 	var form = forms[i];
-	 	var validation = new Validation(form,{immediate:true,useTitles:true,stopOnFirst:true});
-		Event.observe(form,'reset',function() {validation.reset();},false);
-	 }
+Validation.autoBind = function () {
+    var forms = $A(document.getElementsByClassName('required-validate'));
+    for (var i = 0; i < forms.length; i++) {
+        var form = forms[i];
+        var validation = new Validation(form, {immediate: true, useTitles: true, stopOnFirst: true});
+        Event.observe(form, 'reset', function () {
+            validation.reset();
+        }, false);
+    }
 };
 
-Event.observe(window,'load',Validation.autoBind,false);
+Event.observe(window, 'load', Validation.autoBind, false);

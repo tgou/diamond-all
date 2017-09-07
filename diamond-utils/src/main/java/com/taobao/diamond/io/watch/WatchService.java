@@ -53,8 +53,7 @@ public final class WatchService {
                         changedKeys.add(key);
                         it.remove();
                     }
-                }
-                catch (Throwable t) {
+                } catch (Throwable t) {
                     log.error("WatchService check error,key=" + key, t);
                 }
             }

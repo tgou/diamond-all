@@ -34,8 +34,7 @@ public abstract class PropertiesListener extends ManagerListenerAdapter {
         try {
             properties.load(new StringReader(configInfo));
             innerReceive(properties);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.warn("Load properties fail:" + configInfo, e);
         }
 

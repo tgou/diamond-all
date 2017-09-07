@@ -48,7 +48,7 @@ public class TimerTaskService {
         DumpConfigInfoTask dumpTask = new DumpConfigInfoTask(this);
         dumpTask.run();
         this.scheduledExecutorService.scheduleWithFixedDelay(dumpTask, SystemConfig.getDumpConfigInterval(),
-            SystemConfig.getDumpConfigInterval(), TimeUnit.SECONDS);
+                SystemConfig.getDumpConfigInterval(), TimeUnit.SECONDS);
     }
 
 

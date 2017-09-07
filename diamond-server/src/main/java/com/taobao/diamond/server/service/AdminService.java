@@ -56,16 +56,13 @@ public class AdminService {
             url = ResourceUtils.getResourceURL("user.properties");
             in = new FileInputStream(url.getPath());
             tempProperties.load(in);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Load user.properties error", e);
-        }
-        finally {
+        } finally {
             if (in != null) {
                 try {
                     in.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     log.error("Close user.properties error", e);
                 }
             }
@@ -99,17 +96,14 @@ public class AdminService {
             this.properties.store(out, "add user");
             out.flush();
             return true;
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("Save user.properties error", e);
             return false;
-        }
-        finally {
+        } finally {
             if (out != null) {
                 try {
                     out.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     log.error("Close user.properties error", e);
                 }
             }

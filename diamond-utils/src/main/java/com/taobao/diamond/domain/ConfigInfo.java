@@ -150,26 +150,22 @@ public class ConfigInfo implements Serializable, Comparable<ConfigInfo> {
         if (content == null) {
             if (other.content != null)
                 return false;
-        }
-        else if (!content.equals(other.content))
+        } else if (!content.equals(other.content))
             return false;
         if (dataId == null) {
             if (other.dataId != null)
                 return false;
-        }
-        else if (!dataId.equals(other.dataId))
+        } else if (!dataId.equals(other.dataId))
             return false;
         if (group == null) {
             if (other.group != null)
                 return false;
-        }
-        else if (!group.equals(other.group))
+        } else if (!group.equals(other.group))
             return false;
         if (md5 == null) {
             if (other.md5 != null)
                 return false;
-        }
-        else if (!md5.equals(other.md5))
+        } else if (!md5.equals(other.md5))
             return false;
         return true;
     }

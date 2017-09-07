@@ -10,8 +10,8 @@
 package com.taobao.diamond.util;
 
 /**
- * @filename PatternUtils.java
  * @author libinbin.pt
+ * @filename PatternUtils.java
  * @datetime 2010-7-23 11:42:58
  */
 public class PatternUtils {

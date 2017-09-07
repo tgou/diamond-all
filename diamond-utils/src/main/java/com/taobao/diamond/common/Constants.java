@@ -12,7 +12,7 @@ package com.taobao.diamond.common;
 public class Constants {
 
     public static final String DEFAULT_GROUP = "DEFAULT_GROUP";
-    
+
     public static final String BASE_DIR = "config-data";
 
     public static final String DEFAULT_DOMAINNAME = "a.b.c";
@@ -70,7 +70,7 @@ public class Constants {
     public static final String DEFAULT_USERNAME = "xxx";
 
     public static final String DEFAULT_PASSWORD = "xxx";
-    
+
     public static final int BATCH_OP_ERROR = -1;
     public static final int BATCH_QUERY_EXISTS = 1;
     public static final int BATCH_QUERY_NONEXISTS = 2;

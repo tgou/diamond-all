@@ -17,7 +17,6 @@ import java.util.Properties;
 
 /**
  * @author aoqiong
- * 
  */
 public interface DiamondManager {
 

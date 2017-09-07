@@ -33,6 +33,7 @@ public class DiamondEnv {
 
     /**
      * 获取配置信息
+     *
      * @param dataId
      * @param group
      * @param fromWhere See Constants

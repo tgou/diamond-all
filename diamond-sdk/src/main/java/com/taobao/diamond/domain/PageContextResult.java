@@ -50,8 +50,7 @@ public class PageContextResult<T> {
 
         if (totalCounts % sizeOfPerPage == 0) {
             totalPages = totalCounts / sizeOfPerPage;
-        }
-        else
+        } else
             totalPages = totalCounts / sizeOfPerPage + 1;
 
         if (totalPages <= 1)

@@ -28,6 +28,7 @@ public class LoggerInit {
     static private volatile boolean initOK = false;
 
     static private Properties defaultProperties = new Properties();
+
     static {
         defaultProperties.put("log4j.logger.DiamondConfigDataLog", "info, DiamondConfigDataLogFile");
         defaultProperties.put("log4j.additivity.DiamondConfigDataLog", "false");
@@ -36,7 +37,7 @@ public class LoggerInit {
         defaultProperties.put("log4j.appender.DiamondConfigDataLogFile.File", "diamond_config_data.log");
         defaultProperties.put("log4j.appender.DiamondConfigDataLogFile.layout", "org.apache.log4j.PatternLayout");
         defaultProperties.put("log4j.appender.DiamondConfigDataLogFile.layout.ConversionPattern",
-            "%d{MM-dd HH:mm:ss} - %m%n");
+                "%d{MM-dd HH:mm:ss} - %m%n");
         defaultProperties.put("log4j.appender.DiamondConfigDataLogFile.Append", "true");
     }
 
@@ -63,8 +64,7 @@ public class LoggerInit {
             setFileAppender(bizFileAppender, LOG_NAME_CONFIG_DATA);
 
             initOK = true;
-        }
-        finally {
+        } finally {
             Thread.currentThread().setContextClassLoader(cl);
         }
     }
@@ -84,7 +84,7 @@ public class LoggerInit {
 
     static private FileAppender getFileAppender(Logger logger) {
         FileAppender fileAppender = null;
-        for (Enumeration<?> appenders = logger.getAllAppenders(); (null == fileAppender) && appenders.hasMoreElements();) {
+        for (Enumeration<?> appenders = logger.getAllAppenders(); (null == fileAppender) && appenders.hasMoreElements(); ) {
             Appender appender = (Appender) appenders.nextElement();
             if (FileAppender.class.isInstance(appender)) {
                 fileAppender = (FileAppender) appender;

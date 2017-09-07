@@ -14,8 +14,8 @@ import java.util.Date;
 
 
 public class DiamondUtils {
-    static final char[] INVALID_CHAR = { ';', '&', '%', '#', '$', '@', ',', '*', '^', '~', '(', ')', '/', '\\', '|',
-                                        '+' };
+    static final char[] INVALID_CHAR = {';', '&', '%', '#', '$', '@', ',', '*', '^', '~', '(', ')', '/', '\\', '|',
+            '+'};
 
     public static boolean hasInvalidChar(String str) {
         if (str == null || str.length() == 0)

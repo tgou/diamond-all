@@ -14,7 +14,6 @@ import com.taobao.diamond.client.DiamondSubscriber;
 
 /**
  * @author aoqiong
- * 
  */
 public class DiamondClientFactory {
 

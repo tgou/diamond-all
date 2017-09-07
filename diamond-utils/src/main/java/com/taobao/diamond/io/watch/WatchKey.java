@@ -34,7 +34,7 @@ public class WatchKey {
 
 
     public WatchKey(final Path path, final WatchService watcher, boolean fireCreatedEventOnIndex,
-            WatchEvent.Kind<?>... events) {
+                    WatchEvent.Kind<?>... events) {
         valid = true;
         this.watcher = watcher;
         this.root = new PathNode(path, true);
@@ -103,8 +103,7 @@ public class WatchKey {
         if (check(root, list)) {
             this.changedEvents = list;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -120,12 +119,10 @@ public class WatchKey {
                 else {
                     return checkNodeChildren(node, changedEvents, nodeNewFile);
                 }
-            }
-            else {
+            } else {
                 return checkNodeChildren(node, changedEvents, nodeNewFile);
             }
-        }
-        else
+        } else
             throw new IllegalStateException("PathNodeû��path");
     }
 
@@ -158,20 +155,20 @@ public class WatchKey {
         }
 
         File[] newChildFiles = nodeNewFile.listFiles();
-        if(newChildFiles!=null)
-        for (File newChildFile : newChildFiles) {
-            if (!childNameSet.contains(newChildFile.getName())
-                    && filterSet.contains(StandardWatchEventKind.ENTRY_CREATE)) {
-                changed = true;
-                Path newChildPath = new Path(newChildFile);
-                changedEvents.add(new WatchEvent<Path>(StandardWatchEventKind.ENTRY_CREATE, 1, newChildPath));
-                PathNode newSubNode = new PathNode(newChildPath, false);
-                node.addChild(newSubNode);
-                if (newChildFile.isDirectory()) {
-                    checkNodeChildren(newSubNode, changedEvents, newChildFile);
+        if (newChildFiles != null)
+            for (File newChildFile : newChildFiles) {
+                if (!childNameSet.contains(newChildFile.getName())
+                        && filterSet.contains(StandardWatchEventKind.ENTRY_CREATE)) {
+                    changed = true;
+                    Path newChildPath = new Path(newChildFile);
+                    changedEvents.add(new WatchEvent<Path>(StandardWatchEventKind.ENTRY_CREATE, 1, newChildPath));
+                    PathNode newSubNode = new PathNode(newChildPath, false);
+                    node.addChild(newSubNode);
+                    if (newChildFile.isDirectory()) {
+                        checkNodeChildren(newSubNode, changedEvents, newChildFile);
+                    }
                 }
             }
-        }
         return changed;
     }
 

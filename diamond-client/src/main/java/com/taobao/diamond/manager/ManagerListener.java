@@ -14,7 +14,6 @@ import java.util.concurrent.Executor;
 
 /**
  * @author aoqiong
- * 
  */
 public interface ManagerListener {
 

@@ -146,14 +146,12 @@ public class CacheData {
         if (dataId == null) {
             if (other.dataId != null)
                 return false;
-        }
-        else if (!dataId.equals(other.dataId))
+        } else if (!dataId.equals(other.dataId))
             return false;
         if (group == null) {
             if (other.group != null)
                 return false;
-        }
-        else if (!group.equals(other.group))
+        } else if (!group.equals(other.group))
             return false;
         return true;
     }

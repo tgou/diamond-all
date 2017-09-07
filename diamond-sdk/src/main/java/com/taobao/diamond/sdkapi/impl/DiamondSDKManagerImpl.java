@@ -33,9 +33,8 @@ import java.util.zip.GZIPInputStream;
 
 
 /**
- *
- * @filename DiamondSDKManagerImpl.java
  * @author libinbin.pt
+ * @filename DiamondSDKManagerImpl.java
  * @datetime 2010-7-16 04:00:19
  */
 public class DiamondSDKManagerImpl implements DiamondSDKManager {
@@ -87,8 +86,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         if (validate(dataId, groupName, context)) {
             response = this.processPublishAfterModifiedByDefinedServerId(dataId, groupName, context, serverId);
             return response;
-        }
-        else {
+        } else {
             response = new ContextResult();
             response.setSuccess(false);
             response.setStatusMsg("dataId,group,content illegal");
@@ -98,12 +96,12 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
     }
 
     public synchronized PageContextResult<ConfigInfo> queryBy(String dataIdPattern, String groupNamePattern,
-            String serverId, long currentPage, long sizeOfPerPage) {
+                                                              String serverId, long currentPage, long sizeOfPerPage) {
         return processQuery(dataIdPattern, groupNamePattern, null, serverId, currentPage, sizeOfPerPage);
     }
 
     public synchronized PageContextResult<ConfigInfo> queryBy(String dataIdPattern, String groupNamePattern,
-            String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
+                                                              String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
         return processQuery(dataIdPattern, groupNamePattern, contentPattern, serverId, currentPage, sizeOfPerPage);
     }
 
@@ -147,7 +145,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             NameValuePair group_value = new NameValuePair("group", groupName);
             NameValuePair content_value = new NameValuePair("content", context);
 
-            post.setRequestBody(new NameValuePair[] { dataId_value, group_value, content_value });
+            post.setRequestBody(new NameValuePair[]{dataId_value, group_value, content_value});
             ConfigInfo configInfo = new ConfigInfo();
             configInfo.setDataId(dataId);
             configInfo.setGroup(groupName);
@@ -163,31 +161,26 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 response.setSuccess(true);
                 response.setStatusMsg("Publish success");
                 log.info("Publish success, dataId=" + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId);
-            }
-            else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
+            } else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
                 response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
                 log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
                         + ",content=" + context + ",serverId=" + serverId);
-            }
-            else {
+            } else {
                 response.setSuccess(false);
                 response.setStatusMsg("Publish fail status=:" + status);
                 log.error("Publish fail:result=" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
                         + ",content=" + context + ",serverId=" + serverId);
             }
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response.setStatusMsg("Publish HttpException" + e.getMessage());
             log.error("Publish HttpException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
                     + ",serverId=" + serverId, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response.setStatusMsg("Publish IOException" + e.getMessage());
             log.error("Publish IOException: dataId=" + dataId + ",group=" + groupName + ",content=" + context
                     + ",serverId=" + serverId, e);
-        }
-        finally {
+        } finally {
             post.releaseConnection();
         }
 
@@ -213,8 +206,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             response.setStatusMsg("publish fail!");
             log.warn("publish fail: dataId=" + dataId + ",group=" + groupName + ",serverId=" + serverId);
             return response;
-        }
-        else {
+        } else {
             String postUrl = "/diamond-server/admin.do?method=updateConfig";
             PostMethod post = new PostMethod(postUrl);
             post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
@@ -222,7 +214,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 NameValuePair dataId_value = new NameValuePair("dataId", dataId);
                 NameValuePair group_value = new NameValuePair("group", groupName);
                 NameValuePair content_value = new NameValuePair("content", context);
-                post.setRequestBody(new NameValuePair[] { dataId_value, group_value, content_value });
+                post.setRequestBody(new NameValuePair[]{dataId_value, group_value, content_value});
                 ConfigInfo configInfo = new ConfigInfo();
                 configInfo.setDataId(dataId);
                 configInfo.setGroup(groupName);
@@ -238,36 +230,31 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     response.setSuccess(true);
                     response.setStatusMsg("Publish success.");
                     log.info("Publish success.");
-                }
-                else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
+                } else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                     response.setSuccess(false);
                     response.setStatusMsg("Publish timeout: require_timeout=" + require_timeout);
                     log.error("Publish timeout: require_timeout=" + require_timeout + ", dataId=" + dataId + ",group=" + groupName
                             + ",content=" + context + ",serverId=" + serverId);
-                }
-                else {
+                } else {
                     response.setSuccess(false);
                     response.setStatusMsg("Publish fail: use getReceiveResult()");
                     log.error("Publish fail: result=" + response.getReceiveResult() + ",dataId=" + dataId + ",group=" + groupName
                             + ",content=" + context + ",serverId=" + serverId);
                 }
 
-            }
-            catch (HttpException e) {
+            } catch (HttpException e) {
                 response.setSuccess(false);
                 response.setStatusMsg("Publish HttpException:" + e.getMessage());
                 log.error("processPublishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)ִHttpException dataId="
-                            + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
+                        + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
                 return response;
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 response.setSuccess(false);
                 response.setStatusMsg("Publish IOException:" + e.getMessage());
                 log.error("processPublishAfterModifiedByDefinedServerId(String dataId, String groupName, String context,String serverId)ִIOException dataId="
-                            + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
+                        + dataId + ",group=" + groupName + ",content=" + context + ",serverId=" + serverId, e);
                 return response;
-            }
-            finally {
+            } finally {
                 post.releaseConnection();
             }
 
@@ -295,12 +282,12 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             if (diamondConf == null)
                 break;
             client.getHostConfiguration().setHost(diamondConf.getDiamondIp(),
-                Integer.parseInt(diamondConf.getDiamondPort()), "http");
+                    Integer.parseInt(diamondConf.getDiamondPort()), "http");
             PostMethod post = new PostMethod("/diamond-server/login.do?method=login");
             post.getParams().setParameter(HttpMethodParams.SO_TIMEOUT, require_timeout);
             NameValuePair username_value = new NameValuePair("username", diamondConf.getDiamondUsername());
             NameValuePair password_value = new NameValuePair("password", diamondConf.getDiamondPassword());
-            post.setRequestBody(new NameValuePair[] { username_value, password_value });
+            post.setRequestBody(new NameValuePair[]{username_value, password_value});
             log.info("diamondIp: " + diamondConf.getDiamondIp() + ",diamondPort: " + diamondConf.getDiamondPort()
                     + ",diamondUsername: " + diamondConf.getDiamondUsername() + ",diamondPassword: "
                     + diamondConf.getDiamondPassword() + "diamondServerUrl: [" + diamondConf.getDiamondConUrl() + "]");
@@ -314,14 +301,11 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     break;
                 }
 
-            }
-            catch (HttpException e) {
+            } catch (HttpException e) {
                 log.error("login HttpException", e);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 log.error("login IOException", e);
-            }
-            finally {
+            } finally {
                 post.releaseConnection();
             }
         }
@@ -338,7 +322,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
 
     @SuppressWarnings("unchecked")
     private PageContextResult<ConfigInfo> processQuery(String dataIdPattern, String groupNamePattern,
-            String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
+                                                       String contentPattern, String serverId, long currentPage, long sizeOfPerPage) {
         PageContextResult<ConfigInfo> response = new PageContextResult<ConfigInfo>();
         if (!login(serverId)) {
             response.setSuccess(false);
@@ -357,11 +341,9 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 log.warn("processQuery has contentPattern, dataIdPattern=" + dataIdPattern + ",groupNamePattern=" + groupNamePattern
                         + ",contentPattern=" + contentPattern);
                 url = String.format(LIST_LIKE_FORMAT_URL, groupNamePattern, dataIdPattern, 1, Integer.MAX_VALUE);
-            }
-            else
+            } else
                 url = String.format(LIST_LIKE_FORMAT_URL, groupNamePattern, dataIdPattern, currentPage, sizeOfPerPage);
-        }
-        else {
+        } else {
             url = String.format(LIST_FORMAT_URL, groupNamePattern, dataIdPattern, currentPage, sizeOfPerPage);
         }
 
@@ -372,96 +354,91 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             int status = client.executeMethod(method);
             response.setStatusCode(status);
             switch (status) {
-            case HttpStatus.SC_OK:
-                String json = "";
-                try {
-                    json = getContent(method).trim();
+                case HttpStatus.SC_OK:
+                    String json = "";
+                    try {
+                        json = getContent(method).trim();
 
-                    Page<ConfigInfo> page = null;
+                        Page<ConfigInfo> page = null;
 
-                    if (!json.equals("null")) {
-                        page =
-                                (Page<ConfigInfo>) JSONUtils.deserializeObject(json,
-                                    new TypeReference<Page<ConfigInfo>>() {
-                                    });
-                    }
-                    if (page != null) {
-                        List<ConfigInfo> diamondData = page.getPageItems();
-                        if (!StringUtils.isBlank(contentPattern)) {
-                            Pattern pattern = Pattern.compile(contentPattern.replaceAll("\\*", ".*"));
-                            List<ConfigInfo> newList = new ArrayList<ConfigInfo>();
-                            Collections.sort(diamondData);
-                            int totalCount = 0;
-                            long begin = sizeOfPerPage * (currentPage - 1);
-                            long end = sizeOfPerPage * currentPage;
-                            for (ConfigInfo configInfo : diamondData) {
-                                if (configInfo.getContent() != null) {
-                                    Matcher m = pattern.matcher(configInfo.getContent());
-                                    if (m.find()) {
-                                        if (totalCount >= begin && totalCount < end) {
-                                            newList.add(configInfo);
+                        if (!json.equals("null")) {
+                            page =
+                                    (Page<ConfigInfo>) JSONUtils.deserializeObject(json,
+                                            new TypeReference<Page<ConfigInfo>>() {
+                                            });
+                        }
+                        if (page != null) {
+                            List<ConfigInfo> diamondData = page.getPageItems();
+                            if (!StringUtils.isBlank(contentPattern)) {
+                                Pattern pattern = Pattern.compile(contentPattern.replaceAll("\\*", ".*"));
+                                List<ConfigInfo> newList = new ArrayList<ConfigInfo>();
+                                Collections.sort(diamondData);
+                                int totalCount = 0;
+                                long begin = sizeOfPerPage * (currentPage - 1);
+                                long end = sizeOfPerPage * currentPage;
+                                for (ConfigInfo configInfo : diamondData) {
+                                    if (configInfo.getContent() != null) {
+                                        Matcher m = pattern.matcher(configInfo.getContent());
+                                        if (m.find()) {
+                                            if (totalCount >= begin && totalCount < end) {
+                                                newList.add(configInfo);
+                                            }
+                                            totalCount++;
                                         }
-                                        totalCount++;
                                     }
                                 }
+                                page.setPageItems(newList);
+                                page.setTotalCount(totalCount);
                             }
-                            page.setPageItems(newList);
-                            page.setTotalCount(totalCount);
+                            response.setOriginalDataSize(diamondData.size());
+                            response.setTotalCounts(page.getTotalCount());
+                            response.setCurrentPage(currentPage);
+                            response.setSizeOfPerPage(sizeOfPerPage);
+                        } else {
+                            response.setOriginalDataSize(0);
+                            response.setTotalCounts(0);
+                            response.setCurrentPage(currentPage);
+                            response.setSizeOfPerPage(sizeOfPerPage);
                         }
-                        response.setOriginalDataSize(diamondData.size());
-                        response.setTotalCounts(page.getTotalCount());
-                        response.setCurrentPage(currentPage);
-                        response.setSizeOfPerPage(sizeOfPerPage);
+                        response.operation();
+                        List<ConfigInfo> pageItems = new ArrayList<ConfigInfo>();
+                        if (page != null) {
+                            pageItems = page.getPageItems();
+                        }
+                        response.setDiamondData(pageItems);
+                        response.setSuccess(true);
+                        response.setStatusMsg("processQuery success.");
+                        log.info("processQuery success, url=" + url);
+                    } catch (Exception e) {
+                        response.setSuccess(false);
+                        response.setStatusMsg("processQuery error" + e.getLocalizedMessage());
+                        log.error("processQuery error, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId="
+                                + serverId + ",json=" + json, e);
                     }
-                    else {
-                        response.setOriginalDataSize(0);
-                        response.setTotalCounts(0);
-                        response.setCurrentPage(currentPage);
-                        response.setSizeOfPerPage(sizeOfPerPage);
-                    }
-                    response.operation();
-                    List<ConfigInfo> pageItems = new ArrayList<ConfigInfo>();
-                    if (page != null) {
-                        pageItems = page.getPageItems();
-                    }
-                    response.setDiamondData(pageItems);
-                    response.setSuccess(true);
-                    response.setStatusMsg("processQuery success.");
-                    log.info("processQuery success, url=" + url);
-                }
-                catch (Exception e) {
+                    break;
+                case HttpStatus.SC_REQUEST_TIMEOUT:
                     response.setSuccess(false);
-                    response.setStatusMsg("processQuery error" + e.getLocalizedMessage());
-                    log.error("processQuery error, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId="
-                            + serverId + ",json=" + json, e);
-                }
-                break;
-            case HttpStatus.SC_REQUEST_TIMEOUT:
-                response.setSuccess(false);
-                response.setStatusMsg("processQuery timeout, require_timeout=" + require_timeout);
-                log.error("processQuery timeout: require_timeout=" + require_timeout + ", dataId=" + dataIdPattern + ",group="
-                        + groupNamePattern + ",serverId=" + serverId);
-                break;
-            default:
-                response.setSuccess(false);
-                response.setStatusMsg("processQuery fail: status=" + status);
-                log.error("processQuery fail: status=" + status + ",dataId=" + dataIdPattern + ",group=" + groupNamePattern
-                        + ",serverId=" + serverId);
-                break;
+                    response.setStatusMsg("processQuery timeout, require_timeout=" + require_timeout);
+                    log.error("processQuery timeout: require_timeout=" + require_timeout + ", dataId=" + dataIdPattern + ",group="
+                            + groupNamePattern + ",serverId=" + serverId);
+                    break;
+                default:
+                    response.setSuccess(false);
+                    response.setStatusMsg("processQuery fail: status=" + status);
+                    log.error("processQuery fail: status=" + status + ",dataId=" + dataIdPattern + ",group=" + groupNamePattern
+                            + ",serverId=" + serverId);
+                    break;
             }
 
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response.setSuccess(false);
             response.setStatusMsg("processQuery http exception:" + e.getMessage());
             log.error("processQuery http exception, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response.setSuccess(false);
             response.setStatusMsg("processQuery IOException" + e.getMessage());
             log.error("processQuery IOException, dataId=" + dataIdPattern + ",group=" + groupNamePattern + ",serverId=" + serverId, e);
-        }
-        finally {
+        } finally {
             method.releaseConnection();
         }
 
@@ -495,43 +472,35 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                 while ((readlen = br.read(buffer, 0, 4096)) != -1) {
                     contentBuilder.append(buffer, 0, readlen);
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("getContent zip exception", e);
-            }
-            finally {
+            } finally {
                 try {
                     br.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     isr.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     gzin.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
                 try {
                     is.close();
-                }
-                catch (Exception e1) {
+                } catch (Exception e1) {
                     // ignore
                 }
             }
-        }
-        else {
+        } else {
             String content = null;
             try {
                 content = httpMethod.getResponseBodyAsString();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("getContent normal exception", e);
             }
             if (null == content) {
@@ -577,36 +546,33 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             int status = client.executeMethod(method);
             response.setStatusCode(status);
             switch (status) {
-            case HttpStatus.SC_OK:
-                response.setSuccess(true);
-                response.setReceiveResult(getContent(method));
-                response.setStatusMsg("processDelete success, url=" + url);
-                log.warn("processDelete success, url=" + url);
-                break;
-            case HttpStatus.SC_REQUEST_TIMEOUT:
-                response.setSuccess(false);
-                response.setStatusMsg("processDelete timeout: require_timeout=" + require_timeout);
-                log.error("processDelete timeout: require_timeout=" + require_timeout + ", id=" + id + ",serverId=" + serverId);
-                break;
-            default:
-                response.setSuccess(false);
-                response.setStatusMsg("processDelete exception: status=" + status);
-                log.error("processDelete exception: status=" + status + ", id=" + id + ",serverId=" + serverId);
-                break;
+                case HttpStatus.SC_OK:
+                    response.setSuccess(true);
+                    response.setReceiveResult(getContent(method));
+                    response.setStatusMsg("processDelete success, url=" + url);
+                    log.warn("processDelete success, url=" + url);
+                    break;
+                case HttpStatus.SC_REQUEST_TIMEOUT:
+                    response.setSuccess(false);
+                    response.setStatusMsg("processDelete timeout: require_timeout=" + require_timeout);
+                    log.error("processDelete timeout: require_timeout=" + require_timeout + ", id=" + id + ",serverId=" + serverId);
+                    break;
+                default:
+                    response.setSuccess(false);
+                    response.setStatusMsg("processDelete exception: status=" + status);
+                    log.error("processDelete exception: status=" + status + ", id=" + id + ",serverId=" + serverId);
+                    break;
             }
 
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response.setSuccess(false);
             response.setStatusMsg("processDelete http exception" + e.getMessage());
             log.error("processDelete http exception, id=" + id + ",serverId=" + serverId, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response.setSuccess(false);
             response.setStatusMsg("processDelete IOException" + e.getMessage());
             log.error("processDelete IOException, id=" + id + ",serverId=" + serverId, e);
-        }
-        finally {
+        } finally {
             method.releaseConnection();
         }
 
@@ -649,7 +615,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             NameValuePair dataId_value = new NameValuePair("dataIds", dataIdStr);
             NameValuePair group_value = new NameValuePair("group", groupName);
 
-            post.setRequestBody(new NameValuePair[] { dataId_value, group_value });
+            post.setRequestBody(new NameValuePair[]{dataId_value, group_value});
 
             int status = client.executeMethod(post);
             response.setStatusCode(status);
@@ -677,41 +643,35 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     response.setStatusMsg("batch query success");
                     log.info("batch query success, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
                             + groupName + ",json=" + json);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     response.setSuccess(false);
                     response.setStatusMsg("batch query deserialize error");
                     log.error("batch query deserialize error, serverId=" + serverId + ",dataIdStr=" + dataIdStr
                             + ",group=" + groupName + ",json=" + json, e);
                 }
 
-            }
-            else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
+            } else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
                 response.setStatusMsg("batch query timeout, socket timeout(ms):" + require_timeout);
                 log.error("batch query timeout, socket timeout(ms):" + require_timeout + ", serverId=" + serverId
                         + ",dataIds=" + dataIdStr + ",group=" + groupName);
-            }
-            else {
+            } else {
                 response.setSuccess(false);
                 response.setStatusMsg("batch query fail, status:" + status);
                 log.error("batch query fail, status:" + status + ", response:" + responseMsg + ",serverId=" + serverId
                         + ",dataIds=" + dataIdStr + ",group=" + groupName);
             }
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response.setSuccess(false);
             response.setStatusMsg("batch query http exception��" + e.getMessage());
             log.error("batch query http exception, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
                     + groupName, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response.setSuccess(false);
             response.setStatusMsg("batch query io exception��" + e.getMessage());
             log.error("batch query io exception, serverId=" + serverId + ",dataIds=" + dataIdStr + ",group="
                     + groupName, e);
-        }
-        finally {
+        } finally {
             post.releaseConnection();
         }
 
@@ -721,7 +681,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
 
     @Override
     public BatchContextResult<ConfigInfoEx> batchAddOrUpdate(String serverId, String groupName,
-            Map<String, String> dataId2ContentMap) {
+                                                             Map<String, String> dataId2ContentMap) {
         BatchContextResult<ConfigInfoEx> response = new BatchContextResult<ConfigInfoEx>();
 
         if (dataId2ContentMap == null) {
@@ -735,7 +695,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
         for (String dataId : dataId2ContentMap.keySet()) {
             String content = dataId2ContentMap.get(dataId);
             allDataIdAndContentBuilder.append(dataId + Constants.WORD_SEPARATOR + content).append(
-                Constants.LINE_SEPARATOR);
+                    Constants.LINE_SEPARATOR);
         }
         String allDataIdAndContent = allDataIdAndContentBuilder.toString();
 
@@ -751,7 +711,7 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
             NameValuePair dataId_value = new NameValuePair("allDataIdAndContent", allDataIdAndContent);
             NameValuePair group_value = new NameValuePair("group", groupName);
 
-            post.setRequestBody(new NameValuePair[] { dataId_value, group_value });
+            post.setRequestBody(new NameValuePair[]{dataId_value, group_value});
 
             int status = client.executeMethod(post);
             response.setStatusCode(status);
@@ -777,40 +737,34 @@ public class DiamondSDKManagerImpl implements DiamondSDKManager {
                     response.setStatusMsg("batch write success");
                     log.info("batch write success,serverId=" + serverId + ",allDataIdAndContent=" + allDataIdAndContent
                             + ",group=" + groupName + ",json=" + json);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     response.setSuccess(false);
                     response.setStatusMsg("batch write deserialize error");
                     log.error("batch write deserialize error, serverId=" + serverId + ",allDataIdAndContent="
                             + allDataIdAndContent + ",group=" + groupName + ",json=" + json, e);
                 }
-            }
-            else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
+            } else if (status == HttpStatus.SC_REQUEST_TIMEOUT) {
                 response.setSuccess(false);
                 response.setStatusMsg("batch write timeout, socket timeout(ms):" + require_timeout);
                 log.error("batch write timeout, socket timeout(ms):" + require_timeout + ", serverId=" + serverId
                         + ",allDataIdAndContent=" + allDataIdAndContent + ",group=" + groupName);
-            }
-            else {
+            } else {
                 response.setSuccess(false);
                 response.setStatusMsg("batch write fail, status:" + status);
                 log.error("batch write fail, status:" + status + ", response:" + responseMsg + ",serverId=" + serverId
                         + ",allDataIdAndContent=" + allDataIdAndContent + ",group=" + groupName);
             }
-        }
-        catch (HttpException e) {
+        } catch (HttpException e) {
             response.setSuccess(false);
             response.setStatusMsg("batch write http exception��" + e.getMessage());
             log.error("batch write http exception, serverId=" + serverId + ",allDataIdAndContent="
                     + allDataIdAndContent + ",group=" + groupName, e);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             response.setSuccess(false);
             response.setStatusMsg("batch write io exception��" + e.getMessage());
             log.error("batch write io exception, serverId=" + serverId + ",allDataIdAndContent=" + allDataIdAndContent
                     + ",group=" + groupName, e);
-        }
-        finally {
+        } finally {
             post.releaseConnection();
         }
 

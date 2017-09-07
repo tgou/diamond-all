@@ -51,7 +51,7 @@ public class ConfigService {
 
     public void updateMD5Cache(ConfigInfo configInfo) {
         this.contentMD5Cache.put(generateMD5CacheKey(configInfo.getDataId(), configInfo.getGroup()), MD5.getInstance()
-            .getMD5String(configInfo.getContent()));
+                .getMD5String(configInfo.getContent()));
     }
 
 
@@ -62,8 +62,7 @@ public class ConfigService {
             synchronized (this) {
                 return this.contentMD5Cache.get(key);
             }
-        }
-        else {
+        } else {
             return md5;
         }
     }
@@ -92,8 +91,7 @@ public class ConfigService {
             this.persistService.removeConfigInfo(configInfo);
             this.notifyOtherNodes(configInfo.getDataId(), configInfo.getGroup());
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Delete config error", e);
             throw new ConfigServiceException(e);
         }
@@ -108,8 +106,7 @@ public class ConfigService {
             this.contentMD5Cache.put(generateMD5CacheKey(dataId, group), configInfo.getMd5());
             diskService.saveToDisk(configInfo);
             this.notifyOtherNodes(dataId, group);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Save ConfigInfo error", e);
             throw new ConfigServiceException(e);
         }
@@ -123,8 +120,7 @@ public class ConfigService {
             this.contentMD5Cache.put(generateMD5CacheKey(dataId, group), configInfo.getMd5());
             diskService.saveToDisk(configInfo);
             this.notifyOtherNodes(dataId, group);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Save ConfigInfo fail", e);
             throw new ConfigServiceException(e);
         }
@@ -136,13 +132,11 @@ public class ConfigService {
             if (configInfo != null) {
                 this.contentMD5Cache.put(generateMD5CacheKey(dataId, group), configInfo.getMd5());
                 this.diskService.saveToDisk(configInfo);
-            }
-            else {
+            } else {
                 this.contentMD5Cache.remove(generateMD5CacheKey(dataId, group));
                 this.diskService.removeConfigInfo(dataId, group);
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("Save ConfigInfo to disk fail", e);
             throw new ConfigServiceException(e);
         }
@@ -164,20 +158,17 @@ public class ConfigService {
                 page.getPageItems().add(ConfigInfo);
             }
             return page;
-        }
-        else if (StringUtils.hasLength(dataId) && !StringUtils.hasLength(group)) {
+        } else if (StringUtils.hasLength(dataId) && !StringUtils.hasLength(group)) {
             return this.persistService.findConfigInfoByDataId(pageNo, pageSize, dataId);
-        }
-        else if (!StringUtils.hasLength(dataId) && StringUtils.hasLength(group)) {
+        } else if (!StringUtils.hasLength(dataId) && StringUtils.hasLength(group)) {
             return this.persistService.findConfigInfoByGroup(pageNo, pageSize, group);
-        }
-        else {
+        } else {
             return this.persistService.findAllConfigInfo(pageNo, pageSize);
         }
     }
 
     public Page<ConfigInfo> findConfigInfoLike(final int pageNo, final int pageSize, final String group,
-            final String dataId) {
+                                               final String dataId) {
         return this.persistService.findConfigInfoLike(pageNo, pageSize, dataId, group);
     }
 

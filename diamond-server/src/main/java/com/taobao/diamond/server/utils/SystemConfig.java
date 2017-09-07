@@ -36,16 +36,13 @@ public class SystemConfig {
             Properties props = new Properties();
             props.load(in);
             dumpConfigInterval = Integer.parseInt(props.getProperty("dump_config_interval", "600"));
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             log.error("load system.properties error", e);
-        }
-        finally {
+        } finally {
             if (in != null) {
                 try {
                     in.close();
-                }
-                catch (IOException e) {
+                } catch (IOException e) {
                     log.error("close system.properties error", e);
                 }
             }
@@ -77,8 +74,7 @@ public class SystemConfig {
                     }
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
         return address;
     }

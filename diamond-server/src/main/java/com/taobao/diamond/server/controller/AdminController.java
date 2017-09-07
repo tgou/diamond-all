@@ -56,8 +56,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=postConfig", method = RequestMethod.POST)
     public String postConfig(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("content") String content, ModelMap modelMap) {
+                             @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                             @RequestParam("content") String content, ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
 
         boolean checkSuccess = true;
@@ -91,7 +91,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=deleteConfig", method = RequestMethod.GET)
     public String deleteConfig(HttpServletRequest request, HttpServletResponse response, @RequestParam("id") long id,
-            ModelMap modelMap) {
+                               ModelMap modelMap) {
         this.configService.removeConfigInfo(id);
         modelMap.addAttribute("message", "Delete success!");
         return "/admin/config/list";
@@ -100,8 +100,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=upload", method = RequestMethod.POST)
     public String upload(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("contentFile") MultipartFile contentFile, ModelMap modelMap) {
+                         @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                         @RequestParam("contentFile") MultipartFile contentFile, ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
 
         boolean checkSuccess = true;
@@ -132,8 +132,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=reupload", method = RequestMethod.POST)
     public String reupload(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("contentFile") MultipartFile contentFile, ModelMap modelMap) {
+                           @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                           @RequestParam("contentFile") MultipartFile contentFile, ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
 
         boolean checkSuccess = true;
@@ -170,8 +170,7 @@ public class AdminController {
             String charset = Constants.ENCODE;
             final String content = new String(contentFile.getBytes(), charset);
             return content;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             throw new ConfigServiceException(e);
         }
     }
@@ -179,8 +178,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=updateConfig", method = RequestMethod.POST)
     public String updateConfig(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("content") String content, ModelMap modelMap) {
+                               @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                               @RequestParam("content") String content, ModelMap modelMap) {
         response.setCharacterEncoding("UTF-8");
 
         ConfigInfo configInfo = new ConfigInfo(dataId, group, content);
@@ -213,8 +212,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=listConfig", method = RequestMethod.GET)
     public String listConfig(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize, ModelMap modelMap) {
+                             @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                             @RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize, ModelMap modelMap) {
         Page<ConfigInfo> page = this.configService.findConfigInfo(pageNo, pageSize, group, dataId);
 
         String accept = request.getHeader("Accept");
@@ -222,13 +221,11 @@ public class AdminController {
             try {
                 String json = JSONUtils.serializeObject(page);
                 modelMap.addAttribute("pageJson", json);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Serialize page object error:", e);
             }
             return "/admin/config/list_json";
-        }
-        else {
+        } else {
             modelMap.addAttribute("dataId", dataId);
             modelMap.addAttribute("group", group);
             modelMap.addAttribute("page", page);
@@ -239,8 +236,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=listConfigLike", method = RequestMethod.GET)
     public String listConfigLike(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group,
-            @RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize, ModelMap modelMap) {
+                                 @RequestParam("dataId") String dataId, @RequestParam("group") String group,
+                                 @RequestParam("pageNo") int pageNo, @RequestParam("pageSize") int pageSize, ModelMap modelMap) {
         if (StringUtils.isBlank(dataId) && StringUtils.isBlank(group)) {
             modelMap.addAttribute("message", "Must fill dataId or group when use like search");
             return "/admin/config/list";
@@ -252,13 +249,11 @@ public class AdminController {
             try {
                 String json = JSONUtils.serializeObject(page);
                 modelMap.addAttribute("pageJson", json);
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("Serialize page object error:", e);
             }
             return "/admin/config/list_json";
-        }
-        else {
+        } else {
             modelMap.addAttribute("page", page);
             modelMap.addAttribute("dataId", dataId);
             modelMap.addAttribute("group", group);
@@ -270,7 +265,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=detailConfig", method = RequestMethod.GET)
     public String getConfigInfo(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataId") String dataId, @RequestParam("group") String group, ModelMap modelMap) {
+                                @RequestParam("dataId") String dataId, @RequestParam("group") String group, ModelMap modelMap) {
         dataId = dataId.trim();
         group = group.trim();
         ConfigInfo configInfo = this.configService.findConfigInfo(dataId, group);
@@ -283,7 +278,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=batchQuery", method = RequestMethod.POST)
     public String batchQuery(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("dataIds") String dataIds, @RequestParam("group") String group, ModelMap modelMap) {
+                             @RequestParam("dataIds") String dataIds, @RequestParam("group") String group, ModelMap modelMap) {
 
         response.setCharacterEncoding("UTF-8");
 
@@ -314,15 +309,13 @@ public class AdminController {
                 if (configInfo == null) {
                     configInfoEx.setStatus(Constants.BATCH_QUERY_NONEXISTS);
                     configInfoEx.setMessage("query data does not exist");
-                }
-                else {
+                } else {
                     String content = configInfo.getContent();
                     configInfoEx.setContent(content);
                     configInfoEx.setStatus(Constants.BATCH_QUERY_EXISTS);
                     configInfoEx.setMessage("query success");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("batch query error, dataId=" + dataId + ",group=" + group, e);
                 configInfoEx.setStatus(Constants.BATCH_OP_ERROR);
                 configInfoEx.setMessage("query error: " + e.getMessage());
@@ -332,8 +325,7 @@ public class AdminController {
         String json = null;
         try {
             json = JSONUtils.serializeObject(configInfoExList);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("batch query serialize error, json=" + json, e);
         }
         modelMap.addAttribute("json", json);
@@ -344,8 +336,8 @@ public class AdminController {
 
     @RequestMapping(params = "method=batchAddOrUpdate", method = RequestMethod.POST)
     public String batchAddOrUpdate(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("allDataIdAndContent") String allDataIdAndContent, @RequestParam("group") String group,
-            ModelMap modelMap) {
+                                   @RequestParam("allDataIdAndContent") String allDataIdAndContent, @RequestParam("group") String group,
+                                   ModelMap modelMap) {
 
         response.setCharacterEncoding("UTF-8");
 
@@ -381,14 +373,12 @@ public class AdminController {
                     this.configService.addConfigInfo(dataId, group, content);
                     configInfoEx.setStatus(Constants.BATCH_ADD_SUCCESS);
                     configInfoEx.setMessage("add success");
-                }
-                else {
+                } else {
                     this.configService.updateConfigInfo(dataId, group, content);
                     configInfoEx.setStatus(Constants.BATCH_UPDATE_SUCCESS);
                     configInfoEx.setMessage("update success");
                 }
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 log.error("batch write error, dataId=" + dataId + ",group=" + group + ",content=" + content, e);
                 configInfoEx.setStatus(Constants.BATCH_OP_ERROR);
                 configInfoEx.setMessage("batch write error: " + e.getMessage());
@@ -399,8 +389,7 @@ public class AdminController {
         String json = null;
         try {
             json = JSONUtils.serializeObject(configInfoExList);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log.error("batch write serialize error, json=" + json, e);
         }
         modelMap.addAttribute("json", json);
@@ -419,7 +408,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=addUser", method = RequestMethod.POST)
     public String addUser(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("userName") String userName, @RequestParam("password") String password, ModelMap modelMap) {
+                          @RequestParam("userName") String userName, @RequestParam("password") String password, ModelMap modelMap) {
         if (StringUtils.isBlank(userName) || DiamondUtils.hasInvalidChar(userName.trim())) {
             modelMap.addAttribute("message", "Illegal userName");
             return listUser(request, response, modelMap);
@@ -438,15 +427,14 @@ public class AdminController {
 
     @RequestMapping(params = "method=deleteUser", method = RequestMethod.GET)
     public String deleteUser(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("userName") String userName, ModelMap modelMap) {
+                             @RequestParam("userName") String userName, ModelMap modelMap) {
         if (StringUtils.isBlank(userName) || DiamondUtils.hasInvalidChar(userName.trim())) {
             modelMap.addAttribute("message", "Illegal userName");
             return listUser(request, response, modelMap);
         }
         if (this.adminService.removeUser(userName)) {
             modelMap.addAttribute("message", "Delete success!");
-        }
-        else {
+        } else {
             modelMap.addAttribute("message", "Delete fail!");
         }
         return listUser(request, response, modelMap);
@@ -455,7 +443,7 @@ public class AdminController {
 
     @RequestMapping(params = "method=changePassword", method = RequestMethod.GET)
     public String changePassword(HttpServletRequest request, HttpServletResponse response,
-            @RequestParam("userName") String userName, @RequestParam("password") String password, ModelMap modelMap) {
+                                 @RequestParam("userName") String userName, @RequestParam("password") String password, ModelMap modelMap) {
 
         userName = userName.trim();
         password = password.trim();
@@ -469,9 +457,8 @@ public class AdminController {
             return listUser(request, response, modelMap);
         }
         if (this.adminService.updatePassword(userName, password)) {
-            modelMap.addAttribute("message", "Update success, please use the new password next login£¡");
-        }
-        else {
+            modelMap.addAttribute("message", "Update success, please use the new password next loginï¿½ï¿½");
+        } else {
             modelMap.addAttribute("message", "Update fail!");
         }
         return listUser(request, response, modelMap);

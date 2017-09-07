@@ -12,9 +12,8 @@ package com.taobao.diamond.domain;
 import java.text.MessageFormat;
 
 /**
- *
- * @filename DiamondConf.java
  * @author libinbin.pt
+ * @filename DiamondConf.java
  * @datetime 2010-8-24 03:52:15
  */
 public class DiamondConf {
@@ -27,18 +26,20 @@ public class DiamondConf {
 
     private String diamondPassword;
     private static MessageFormat DIAMONDURL_FORMAT = new MessageFormat("http://{0}:{1}");
-    public DiamondConf(){
-        
+
+    public DiamondConf() {
+
     }
+
     public DiamondConf(String diamondIp, String diamondPort, String diamondUsername, String diamondPassword) {
         this.diamondIp = diamondIp;
         this.diamondPort = diamondPort;
         this.diamondUsername = diamondUsername;
         this.diamondPassword = diamondPassword;
     }
-    
-    public String getDiamondConUrl(){
-        return DIAMONDURL_FORMAT.format(new String[]{this.diamondIp,this.diamondPort});
+
+    public String getDiamondConUrl() {
+        return DIAMONDURL_FORMAT.format(new String[]{this.diamondIp, this.diamondPort});
     }
 
     public String getDiamondIp() {

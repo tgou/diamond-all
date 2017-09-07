@@ -2,7 +2,6 @@ package com.taobao.diamond.domain;
 
 /**
  * @author leiwen.zh
- * 
  */
 public class ConfigInfoEx extends ConfigInfo {
 
@@ -44,12 +43,12 @@ public class ConfigInfoEx extends ConfigInfo {
     }
 
 
-	@Override
-	public String toString() {
-		return "ConfigInfoEx [status=" + status + ", message=" + message
-				+ ", getDataId()=" + getDataId() + ", getGroup()=" + getGroup()
-				+ ", getContent()=" + getContent() + ", getMd5()=" + getMd5()
-				+ "]";
-	}
+    @Override
+    public String toString() {
+        return "ConfigInfoEx [status=" + status + ", message=" + message
+                + ", getDataId()=" + getDataId() + ", getGroup()=" + getGroup()
+                + ", getContent()=" + getContent() + ", getMd5()=" + getMd5()
+                + "]";
+    }
 
 }

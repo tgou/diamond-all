@@ -41,7 +41,7 @@ public class ConfigServlet extends HttpServlet {
 
     /**
      * Get remote ip through proxy.
-     * 
+     *
      * @param request
      * @return
      */
@@ -54,7 +54,7 @@ public class ConfigServlet extends HttpServlet {
 
 
     public void forward(HttpServletRequest request, HttpServletResponse response, String page, String basePath,
-            String postfix) throws IOException, ServletException {
+                        String postfix) throws IOException, ServletException {
         RequestDispatcher requestDispatcher = request.getRequestDispatcher(basePath + page + postfix);
         requestDispatcher.forward(request, response);
     }
@@ -84,8 +84,7 @@ public class ConfigServlet extends HttpServlet {
         if (page.startsWith("forward:")) {
             page = page.substring(8);
             forward(request, response, page, "", "");
-        }
-        else {
+        } else {
             forward(request, response, page, "/jsp/", ".jsp");
         }
 
